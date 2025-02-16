@@ -19,5 +19,7 @@ This project was created using `bun init` in bun v1.2.2. [Bun](https://bun.sh) i
 ## Run the app
 
 ```
-docker run -d -p 3000:3000 -v ${PWD}/test_db:/app/database image_name
+docker run -d -p 3000:3000 -v ${PWD}/db:/app/database -v ${PWD}/reports:/app/files ghcr.io/ivan-demchenko/job-seekr-app:latest
 ```
+
+Now you can open [http://localhost:3000](http://localhost:3000) and track your applications

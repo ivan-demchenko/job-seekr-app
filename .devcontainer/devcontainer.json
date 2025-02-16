@@ -11,7 +11,9 @@
       "extensions": [
         "oven.bun-vscode",
         "bradlc.vscode-tailwindcss",
-        "qwtel.sqlite-viewer"
+        "qwtel.sqlite-viewer",
+        "GitHub.vscode-github-actions",
+        "ms-azuretools.vscode-docker"
       ]
     }
 },
