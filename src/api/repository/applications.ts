@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { Result, Ok, Err } from 'neverthrow';
 
-const db = new Database("data.sqlite");
+const db = new Database("database/data.sqlite");
 
 export function makeTable(): Result<number, string> {
   try {
@@ -25,7 +25,12 @@ export function makeTable(): Result<number, string> {
 
 export function getAllApplications(): Result<any[], string> {
   try {
-    return new Ok(db.query(`SELECT * FROM applications`).all());
+    return new Ok(db.query(`
+      SELECT applications.id, applications.company, applications.position, applications.application_date, applications.status, COUNT(interviews.id) as interviewsCount
+      FROM applications
+      LEFT OUTER JOIN interviews ON applications.id = interviews.application_id
+      GROUP BY interviews.application_id
+    `).all());
   } catch (e) {
     if (e instanceof Error) {
       return new Err(`Failed to read from the applications table: ${e.message}`);

@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { Result, Ok, Err } from 'neverthrow';
 
-const db = new Database("data.sqlite");
+const db = new Database("database/data.sqlite");
 
 export function makeTable(): Result<number, string> {
   try {

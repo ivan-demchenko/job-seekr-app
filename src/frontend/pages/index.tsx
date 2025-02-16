@@ -33,7 +33,7 @@ export default function Index() {
                 </NavLink>
               </td>
               <td>{new Date(app.application_date).toLocaleDateString()}</td>
-              <td>0</td>
+              <td>{app.interviewsCount}</td>
               <td>{app.status}</td>
             </tr>
           )
