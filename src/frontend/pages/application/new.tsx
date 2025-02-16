@@ -36,21 +36,21 @@ export default function NewApplication() {
         <label>Company name</label>
         <input disabled={isBusy} type="text" name="company" value={form.company} onChange={e => setForm(oldForm => ({
           ...oldForm,
-          [e.target.name]: e.target.value.trim()
+          [e.target.name]: e.target.value
         }))} />
       </div>
       <div className="form-input">
         <label>Position</label>
         <input disabled={isBusy} type="text" name="position" value={form.position} onChange={e => setForm(oldForm => ({
           ...oldForm,
-          [e.target.name]: e.target.value.trim()
+          [e.target.name]: e.target.value
         }))} />
       </div>
       <div className="form-input">
         <label>Job description</label>
         <textarea disabled={isBusy} name="job_description" value={form.job_description} onChange={e => setForm(oldForm => ({
           ...oldForm,
-          [e.target.name]: e.target.value.trim()
+          [e.target.name]: e.target.value
         }))}></textarea>
       </div>
       <div className="form-actions">
