@@ -1,11 +1,17 @@
 import indexHtml from './src/index.html';
 import apiRoutes from './src/api/apiRouter';
 
-import { makeTable } from './src/api/repository/applications';
+import { makeTable as makeApplicationsTable } from './src/api/repository/applications';
+import { makeTable as makeInterviewsTable } from './src/api/repository/interviews';
 
-const makeTableResult = makeTable();
-if (makeTableResult.isErr()) {
-  console.log(`Cannot start the app: ${makeTableResult.error}`);
+const makeApplicationsTableResult = makeApplicationsTable();
+if (makeApplicationsTableResult.isErr()) {
+  console.log(`Cannot start the app: Failed to make applications table: ${makeApplicationsTableResult.error}`);
+}
+
+const makeInterviewsTableResult = makeInterviewsTable();
+if (makeInterviewsTableResult.isErr()) {
+  console.log(`Cannot start the app: Failed to make interviews table: ${makeInterviewsTableResult.error}`);
 }
 
 const app = Bun.serve({

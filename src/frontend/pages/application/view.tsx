@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
+import AddInterviewForm from "./interview_form";
 
-export default function NewApplication() {
+export default function ViewApplication() {
   let { id } = useParams();
 
   const [addingInterview, setAddingInterview] = useState(false);
@@ -84,25 +85,7 @@ export default function NewApplication() {
         </div>
       </section>
       {addingInterview && (
-        <form className="m-8 p-8 rounded-xl shadow-xl">
-          <h1 className="text-center font-bold text-2xl mb-4">Add interview</h1>
-          <div className="form-input">
-            <label>When</label>
-            <input type="datetime-local" />
-          </div>
-          <div className="form-input">
-            <label>Topic</label>
-            <input type="text" />
-          </div>
-          <div className="form-input">
-            <label>Participants</label>
-            <textarea></textarea>
-          </div>
-          <div className="form-actions">
-            <button type="submit" className="btn green" onClick={() => setAddingInterview(false)}>Add</button>
-            <button className="btn gray" onClick={() => setAddingInterview(false)}>Cancel</button>
-          </div>
-        </form>
+        <AddInterviewForm application_id={id!} />
       )}
     </>
   )

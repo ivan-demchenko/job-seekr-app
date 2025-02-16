@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { getAll, getById, addNewApplication } from './controllers/application';
+import { getAll, getById, addNewApplication } from './controllers/applications';
+import { addNewInterview } from './controllers/interviews';
 import { logger } from 'hono/logger';
 
 const apiRouter = new Hono();
@@ -14,6 +15,11 @@ apiRouter.get('applications/:id', (c) => {
 apiRouter.post('applications', async (c) => {
   const payload = await c.req.json();
   const entry = addNewApplication(payload);
+  return c.json({ data: entry });
+});
+apiRouter.post('interviews', async (c) => {
+  const payload = await c.req.json();
+  const entry = addNewInterview(payload);
   return c.json({ data: entry });
 });
 
