@@ -5,7 +5,7 @@ const db = new Database("data.sqlite");
 
 export function makeTable(): Result<number, string> {
   try {
-    const query = db.query(`CREATE TABLE interviews(
+    const query = db.query(`CREATE TABLE IF NOT EXISTS interviews(
       id VARCHAR(36) PRIMARY KEY,
       application_id VARCHAR(36),
       interview_date VARCHAR(30),

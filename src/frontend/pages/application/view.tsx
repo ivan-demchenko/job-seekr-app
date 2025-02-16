@@ -21,6 +21,17 @@ export default function ViewApplication() {
     fetchApplication();
   }, []);
 
+  async function setStatus(newStatus: string) {
+    const resp = await fetch(`/api/applications/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ target: 'status', status: newStatus })
+    });
+    const data = await resp.json();
+    if (data.data.ok) {
+      alert('Updated!');
+    }
+  }
+
   if (!application) {
     return <div>Loading...</div>
   }
@@ -42,9 +53,9 @@ export default function ViewApplication() {
       </section>
       <section className="flex gap-2 bg-gray-100 p-2 items-center">
         <span>Set status:</span>
-        <button className="btn compact">Interviews</button>
-        <button className="btn compact">No response</button>
-        <button className="btn compact">Rejection</button>
+        <button className="btn compact" onClick={() => setStatus('interviews')}>Interviews</button>
+        <button className="btn compact" onClick={() => setStatus('no_response')}>No response</button>
+        <button className="btn compact" onClick={() => setStatus('rejection')}>Rejection</button>
       </section>
       <section>
         <h1 className="text-center font-bold text-2xl mb-4">Interviews</h1>

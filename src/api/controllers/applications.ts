@@ -1,4 +1,4 @@
-import { getAllApplications, addApplication, getApplicationById } from '../repository/applications';
+import { getAllApplications, addApplication, getApplicationById, setApplicationStatus } from '../repository/applications';
 
 export function getAll() {
   const records = getAllApplications();
@@ -16,6 +16,18 @@ export function getById(id: string) {
     return null;
   }
   return application.value;
+}
+
+export function updateApplication(id: string, command: any) {
+  if (command.target === 'status') {
+    const application = setApplicationStatus(id, command.status);
+    if (application.isErr()) {
+      console.error(`Failed to update the application: ${application.error}`);
+      return 1;
+    }
+    return 0;
+  }
+  return 1;
 }
 
 export function addNewApplication(payload: any) {

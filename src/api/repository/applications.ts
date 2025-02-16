@@ -56,6 +56,23 @@ export function getApplicationById(id: string): Result<any, string> {
   }
 }
 
+export function setApplicationStatus(id: string, newStatus: string): Result<any, string> {
+  try {
+    const changes = db.query(`
+      UPDATE applications SET status = $status WHERE id = $id`
+    ).run({
+      $status: newStatus,
+      $id: id
+    }).changes;
+    return new Ok({ changes });
+  } catch (e) {
+    if (e instanceof Error) {
+      return new Err(`Failed to update the application: ${e.message}`);
+    }
+    return new Err(`Failed to update the application: unknown error`);
+  }
+}
+
 export function addApplication(data: any): Result<number, string> {
   try {
     const query = db.query(`

@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { getAll, getById, addNewApplication } from './controllers/applications';
+import { getAll, getById, addNewApplication, updateApplication } from './controllers/applications';
 import { addNewInterview } from './controllers/interviews';
 import { logger } from 'hono/logger';
 
@@ -11,6 +11,15 @@ apiRouter.get('applications/:id', (c) => {
     return c.json({ error: 'not found' }, 404);
   }
   return c.json({ data: entry });
+});
+apiRouter.put('applications/:id', async (c) => {
+  const id = c.req.param('id');
+  const command = await c.req.json();
+  const result = updateApplication(id, command);
+  if (result === 1) {
+    return c.json({ error: true }, 500);
+  }
+  return c.json({ data: { ok: true } });
 });
 apiRouter.post('applications', async (c) => {
   const payload = await c.req.json();
