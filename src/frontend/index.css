@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+.data-table {
+  @apply w-full;
+}
+
+.data-table thead th {
+  @apply font-normal text-left p-3;
+}
+
+.data-table tbody tr {
+  @apply nth-[2n+1]:bg-gray-100;
+  @apply hover:bg-green-100;
+}
+
+.data-table tbody td {
+  @apply p-3 text-gray-600;
+}
+
+.form-input {
+  @apply flex flex-col mb-4;
+}
+
+.form-input label {
+  @apply text-sm font-bold text-gray-700;
+}
+
+.form-input input,
+.form-input textarea {
+  @apply border border-gray-300 p-3
+}
+
+.form-actions {
+  @apply p-4 flex justify-between border-t border-t-gray-500 mt-4
+}
+
+.btn {
+  @apply rounded-full px-4 py-2;
+}
+
+.btn.compact {
+  @apply rounded px-2 py-1 bg-gray-200 text-gray-600 font-bold;
+}
+
+.btn.green {
+  @apply bg-green-600 text-white
+}
+
+.btn.gray {
+  @apply bg-gray-400 text-white
+}
