@@ -1,14 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
+import type { InterviewModel } from "../../../models/interviews";
+
+type FormInterviewModel = Omit<InterviewModel, 'id'>;
 
 export default function AddInterviewForm(props: { application_id: string }) {
   let navigate = useNavigate();
-  const [form, setForm] = useState<{
-    application_id: string,
-    interview_date: string,
-    topic: string,
-    participants: string,
-  }>({
+  const [form, setForm] = useState<FormInterviewModel>({
     application_id: props.application_id,
     interview_date: new Date().toISOString(),
     topic: '',

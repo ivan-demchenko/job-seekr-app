@@ -1,16 +1,17 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
+import type { ApplicationModel } from "../../../models/application";
+
+type FormApplicationModel = Omit<ApplicationModel, 'id'>;
 
 export default function NewApplication() {
   let navigate = useNavigate();
-  const [form, setForm] = useState<{
-    company: string,
-    position: string,
-    job_description: string,
-  }>({
+  const [form, setForm] = useState<FormApplicationModel>({
     company: '',
     position: '',
-    job_description: ''
+    job_description: '',
+    application_date: new Date().toISOString(),
+    status: 'applied'
   });
 
   const [isBusy, setIsBusy] = useState(false);

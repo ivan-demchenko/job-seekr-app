@@ -1,5 +1,7 @@
 import { Database } from "bun:sqlite";
 import { Result, Ok, Err } from 'neverthrow';
+import { InterviewListSchema, type InterviewListModel, type InterviewModel } from "../../models/interviews";
+import { ZodError } from "zod";
 
 const db = new Database("database/data.sqlite");
 
@@ -23,7 +25,7 @@ export function makeTable(): Result<number, string> {
   }
 }
 
-export function addInterview(data: any): Result<number, string> {
+export function addInterview(data: InterviewModel): Result<number, string> {
   const query = db.query(`
     INSERT INTO interviews (id, application_id, interview_date, topic, participants) VALUES
       ($id, $application_id, $interview_date, $topic, $participants)`);
@@ -44,10 +46,15 @@ export function addInterview(data: any): Result<number, string> {
   }
 }
 
-export function getInterviews(applicationId: string): Result<any, string> {
+export function getInterviews(applicationId: string): Result<InterviewListModel, string> {
   try {
-    return new Ok(db.query(`SELECT * FROM interviews WHERE application_id = ?`).get(applicationId));
+    const rawData = db.query(`SELECT * FROM interviews WHERE application_id = ?`).get(applicationId);
+    const parseTest = InterviewListSchema.parse(rawData);
+    return new Ok(parseTest);
   } catch (e) {
+    if (e instanceof ZodError) {
+      return new Err(`Received unexpected data from interviews table: ${e.message}`);
+    }
     if (e instanceof Error) {
       return new Err(`Failed to read from the interviews table: ${e.message}`);
     }

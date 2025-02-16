@@ -23,13 +23,19 @@ apiRouter.put('applications/:id', async (c) => {
 });
 apiRouter.post('applications', async (c) => {
   const payload = await c.req.json();
-  const entry = addNewApplication(payload);
-  return c.json({ data: entry });
+  const result = addNewApplication(payload);
+  if (result.isErr()) {
+    return c.json({ error: result.error }, 500);
+  }
+  return c.json({ data: result.value });
 });
 apiRouter.post('interviews', async (c) => {
   const payload = await c.req.json();
-  const entry = addNewInterview(payload);
-  return c.json({ data: entry });
+  const result = addNewInterview(payload);
+  if (result.isOk()) {
+    return c.json({ data: result.value });
+  }
+  return c.json({ error: result.error }, 500);
 });
 
 const app = new Hono();

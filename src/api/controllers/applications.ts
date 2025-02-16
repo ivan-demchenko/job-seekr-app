@@ -1,3 +1,5 @@
+import { Err, Ok, type Result } from 'neverthrow';
+import { ApplicationSchema, type ApplicationModel } from '../../models/application';
 import { getAllApplications, addApplication, getApplicationById, setApplicationStatus } from '../repository/applications';
 
 export function getAll() {
@@ -30,13 +32,22 @@ export function updateApplication(id: string, command: any) {
   return 1;
 }
 
-export function addNewApplication(payload: any) {
-  const record = {
+export function addNewApplication(payload: object): Result<ApplicationModel, string> {
+  const parsedPayload = ApplicationSchema.safeParse({
     id: Bun.randomUUIDv7(),
     status: 'applied',
     application_date: new Date().toISOString(),
     ...payload
+  });
+
+  if (!parsedPayload.success) {
+    return new Err('Bad request body');
   }
-  addApplication(record);
-  return record;
+
+  const result = addApplication(parsedPayload.data);
+  if (result.isOk()) {
+    return new Ok(parsedPayload.data);
+  }
+
+  return new Err('Database error: ' + result.error);
 }
