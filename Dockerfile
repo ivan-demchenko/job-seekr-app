@@ -1,4 +1,4 @@
-FROM oven/bun:debian
+FROM oven/bun:alpine
 
 LABEL org.opencontainers.image.source="https://github.com/ivan-demchenko/job-seekr-app"
 
