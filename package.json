@@ -11,6 +11,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.2.1",
     "bun-plugin-tailwind": "latest",
     "hono": "^4.7.1",
     "neverthrow": "^8.1.1",

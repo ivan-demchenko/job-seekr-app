@@ -1,10 +1,11 @@
 import { Hono } from 'hono';
-import { getAll, getById, addNewApplication, updateApplication } from './controllers/applications';
+import { getAllApplications, getById, addNewApplication, updateApplication } from './controllers/applications';
 import { addNewInterview } from './controllers/interviews';
 import { logger } from 'hono/logger';
+import { generateReport } from './controllers/export';
 
 const apiRouter = new Hono();
-apiRouter.get('applications', (c) => c.json({ data: getAll() }));
+apiRouter.get('applications', (c) => c.json({ data: getAllApplications() }));
 apiRouter.get('applications/:id', (c) => {
   const entry = getById(c.req.param('id'));
   if (!entry) {
@@ -36,6 +37,13 @@ apiRouter.post('interviews', async (c) => {
     return c.json({ data: result.value });
   }
   return c.json({ error: result.error }, 500);
+});
+apiRouter.get('export', async (c) => {
+  const res = await generateReport();
+  if (res.isErr()) {
+    return c.json({ error: res.error }, 500);
+  }
+  return c.json({ done: res.value });
 });
 
 const app = new Hono();

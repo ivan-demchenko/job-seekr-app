@@ -61,3 +61,19 @@ export function getInterviews(applicationId: string): Result<InterviewListModel,
     return new Err(`Failed to read from the interviews table: unknown error`);
   }
 }
+
+export function getAllInterviews(): Result<InterviewListModel, string> {
+  try {
+    const rawData = db.query(`SELECT * FROM interviews`).all();
+    const parseTest = InterviewListSchema.parse(rawData);
+    return new Ok(parseTest);
+  } catch (e) {
+    if (e instanceof ZodError) {
+      return new Err(`Received unexpected data from interviews table: ${e.message}`);
+    }
+    if (e instanceof Error) {
+      return new Err(`Failed to read from the interviews table: ${e.message}`);
+    }
+    return new Err(`Failed to read from the interviews table: unknown error`);
+  }
+}
