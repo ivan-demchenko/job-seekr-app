@@ -7,6 +7,7 @@ export default function ViewApplication() {
 
   const [addingInterview, setAddingInterview] = useState(false);
   const [application, setApplication] = useState<any>(null);
+  const [interviews, setInterviews] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchApplication() {
@@ -14,7 +15,8 @@ export default function ViewApplication() {
         headers: { 'Accept': 'application/json' }
       });
       const data = await resp.json();
-      setApplication(data.data);
+      setApplication(data.data.application);
+      setInterviews(data.data.interviews)
     }
     fetchApplication();
   }, []);
@@ -65,21 +67,15 @@ export default function ViewApplication() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>01.02.2025</td>
-                <td>Introduction</td>
-                <td>Person 1, Person 2</td>
-              </tr>
-              <tr>
-                <td>01.02.2025</td>
-                <td>Introduction</td>
-                <td>Person 1, Person 2</td>
-              </tr>
-              <tr>
-                <td>01.02.2025</td>
-                <td>Introduction</td>
-                <td>Person 1, Person 2</td>
-              </tr>
+              {interviews.map(interview => {
+                return (
+                  <tr key={interview.id}>
+                    <td>{new Date(interview.interview_date).toLocaleDateString()}</td>
+                    <td>{interview.topic}</td>
+                    <td>{interview.participants}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

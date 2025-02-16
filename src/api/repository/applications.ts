@@ -36,7 +36,18 @@ export function getAllApplications(): Result<any[], string> {
 
 export function getApplicationById(id: string): Result<any, string> {
   try {
-    return new Ok(db.query(`SELECT * FROM applications WHERE id = ?`).get(id));
+    const application = db.query(`
+      SELECT *
+      FROM applications
+      WHERE id = ?`).get(id);
+    const interviews = db.query(`
+      SELECT *
+      FROM interviews
+      WHERE application_id = ?`).all(id);
+    return new Ok({
+      application,
+      interviews
+    });
   } catch (e) {
     if (e instanceof Error) {
       return new Err(`Failed to read from the applications table: ${e.message}`);
