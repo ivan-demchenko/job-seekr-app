@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
 import AddInterviewForm from "../../components/interview_form";
-import { printDate } from "../../../utils";
+import { printDate, renderMD } from "../../../utils";
 import type { ApplicationModel } from "../../../models/application";
 import type { InterviewListModel } from "../../../models/interviews";
 import { InterviewsList } from "../../components/interviews_list";
@@ -55,7 +55,7 @@ export default function ViewApplication() {
             <dt>Applied</dt>
             <dd>{printDate(application.application_date)}</dd>
             <dt>Job description</dt>
-            <dd>{application.job_description}</dd>
+            <dd className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(application.job_description) }} />
           </dl>
         </div>
       </section>

@@ -1,5 +1,5 @@
 import type { InterviewListModel } from "../../models/interviews"
-import { printDate } from "../../utils"
+import { printDateTime, renderMD } from "../../utils"
 
 type Props = {
   interviews: InterviewListModel
@@ -19,9 +19,9 @@ export function InterviewsList(props: Props) {
         {props.interviews.map(interview => {
           return (
             <tr key={interview.id}>
-              <td>{printDate(interview.interview_date)}</td>
+              <td>{printDateTime(interview.interview_date)}</td>
               <td>{interview.topic}</td>
-              <td>{interview.participants}</td>
+              <td className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(interview.participants) }} />
             </tr>
           )
         })}

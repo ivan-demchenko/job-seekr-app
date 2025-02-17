@@ -57,3 +57,32 @@
 .def-list dd {
   @apply mb-2;
 }
+
+.formatted-html {
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-bold;
+  }
+
+  h3 {
+    @apply text-xl font-bold;
+  }
+
+  h4,
+  h5,
+  h6 {
+    @apply font-bold;
+  }
+
+  p,
+  ul {
+    @apply mb-4;
+  }
+
+  li {
+    @apply list-disc ml-6;
+  }
+}
