@@ -1,21 +1,28 @@
 import { Err, Ok, type Result } from 'neverthrow';
-import { InterviewSchema, type InterviewModel } from '../../models/interviews';
-import { addInterview } from '../repository/interviews';
+import { type InterviewsRepository } from '../repository/interviews';
+import { interviewInsertSchema, type InterviewModel } from '../../drivers/schemas';
 
-export function addNewInterview(payload: object): Result<InterviewModel, string> {
-  const parsedPayload = InterviewSchema.safeParse({
-    id: Bun.randomUUIDv7(),
-    ...payload
-  });
+export class InterviewsController {
+  constructor(
+    private interviewsRepository: InterviewsRepository
+  ) { }
+  async addNewInterview(
+    payload: object
+  ): Promise<Result<InterviewModel, string>> {
+    const parsedPayload = interviewInsertSchema.safeParse({
+      id: Bun.randomUUIDv7(),
+      ...payload
+    });
 
-  if (!parsedPayload.success) {
-    return new Err('Bad request body');
+    if (!parsedPayload.success) {
+      return new Err('Bad request body');
+    }
+
+    const result = await this.interviewsRepository.addInterview(parsedPayload.data);
+    if (result.isOk()) {
+      return new Ok(parsedPayload.data);
+    }
+
+    return new Err('Database error: ' + result.error);
   }
-
-  const result = addInterview(parsedPayload.data);
-  if (result.isOk()) {
-    return new Ok(parsedPayload.data);
-  }
-
-  return new Err('Database error: ' + result.error);
 }

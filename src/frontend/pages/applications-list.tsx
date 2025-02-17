@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
-import type { ApplicationsReadListModel } from "../../models/application";
 import { printDate } from "../../utils";
 import { Banner } from "../components/banner";
+import type { ApplicationWithInterviewModel } from "../../drivers/schemas";
 
 export default function Index() {
-  const [applications, setApplications] = useState<ApplicationsReadListModel>([]);
+  const [applications, setApplications] = useState<ApplicationWithInterviewModel[]>([]);
 
   useEffect(() => {
     async function fetchApplications() {

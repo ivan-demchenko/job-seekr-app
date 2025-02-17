@@ -1,18 +1,26 @@
 import indexHtml from './src/index.html';
-import apiRoutes from './src/api/apiRouter';
+import makeApi from './src/api/apiRouter';
+import { InterviewsController } from './src/api/controllers/interviews';
+import { InterviewsRepository } from './src/api/repository/interviews';
+import { ApplicationsController } from './src/api/controllers/applications';
+import { ApplicationsRepository } from './src/api/repository/applications';
+import { ExportController } from './src/api/controllers/export';
+import { db } from './src/drivers/db';
 
-import { makeTable as makeApplicationsTable } from './src/api/repository/applications';
-import { makeTable as makeInterviewsTable } from './src/api/repository/interviews';
-
-const makeApplicationsTableResult = makeApplicationsTable();
-if (makeApplicationsTableResult.isErr()) {
-  console.log(`Cannot start the app: Failed to make applications table: ${makeApplicationsTableResult.error}`);
-}
-
-const makeInterviewsTableResult = makeInterviewsTable();
-if (makeInterviewsTableResult.isErr()) {
-  console.log(`Cannot start the app: Failed to make interviews table: ${makeInterviewsTableResult.error}`);
-}
+const applicationsRepository = new ApplicationsRepository(db);
+const interviewsRepository = new InterviewsRepository(db);
+const api = makeApi(
+  new ApplicationsController(
+    applicationsRepository
+  ),
+  new InterviewsController(
+    interviewsRepository
+  ),
+  new ExportController(
+    applicationsRepository,
+    interviewsRepository
+  )
+)
 
 const app = Bun.serve({
   static: {
@@ -21,7 +29,7 @@ const app = Bun.serve({
     '/application': indexHtml,
     '/application/*': indexHtml
   },
-  fetch: apiRoutes.fetch
+  fetch: api.fetch
 });
 
 console.log(`The server has started: ${app.url}`);

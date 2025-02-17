@@ -1,61 +1,71 @@
 import { Err, Ok, type Result } from 'neverthrow';
-import { ApplicationSchema, type ApplicationModel } from '../../models/application';
-import * as applicationsRepository from '../repository/applications';
+import { type ApplicationsRepository } from '../repository/applications';
+import { applicationInsertSchema, type ApplicationModel, type NewApplicationModel } from '../../drivers/schemas';
 
-export function getAllApplications() {
-  const records = applicationsRepository.getAllApplications();
-  if (records.isErr()) {
-    console.error(`Failed to fetch all applications: ${records.error}`);
-    return [];
-  }
-  return records.value;
-}
-
-export function getById(id: string) {
-  const application = applicationsRepository.getApplicationById(id);
-  if (application.isErr()) {
-    console.error(`Failed to fetch an application: ${application.error}`);
-    return null;
-  }
-  return application.value;
-}
-
-export function updateApplication(id: string, command: any) {
-  if (command.target === 'status') {
-    const application = applicationsRepository.setApplicationStatus(id, command.status);
-    if (application.isErr()) {
-      console.error(`Failed to update the application: ${application.error}`);
-      return 1;
+export class ApplicationsController {
+  constructor(
+    private applicationsRepository: ApplicationsRepository
+  ) { }
+  async getAllApplications() {
+    const records = await this.applicationsRepository.getAllApplications();
+    if (records.isErr()) {
+      console.error(`Failed to fetch all applications: ${records.error}`);
+      return [];
     }
-    return 0;
+    return records.value;
   }
-  if (command.target === 'job_description') {
-    const application = applicationsRepository.setApplicationJobDescription(id, command.job_description);
+
+  async getApplicationById(id: string) {
+    const application = await this.applicationsRepository.getApplicationById(id);
     if (application.isErr()) {
-      console.error(`Failed to update the application: ${application.error}`);
-      return 1;
+      console.error(`Failed to fetch an application: ${application.error}`);
+      return null;
     }
-    return 0;
-  }
-  return 1;
-}
-
-export function addNewApplication(payload: object): Result<ApplicationModel, string> {
-  const parsedPayload = ApplicationSchema.safeParse({
-    id: Bun.randomUUIDv7(),
-    status: 'applied',
-    application_date: new Date().toISOString(),
-    ...payload
-  });
-
-  if (!parsedPayload.success) {
-    return new Err('Bad request body');
+    return application.value;
   }
 
-  const result = applicationsRepository.addApplication(parsedPayload.data);
-  if (result.isOk()) {
-    return new Ok(parsedPayload.data);
+  async updateApplication(
+    id: string,
+    command: any
+  ): Promise<Result<ApplicationModel, string>> {
+    if (command.target === 'status') {
+      const result = await this.applicationsRepository.setApplicationStatus(id, command.status);
+      if (result.isErr()) {
+        console.error(`Failed to update the application: ${result.error}`);
+        return new Err('Failed to update application');
+      }
+      return new Ok(result.value);
+    }
+    if (command.target === 'job_description') {
+      const result = await this.applicationsRepository.setApplicationJobDescription(id, command.job_description);
+      if (result.isErr()) {
+        console.error(`Failed to update the application: ${result.error}`);
+        return new Err('Failed to update application');
+      }
+      return new Ok(result.value);
+    }
+    return new Err('Unknown command');
   }
 
-  return new Err('Database error: ' + result.error);
+  async addNewApplication(
+    payload: object
+  ): Promise<Result<ApplicationModel, string>> {
+    const parsedPayload = applicationInsertSchema.safeParse({
+      id: Bun.randomUUIDv7(),
+      status: 'applied',
+      application_date: new Date().toISOString(),
+      ...payload
+    });
+
+    if (!parsedPayload.success) {
+      return new Err('Bad request body');
+    }
+
+    const result = await this.applicationsRepository.addApplication(parsedPayload.data);
+    if (result.isOk()) {
+      return new Ok(parsedPayload.data);
+    }
+
+    return new Err('Database error: ' + result.error);
+  }
 }

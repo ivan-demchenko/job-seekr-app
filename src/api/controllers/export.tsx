@@ -1,9 +1,8 @@
 import { Document, Page, Text, View, StyleSheet, render } from '@react-pdf/renderer';
 import { Err, Ok, type Result } from 'neverthrow';
-import type { ApplicationsReadListModel } from '../../models/application';
-import type { InterviewListModel } from '../../models/interviews';
-import { getAllApplications } from './applications';
-import { getAllInterviews } from '../repository/interviews';
+import { type InterviewsRepository } from '../repository/interviews';
+import { type ApplicationsRepository } from '../repository/applications';
+import type { ApplicationWithInterviewModel, InterviewModel } from '../../drivers/schemas';
 import { printDate } from '../../utils';
 
 // Create styles
@@ -30,8 +29,8 @@ const styles = StyleSheet.create({
 });
 
 const MyDocument = (props: {
-  applications: ApplicationsReadListModel,
-  interviews: InterviewListModel
+  applications: ApplicationWithInterviewModel[],
+  interviews: InterviewModel[]
 }) => (
   <Document>
     <Page size="A4">
@@ -57,21 +56,31 @@ const MyDocument = (props: {
   </Document>
 );
 
-export async function generateReport(): Promise<Result<string, string>> {
-  try {
-    const filename = new Date().toISOString().substring(0, "yyyy-mm-dd".length);
-    const filepath = `files/${filename}.pdf`;
+export class ExportController {
+  constructor(
+    private applicationsRepository: ApplicationsRepository,
+    private interviewsRepository: InterviewsRepository,
+  ) { }
+  async generateReport(): Promise<Result<string, string>> {
+    try {
+      const filename = new Date().toISOString().substring(0, "yyyy-mm-dd".length);
+      const filepath = `files/${filename}.pdf`;
 
-    const applications = getAllApplications();
-    const interviews = getAllInterviews();
+      const applications = await this.applicationsRepository.getAllApplications();
+      const interviews = await this.interviewsRepository.getAllInterviews();
 
-    if (interviews.isErr()) {
-      return new Err(`PDF generation failed: ${interviews.error}`);
+      if (applications.isErr()) {
+        return new Err(`PDF generation failed: ${applications.error}`);
+      }
+
+      if (interviews.isErr()) {
+        return new Err(`PDF generation failed: ${interviews.error}`);
+      }
+
+      await render(<MyDocument applications={applications.value} interviews={interviews.value} />, filepath);
+      return new Ok(filepath)
+    } catch {
+      return new Err(`PDF generation failed`);
     }
-
-    await render(<MyDocument applications={applications} interviews={interviews.value} />, filepath);
-    return new Ok(filepath)
-  } catch {
-    return new Err(`PDF generation failed`);
   }
 }

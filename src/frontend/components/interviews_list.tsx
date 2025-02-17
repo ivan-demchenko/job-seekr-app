@@ -1,8 +1,8 @@
-import type { InterviewListModel } from "../../models/interviews"
+import type { InterviewModel } from "../../drivers/schemas"
 import { printDateTime, renderMD } from "../../utils"
 
 type Props = {
-  interviews: InterviewListModel
+  interviews: InterviewModel[]
 }
 
 export function InterviewsList(props: Props) {

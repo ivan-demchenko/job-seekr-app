@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
-import type { InterviewModel } from "../../models/interviews";
 import { dateToTimestamp } from "../../utils";
+import type { InterviewModel } from "../../drivers/schemas";
 
 /**
  * This is because of the date input below.
