@@ -1,3 +1,5 @@
+import { NavLink } from "react-router";
+
 export default function About() {
   return (
     <>
@@ -13,6 +15,9 @@ export default function About() {
       </p>
       <p className="mb-4">
         Good luck with your job hunt! You can do it!
+      </p>
+      <p className="mb-4">
+        <NavLink to="/">Return to the home page</NavLink>
       </p>
     </>
   )
