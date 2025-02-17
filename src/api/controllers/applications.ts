@@ -29,6 +29,14 @@ export function updateApplication(id: string, command: any) {
     }
     return 0;
   }
+  if (command.target === 'job_description') {
+    const application = applicationsRepository.setApplicationJobDescription(id, command.job_description);
+    if (application.isErr()) {
+      console.error(`Failed to update the application: ${application.error}`);
+      return 1;
+    }
+    return 0;
+  }
   return 1;
 }
 

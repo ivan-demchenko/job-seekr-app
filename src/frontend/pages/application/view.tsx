@@ -13,6 +13,8 @@ export default function ViewApplication() {
   const [addingInterview, setAddingInterview] = useState(false);
   const [application, setApplication] = useState<ApplicationModel | null>(null);
   const [interviews, setInterviews] = useState<InterviewListModel>([]);
+  const [isEditingJD, setIsEditingJD] = useState(false);
+  const [newJD, setNewJD] = useState('');
 
   useEffect(() => {
     async function fetchApplication() {
@@ -21,10 +23,30 @@ export default function ViewApplication() {
       });
       const data = await resp.json();
       setApplication(data.data.application);
+      setNewJD(data.data.application.job_description)
       setInterviews(data.data.interviews)
     }
     fetchApplication();
   }, []);
+
+  async function saveNewJD(newJD: string) {
+    const resp = await fetch(`/api/applications/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        target: 'job_description',
+        job_description: newJD
+      })
+    });
+    const data = await resp.json();
+    if (data.data.ok) {
+      setIsEditingJD(false);
+      setApplication({
+        ...application!,
+        job_description: newJD
+      });
+      alert('Updated!');
+    }
+  }
 
   async function setStatus(newStatus: string) {
     const resp = await fetch(`/api/applications/${id}`, {
@@ -54,8 +76,22 @@ export default function ViewApplication() {
           <dl className="def-list">
             <dt>Applied</dt>
             <dd>{printDate(application.application_date)}</dd>
-            <dt>Job description</dt>
-            <dd className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(application.job_description) }} />
+            <dt className="inline-flex gap-1">
+              <span>Job description</span>
+              {isEditingJD
+                ? <>
+                  <button className="text-green-600 text-sm" onClick={() => saveNewJD(newJD)}>Save</button>
+                  <button className="text-gray-600 text-sm" onClick={() => setIsEditingJD(false)}>Cancel</button>
+                </>
+                : <button className="text-blue-600 text-sm" onClick={() => setIsEditingJD(true)}>Edit</button>
+              }
+            </dt>
+            {isEditingJD
+              ? <dd className="form-input">
+                <textarea value={newJD} onChange={e => setNewJD(e.target.value)}></textarea>
+              </dd>
+              : <dd className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(application.job_description) }} />
+            }
           </dl>
         </div>
       </section>

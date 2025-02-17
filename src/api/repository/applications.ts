@@ -94,6 +94,23 @@ export function setApplicationStatus(id: string, newStatus: ApplicationModel['st
   }
 }
 
+export function setApplicationJobDescription(id: string, newJD: string): Result<any, string> {
+  try {
+    const changes = db.query(`
+      UPDATE applications SET job_description = $newjd WHERE id = $id`
+    ).run({
+      $newjd: newJD,
+      $id: id
+    }).changes;
+    return new Ok({ changes });
+  } catch (e) {
+    if (e instanceof Error) {
+      return new Err(`Failed to update the application: ${e.message}`);
+    }
+    return new Err(`Failed to update the application: unknown error`);
+  }
+}
+
 export function addApplication(data: ApplicationModel): Result<number, string> {
   try {
     const query = db.query(`
