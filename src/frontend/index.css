@@ -86,3 +86,11 @@
     @apply list-disc ml-6;
   }
 }
+
+.page-footer {
+  @apply px-4 py-8 container text-gray-600 text-center;
+
+  a {
+    @apply underline;
+  }
+}

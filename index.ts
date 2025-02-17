@@ -17,6 +17,7 @@ if (makeInterviewsTableResult.isErr()) {
 const app = Bun.serve({
   static: {
     '/': indexHtml,
+    '/about': indexHtml,
     '/application': indexHtml,
     '/application/*': indexHtml
   },
