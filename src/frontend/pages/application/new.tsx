@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
 import type { ApplicationModel } from "../../../models/application";
+import { getCurrentTimestamp } from "../../../utils";
 
 type FormApplicationModel = Omit<ApplicationModel, 'id'>;
 
@@ -10,7 +11,7 @@ export default function NewApplication() {
     company: '',
     position: '',
     job_description: '',
-    application_date: new Date().toISOString(),
+    application_date: getCurrentTimestamp(),
     status: 'applied'
   });
 

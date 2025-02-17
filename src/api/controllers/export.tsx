@@ -4,6 +4,7 @@ import type { ApplicationsReadListModel } from '../../models/application';
 import type { InterviewListModel } from '../../models/interviews';
 import { getAllApplications } from './applications';
 import { getAllInterviews } from '../repository/interviews';
+import { printDate } from '../../utils';
 
 // Create styles
 const styles = StyleSheet.create({
@@ -36,17 +37,17 @@ const MyDocument = (props: {
     <Page size="A4">
       <View style={styles.section}>
         <Text style={styles.pageTitle}>My applications</Text>
-        <Text style={styles.pageDetails}>Status as of {new Date().toLocaleDateString()}</Text>
+        <Text style={styles.pageDetails}>Status as of {printDate()}</Text>
       </View>
       {props.applications.map(app => (
         <View key={app.id} style={styles.section}>
           <Text style={styles.position}>{app.position} @ {app.company}</Text>
-          <Text style={styles.whenApplied}>Applied: {new Date(app.application_date).toLocaleDateString()}</Text>
+          <Text style={styles.whenApplied}>Applied: {printDate(app.application_date)}</Text>
           <Text style={styles.position}>Interviews:</Text>
           {props.interviews.filter(rec => rec.application_id === app.id).map(interview => {
             return (
               <Text key={interview.id}>
-                - {new Date(interview.interview_date).toLocaleDateString()}: {interview.topic}
+                - {printDate(interview.interview_date)}: {interview.topic}
               </Text>
             )
           })}

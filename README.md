@@ -19,7 +19,13 @@ This project was created using `bun init` in bun v1.2.2. [Bun](https://bun.sh) i
 ## Run the app
 
 ```
-docker run -d -p 3000:3000 -v ${PWD}/db:/app/database -v ${PWD}/reports:/app/files ghcr.io/ivan-demchenko/job-seekr-app:latest
+docker run -d --name job-seekr-app -p 3000:3000 -v ./db:/app/database -v ./reports:/app/files ghcr.io/ivan-demchenko/job-seekr-app:latest
 ```
 
 Now you can open [http://localhost:3000](http://localhost:3000) and track your applications
+
+And to stop the app, use:
+
+```
+docker kill job-seekr-app
+```

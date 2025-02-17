@@ -13,7 +13,7 @@ export function makeTable(): Result<number, string> {
       company TEXT,
       position TEXT,
       job_description TEXT,
-      application_date VARCHAR(30),
+      application_date INTEGER,
       status VARCHAR(30)
     )`);
     const changes = query.run().changes;

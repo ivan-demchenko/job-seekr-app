@@ -5,7 +5,7 @@ export const ApplicationSchema = z.object({
   company: z.string(),
   position: z.string(),
   job_description: z.string(),
-  application_date: z.string(),
+  application_date: z.number(),
   status: z.union([
     z.literal('applied'),
     z.literal('interviews'),

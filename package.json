@@ -13,6 +13,7 @@
   "dependencies": {
     "@react-pdf/renderer": "^4.2.1",
     "bun-plugin-tailwind": "latest",
+    "date-fns": "^4.1.0",
     "hono": "^4.7.1",
     "neverthrow": "^8.1.1",
     "react": "^19.0.0",

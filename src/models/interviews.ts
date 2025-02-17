@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const InterviewSchema = z.object({
   id: z.string(),
   application_id: z.string(),
-  interview_date: z.string(),
+  interview_date: z.number(),
   topic: z.string(),
   participants: z.string(),
 });

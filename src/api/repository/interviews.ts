@@ -10,7 +10,7 @@ export function makeTable(): Result<number, string> {
     const query = db.query(`CREATE TABLE IF NOT EXISTS interviews(
       id VARCHAR(36) PRIMARY KEY,
       application_id VARCHAR(36),
-      interview_date VARCHAR(30),
+      interview_date INTEGER,
       topic TEXT,
       participants TEXT,
       FOREIGN KEY(application_id) REFERENCES applications(id)

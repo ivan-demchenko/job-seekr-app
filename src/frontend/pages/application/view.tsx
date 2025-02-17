@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
-import AddInterviewForm from "./interview_form";
+import AddInterviewForm from "../../components/interview_form";
+import { printDate } from "../../../utils";
+import type { ApplicationModel } from "../../../models/application";
+import type { InterviewListModel } from "../../../models/interviews";
+import { InterviewsList } from "../../components/interviews_list";
+import { Banner } from "../../components/banner";
 
 export default function ViewApplication() {
   let { id } = useParams();
 
   const [addingInterview, setAddingInterview] = useState(false);
-  const [application, setApplication] = useState<any>(null);
-  const [interviews, setInterviews] = useState<any[]>([]);
+  const [application, setApplication] = useState<ApplicationModel | null>(null);
+  const [interviews, setInterviews] = useState<InterviewListModel>([]);
 
   useEffect(() => {
     async function fetchApplication() {
@@ -45,10 +50,13 @@ export default function ViewApplication() {
         <h1 className="text-center font-bold text-2xl mb-4">
           {application.position} @ {application.company}
         </h1>
-        <div>Applied: {new Date(application.application_date).toLocaleDateString()}</div>
-        <div className="form-input">
-          <label>Job description</label>
-          <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis modi libero sapiente suscipit assumenda omnis laboriosam atque, corrupti repudiandae nihil, accusamus quam necessitatibus fugit earum quaerat tenetur. Repellendus, asperiores dignissimos?</span>
+        <div>
+          <dl className="def-list">
+            <dt>Applied</dt>
+            <dd>{printDate(application.application_date)}</dd>
+            <dt>Job description</dt>
+            <dd>{application.job_description}</dd>
+          </dl>
         </div>
       </section>
       <section className="flex gap-2 bg-gray-100 p-2 items-center">
@@ -58,7 +66,7 @@ export default function ViewApplication() {
         <button className="btn compact" onClick={() => setStatus('rejection')}>Rejection</button>
       </section>
       <section>
-        <h1 className="text-center font-bold text-2xl mb-4">Interviews</h1>
+        <h3 className="text-center font-bold text-xl m-4">Interviews</h3>
         <div className="my-2">
           <button
             type="submit"
@@ -68,28 +76,10 @@ export default function ViewApplication() {
             Add interview
           </button>
         </div>
-        <div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>When</th>
-                <th>Topic</th>
-                <th>Participants</th>
-              </tr>
-            </thead>
-            <tbody>
-              {interviews.map(interview => {
-                return (
-                  <tr key={interview.id}>
-                    <td>{new Date(interview.interview_date).toLocaleDateString()}</td>
-                    <td>{interview.topic}</td>
-                    <td>{interview.participants}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+        {interviews.length === 0
+          ? <Banner message="No interviews scheduled yet." />
+          : <InterviewsList interviews={interviews} />
+        }
       </section>
       {addingInterview && (
         <AddInterviewForm application_id={id!} />

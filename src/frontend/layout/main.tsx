@@ -11,7 +11,7 @@ export default function MainLayout() {
   }
   return (
     <>
-      <header className="flex gap-4 p-4 items-center justify-between">
+      <header className="flex gap-4 p-4 items-center justify-between container mx-auto px-4">
         <h3 className="font-bold">Application tracker</h3>
         <div className="flex gap-2">
           <NavLink
@@ -26,12 +26,18 @@ export default function MainLayout() {
         </div>
       </header>
 
-      <main className="px-4">
+      <main className="px-4 container mx-auto">
         <Outlet />
       </main>
 
-      <footer className="p-4">
-        All data stored locally
+      <footer className="px-4 py-8 container mx-auto text-gray-600 text-center">
+        <p>All data gets stored locally</p>
+        <p className="text-sm">
+          Developed by <a href="https://www.linkedin.com/in/ivandemchenko/" target="_blank">Ivan Demchenko</a>
+        </p>
+        <p className="text-sm">
+          <a href="https://github.com/ivan-demchenko/job-seekr-app" target="_blank">View it on GitHub</a>
+        </p>
       </footer>
     </>
   );

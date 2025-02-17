@@ -31,7 +31,7 @@
 }
 
 .form-actions {
-  @apply p-4 flex justify-between border-t border-t-gray-500 mt-4
+  @apply p-4 flex justify-between border-t border-t-gray-300 mt-4
 }
 
 .btn {
@@ -48,4 +48,12 @@
 
 .btn.gray {
   @apply bg-gray-400 text-white
+}
+
+.def-list dt {
+  @apply font-bold text-gray-600 text-sm;
+}
+
+.def-list dd {
+  @apply mb-2;
 }

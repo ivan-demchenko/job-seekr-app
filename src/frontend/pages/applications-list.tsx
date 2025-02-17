@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 import type { ApplicationsReadListModel } from "../../models/application";
+import { printDate } from "../../utils";
+import { Banner } from "../components/banner";
 
 export default function Index() {
   const [applications, setApplications] = useState<ApplicationsReadListModel>([]);
+
   useEffect(() => {
     async function fetchApplications() {
       const resp = await fetch('/api/applications', {
@@ -14,6 +17,11 @@ export default function Index() {
     }
     fetchApplications();
   }, []);
+
+  if (applications.length === 0) {
+    return <Banner message="No applications in here yet. Use the green button to add one!" />
+  }
+
   return (
     <table className="data-table">
       <thead>
@@ -33,7 +41,7 @@ export default function Index() {
                   {app.company}
                 </NavLink>
               </td>
-              <td>{new Date(app.application_date).toLocaleDateString()}</td>
+              <td>{printDate(app.application_date)}</td>
               <td>{app.interviewsCount}</td>
               <td>{app.status}</td>
             </tr>

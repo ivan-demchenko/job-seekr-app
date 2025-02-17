@@ -1,14 +1,20 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
-import type { InterviewModel } from "../../../models/interviews";
+import type { InterviewModel } from "../../models/interviews";
+import { dateToTimestamp } from "../../utils";
 
-type FormInterviewModel = Omit<InterviewModel, 'id'>;
+/**
+ * This is because of the date input below.
+ * I'll let it do it's thing without interfering, but will convert
+ * the input into a timestamp just before sending the form.
+ */
+type FormInterviewModel = Omit<InterviewModel, 'id' | 'interview_date'> & { interview_date: string };
 
 export default function AddInterviewForm(props: { application_id: string }) {
   let navigate = useNavigate();
   const [form, setForm] = useState<FormInterviewModel>({
     application_id: props.application_id,
-    interview_date: new Date().toISOString(),
+    interview_date: '',
     topic: '',
     participants: ''
   });
@@ -20,7 +26,10 @@ export default function AddInterviewForm(props: { application_id: string }) {
     try {
       const resp = await fetch('/api/interviews', {
         method: 'POST',
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          ...form,
+          interview_date: dateToTimestamp(form.interview_date)
+        })
       });
       const data = resp.json();
       navigate('/');
@@ -39,27 +48,28 @@ export default function AddInterviewForm(props: { application_id: string }) {
           type="datetime-local"
           name="interview_date"
           value={form.interview_date}
-          onChange={e => setForm(oldForm => {
-            console.log(e.target.value);
-            return {
-              ...oldForm,
-              [e.target.name]: e.target.value
-            };
-          })}
+          onChange={e => {
+            setForm(oldForm => {
+              return {
+                ...oldForm,
+                interview_date: e.target.value
+              };
+            })
+          }}
         />
       </div>
       <div className="form-input">
         <label>Topic</label>
         <input disabled={isBusy} type="text" name="topic" value={form.topic} onChange={e => setForm(oldForm => ({
           ...oldForm,
-          [e.target.name]: e.target.value
+          topic: e.target.value
         }))} />
       </div>
       <div className="form-input">
         <label>Participants</label>
         <textarea disabled={isBusy} name="participants" value={form.participants} onChange={e => setForm(oldForm => ({
           ...oldForm,
-          [e.target.name]: e.target.value
+          participants: e.target.value
         }))}></textarea>
       </div>
       <div className="form-actions">
