@@ -21,7 +21,7 @@ export class ApplicationsRepository {
         })
         .from(tables.applications)
         .leftJoin(tables.interviews, eq(tables.applications.id, tables.interviews.application_id))
-        .groupBy(tables.applications.id, tables.interviews.id)
+        .groupBy(tables.applications.id, tables.interviews.application_id)
         .all();
       return new Ok(applications);
     } catch (e) {
@@ -43,7 +43,9 @@ export class ApplicationsRepository {
         return new Err('Application not found');
       }
       const interviews = this.db.select().from(tables.interviews)
-        .where(eq(tables.interviews.application_id, id)).all();
+        .where(eq(tables.interviews.application_id, id))
+        .orderBy(tables.interviews.interview_date)
+        .all();
 
       return new Ok({
         application,

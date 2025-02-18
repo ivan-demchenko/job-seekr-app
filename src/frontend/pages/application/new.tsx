@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
-import type { ApplicationModel } from "../../../models/application";
 import { getCurrentTimestamp } from "../../../utils";
+import type { ApplicationModel } from "../../../drivers/schemas";
 
 type FormApplicationModel = Omit<ApplicationModel, 'id'>;
 
@@ -32,33 +32,35 @@ export default function NewApplication() {
   }
 
   return (
-    <form className="m-8 p-8 rounded-xl shadow-xl" onSubmit={handleSubmit}>
-      <h1 className="text-center font-bold text-2xl mb-4">New Application</h1>
-      <div className="form-input">
-        <label>Company name</label>
-        <input disabled={isBusy} type="text" name="company" value={form.company} onChange={e => setForm(oldForm => ({
-          ...oldForm,
-          [e.target.name]: e.target.value
-        }))} />
-      </div>
-      <div className="form-input">
-        <label>Position</label>
-        <input disabled={isBusy} type="text" name="position" value={form.position} onChange={e => setForm(oldForm => ({
-          ...oldForm,
-          [e.target.name]: e.target.value
-        }))} />
-      </div>
-      <div className="form-input">
-        <label>Job description</label>
-        <textarea disabled={isBusy} name="job_description" value={form.job_description} onChange={e => setForm(oldForm => ({
-          ...oldForm,
-          [e.target.name]: e.target.value
-        }))}></textarea>
-      </div>
-      <div className="form-actions">
-        <button disabled={isBusy} type="submit" className="btn green">Add</button>
-        <NavLink to="/" className="btn gray">Back</NavLink>
-      </div>
-    </form>
+    <>
+      <h1 className="text-center font-bold text-2xl">New Application</h1>
+      <form className="p-8 border border-gray-100 rounded-xl shadow-xl" onSubmit={handleSubmit}>
+        <div className="form-input">
+          <label>Company name</label>
+          <input disabled={isBusy} type="text" name="company" value={form.company} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            [e.target.name]: e.target.value
+          }))} />
+        </div>
+        <div className="form-input">
+          <label>Position</label>
+          <input disabled={isBusy} type="text" name="position" value={form.position} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            [e.target.name]: e.target.value
+          }))} />
+        </div>
+        <div className="form-input">
+          <label>Job description</label>
+          <textarea disabled={isBusy} name="job_description" value={form.job_description} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            [e.target.name]: e.target.value
+          }))}></textarea>
+        </div>
+        <div className="form-actions">
+          <button disabled={isBusy} type="submit" className="btn green">Add</button>
+          <NavLink to="/" className="btn gray">Back</NavLink>
+        </div>
+      </form>
+    </>
   )
 }

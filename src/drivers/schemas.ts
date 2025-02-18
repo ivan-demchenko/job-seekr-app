@@ -33,6 +33,7 @@ export const interviews = sqliteTable("interviews", {
   interview_date: integer().notNull(),
   topic: text().notNull(),
   participants: text().notNull(),
+  prep_notes: text().notNull(),
 });
 
 export const interviewSelectSchema = createSelectSchema(interviews);

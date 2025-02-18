@@ -13,6 +13,7 @@ export function InterviewsList(props: Props) {
           <th>When</th>
           <th>Topic</th>
           <th>Participants</th>
+          <th>Prep notes</th>
         </tr>
       </thead>
       <tbody>
@@ -22,6 +23,7 @@ export function InterviewsList(props: Props) {
               <td>{printDateTime(interview.interview_date)}</td>
               <td>{interview.topic}</td>
               <td className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(interview.participants) }} />
+              <td className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(interview.prep_notes) }} />
             </tr>
           )
         })}

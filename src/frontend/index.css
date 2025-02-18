@@ -27,7 +27,7 @@
 
 .form-input input,
 .form-input textarea {
-  @apply border border-gray-300 p-3
+  @apply border border-gray-300 p-3 rounded;
 }
 
 .form-actions {

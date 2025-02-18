@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
 import AddInterviewForm from "../../components/interview_form";
 import { printDate, renderMD } from "../../../utils";
-import type { ApplicationModel } from "../../../models/application";
-import type { InterviewListModel } from "../../../models/interviews";
 import { InterviewsList } from "../../components/interviews_list";
 import { Banner } from "../../components/banner";
+import type { ApplicationModel, InterviewModel } from "../../../drivers/schemas";
 
 export default function ViewApplication() {
   let { id } = useParams();
 
   const [addingInterview, setAddingInterview] = useState(false);
   const [application, setApplication] = useState<ApplicationModel | null>(null);
-  const [interviews, setInterviews] = useState<InterviewListModel>([]);
+  const [interviews, setInterviews] = useState<InterviewModel[]>([]);
   const [isEditingJD, setIsEditingJD] = useState(false);
   const [newJD, setNewJD] = useState('');
 
@@ -118,7 +117,15 @@ export default function ViewApplication() {
         }
       </section>
       {addingInterview && (
-        <AddInterviewForm application_id={id!} />
+        <AddInterviewForm
+          application_id={id!}
+          onInterviewAdded={interview => {
+            setAddingInterview(false);
+            setInterviews(oldRecs => {
+              return [...oldRecs, interview].sort((a, b) => a.interview_date - b.interview_date)
+            })
+          }}
+        />
       )}
     </>
   )

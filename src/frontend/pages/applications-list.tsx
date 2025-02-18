@@ -23,31 +23,34 @@ export default function Index() {
   }
 
   return (
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>Company</th>
-          <th>When applied</th>
-          <th>Interviews</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {applications.map(app => {
-          return (
-            <tr key={app.id}>
-              <td>
-                <NavLink to={`/application/view/${app.id}`}>
-                  {app.company}
-                </NavLink>
-              </td>
-              <td>{printDate(app.application_date)}</td>
-              <td>{app.interviewsCount}</td>
-              <td>{app.status}</td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
+    <>
+      <h1 className="text-2xl font-bold text-center">Applications</h1>
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>When applied</th>
+            <th>Interviews</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {applications.map(app => {
+            return (
+              <tr key={app.id}>
+                <td>
+                  <NavLink to={`/application/view/${app.id}`}>
+                    {app.company}
+                  </NavLink>
+                </td>
+                <td>{printDate(app.application_date)}</td>
+                <td>{app.interviewsCount}</td>
+                <td>{app.status}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </>
   )
 }

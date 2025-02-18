@@ -6,6 +6,7 @@ export class InterviewsController {
   constructor(
     private interviewsRepository: InterviewsRepository
   ) { }
+
   async addNewInterview(
     payload: object
   ): Promise<Result<InterviewModel, string>> {

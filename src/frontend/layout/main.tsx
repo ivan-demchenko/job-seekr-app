@@ -11,7 +11,7 @@ export default function MainLayout() {
   }
   return (
     <>
-      <header className="flex gap-4 p-4 items-center justify-between container px-4">
+      <header className="flex gap-4 p-4 items-center justify-between container px-4 border-b border-b-gray-300">
         <h3 className="font-bold">Application tracker</h3>
         <div className="flex gap-2">
           <NavLink
@@ -26,7 +26,7 @@ export default function MainLayout() {
         </div>
       </header>
 
-      <main className="px-4 container flex-1 overflow-auto">
+      <main className="p-4 container flex-1 overflow-auto">
         <Outlet />
       </main>
 

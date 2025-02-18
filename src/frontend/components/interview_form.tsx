@@ -10,11 +10,17 @@ import type { InterviewModel } from "../../drivers/schemas";
  */
 type FormInterviewModel = Omit<InterviewModel, 'id' | 'interview_date'> & { interview_date: string };
 
-export default function AddInterviewForm(props: { application_id: string }) {
+type AddInterviewForm = {
+  application_id: string,
+  onInterviewAdded: (interview: InterviewModel) => void
+}
+
+export default function AddInterviewForm(props: AddInterviewForm) {
   let navigate = useNavigate();
   const [form, setForm] = useState<FormInterviewModel>({
     application_id: props.application_id,
     interview_date: '',
+    prep_notes: '',
     topic: '',
     participants: ''
   });
@@ -31,8 +37,9 @@ export default function AddInterviewForm(props: { application_id: string }) {
           interview_date: dateToTimestamp(form.interview_date)
         })
       });
-      const data = resp.json();
-      navigate('/');
+      const data: { data: InterviewModel } = await resp.json();
+      props.onInterviewAdded(data.data);
+      setIsBusy(false);
     } catch {
       setIsBusy(false);
     }
@@ -41,36 +48,46 @@ export default function AddInterviewForm(props: { application_id: string }) {
   return (
     <form className="m-8 p-8 rounded-xl shadow-xl" onSubmit={handleSubmit}>
       <h1 className="text-center font-bold text-2xl mb-4">Add interview</h1>
-      <div className="form-input">
-        <label>When</label>
-        <input
-          disabled={isBusy}
-          type="datetime-local"
-          name="interview_date"
-          value={form.interview_date}
-          onChange={e => {
-            setForm(oldForm => {
-              return {
-                ...oldForm,
-                interview_date: e.target.value
-              };
-            })
-          }}
-        />
-      </div>
-      <div className="form-input">
-        <label>Topic</label>
-        <input disabled={isBusy} type="text" name="topic" value={form.topic} onChange={e => setForm(oldForm => ({
-          ...oldForm,
-          topic: e.target.value
-        }))} />
-      </div>
-      <div className="form-input">
-        <label>Participants</label>
-        <textarea disabled={isBusy} name="participants" value={form.participants} onChange={e => setForm(oldForm => ({
-          ...oldForm,
-          participants: e.target.value
-        }))}></textarea>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="form-input">
+          <label htmlFor="interview_date">When</label>
+          <input
+            disabled={isBusy}
+            type="datetime-local"
+            name="interview_date"
+            value={form.interview_date}
+            onChange={e => {
+              setForm(oldForm => {
+                return {
+                  ...oldForm,
+                  interview_date: e.target.value
+                };
+              })
+            }}
+          />
+        </div>
+        <div className="form-input">
+          <label htmlFor="topic">Topic</label>
+          <input disabled={isBusy} type="text" name="topic" value={form.topic} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            topic: e.target.value
+          }))} />
+        </div>
+        <div className="form-input">
+          <label htmlFor="participants">Participants</label>
+          <textarea disabled={isBusy} name="participants" value={form.participants} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            participants: e.target.value
+          }))}></textarea>
+        </div>
+        <div className="form-input">
+          <label htmlFor="participants">Any prep notes?</label>
+          <textarea
+            disabled={isBusy}
+            name="prep_notes"
+            value={form.prep_notes}
+            onChange={e => setForm(oldForm => ({ ...oldForm, prep_notes: e.target.value }))}></textarea>
+        </div>
       </div>
       <div className="form-actions">
         <button disabled={isBusy} type="submit" className="btn green">Add</button>
