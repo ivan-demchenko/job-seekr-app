@@ -1,14 +1,16 @@
-import indexHtml from './src/index.html';
+import indexHtml from './src/frontend/index.html';
 import makeApi from './src/api/apiRouter';
 import { InterviewsController } from './src/api/controllers/interviews';
 import { InterviewsRepository } from './src/api/repository/interviews';
 import { ApplicationsController } from './src/api/controllers/applications';
 import { ApplicationsRepository } from './src/api/repository/applications';
 import { ExportController } from './src/api/controllers/export';
-import { db } from './src/drivers/db';
+import { initDB } from './src/drivers/db';
+import { EnvConfig } from './env';
 
-const applicationsRepository = new ApplicationsRepository(db);
-const interviewsRepository = new InterviewsRepository(db);
+const dbConnection = initDB(EnvConfig.DATABASE_URL);
+const applicationsRepository = new ApplicationsRepository(dbConnection);
+const interviewsRepository = new InterviewsRepository(dbConnection);
 const api = makeApi(
   new ApplicationsController(
     applicationsRepository
@@ -22,14 +24,16 @@ const api = makeApi(
   )
 )
 
-const app = Bun.serve({
+// Use Bun insteaed of Vite or similar...
+const server = Bun.serve({
   static: {
     '/': indexHtml,
     '/about': indexHtml,
     '/application': indexHtml,
     '/application/*': indexHtml
   },
+  port: EnvConfig.PORT,
   fetch: api.fetch
 });
 
-console.log(`The server has started: ${app.url}`);
+console.log(`The server has started: ${server.url}`);

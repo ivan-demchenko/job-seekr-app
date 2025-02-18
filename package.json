@@ -1,5 +1,6 @@
 {
   "name": "job-seekr-app",
+  "description": "A job application tracking system",
   "module": "index.ts",
   "type": "module",
   "license": "MIT",
@@ -8,7 +9,6 @@
     "email": "idemchenko.js@gmail.com",
     "url": "https://github.com/ivan-demchenko/job-seekr-app"
   },
-  "description": "A job application tracking system",
   "devDependencies": {
     "@types/bun": "latest",
     "@types/react": "^19.0.8",
