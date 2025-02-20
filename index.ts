@@ -1,5 +1,5 @@
 import indexHtml from './src/frontend/index.html';
-import makeApi from './src/api/apiRouter';
+import makeMainRouter from './src/api/main.router';
 import { InterviewsController } from './src/api/controllers/interviews';
 import { InterviewsRepository } from './src/api/repository/interviews';
 import { ApplicationsController } from './src/api/controllers/applications';
@@ -11,7 +11,7 @@ import { EnvConfig } from './env';
 const dbConnection = initDB(EnvConfig.DATABASE_URL);
 const applicationsRepository = new ApplicationsRepository(dbConnection);
 const interviewsRepository = new InterviewsRepository(dbConnection);
-const api = makeApi(
+const api = makeMainRouter(
   new ApplicationsController(
     applicationsRepository
   ),

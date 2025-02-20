@@ -3,6 +3,7 @@ import { type ApplicationsController } from './controllers/applications';
 import { type InterviewsController } from './controllers/interviews';
 import { type ExportController } from './controllers/export';
 import { logger } from 'hono/logger';
+import { getUser, kindeClient, sessionManager } from './auth.middleware';
 
 function makeApplicationsRouter(
   applicationsController: ApplicationsController,
@@ -68,19 +69,46 @@ function makeExportsRouter(
     });
 }
 
+function makeAuthRouter() {
+  return new Hono()
+    .get("/login", async (c) => {
+      const loginUrl = await kindeClient.login(sessionManager(c));
+      return c.redirect(loginUrl.toString());
+    })
+    .get("/register", async (c) => {
+      const registerUrl = await kindeClient.register(sessionManager(c));
+      return c.redirect(registerUrl.toString());
+    })
+    .get("/callback", async (c) => {
+      const url = new URL(c.req.url);
+      await kindeClient.handleRedirectToApp(sessionManager(c), url);
+      return c.redirect("/");
+    })
+    .get("/logout", async (c) => {
+      const logoutUrl = await kindeClient.logout(sessionManager(c));
+      return c.redirect(logoutUrl.toString());
+    })
+    .get("/me", getUser, async (c) => {
+      const user = c.var.user;
+      return c.json({ user });
+    });
+}
+
 function makeAPIRoutes(
   app: Hono,
   applicationsController: ApplicationsController,
   interviewsController: InterviewsController,
   exportController: ExportController,
 ) {
+  app.route('/auth', makeAuthRouter())
   app.basePath('/api')
+    .use(getUser)
     .route('/applications', makeApplicationsRouter(applicationsController))
     .route('/interviews', makeInterviewsRouter(interviewsController))
     .route('/export', makeExportsRouter(exportController));
 }
 
-export default function makeApi(
+export default function makeMainRouter(
   applicationsController: ApplicationsController,
   interviewsController: InterviewsController,
   exportController: ExportController,
