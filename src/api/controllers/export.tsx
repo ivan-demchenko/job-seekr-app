@@ -61,12 +61,12 @@ export class ExportController {
     private applicationsRepository: ApplicationsRepository,
     private interviewsRepository: InterviewsRepository,
   ) { }
-  async generateReport(): Promise<Result<string, string>> {
+  async generateReport(userId: string): Promise<Result<string, string>> {
     try {
       const filename = new Date().toISOString().substring(0, "yyyy-mm-dd".length);
       const filepath = `files/${filename}.pdf`;
 
-      const applications = await this.applicationsRepository.getAllApplications();
+      const applications = await this.applicationsRepository.getAllApplications(userId);
       const interviews = await this.interviewsRepository.getAllInterviews();
 
       if (applications.isErr()) {

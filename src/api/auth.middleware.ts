@@ -22,7 +22,7 @@ export const kindeClient = createKindeServerClient(
 
 type Env = {
   Variables: {
-    user: UserType;
+    user: UserType & { name?: string };
   };
 };
 
@@ -54,6 +54,17 @@ export const sessionManager = (c: Context): SessionManager => ({
 });
 
 export const getUser = createMiddleware<Env>(async (c, next) => {
+  if (EnvConfig.HOSTING_MODE === 'selfhost') {
+    c.set("user", {
+      id: 'local-user',
+      email: 'local-user@localhost',
+      family_name: 'Local',
+      given_name: 'User',
+      name: 'Local User',
+      picture: ''
+    })
+    return next();
+  }
   try {
     const manager = sessionManager(c);
 

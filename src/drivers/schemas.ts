@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 export const applications = sqliteTable("applications", {
   id: text({ length: 36 }).notNull().unique().primaryKey(),
+  user_id: text().notNull(),
   company: text().notNull(),
   position: text().notNull(),
   job_description: text().notNull(),

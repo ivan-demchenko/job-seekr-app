@@ -1,13 +1,13 @@
 import { Result, Ok, Err } from 'neverthrow';
 import * as tables from '../../drivers/schemas';
-import { count, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 
 export class ApplicationsRepository {
   constructor(
     private db: BunSQLiteDatabase
   ) { }
-  async getAllApplications(): Promise<Result<tables.ApplicationWithInterviewModel[], string>> {
+  async getAllApplications(userId: string): Promise<Result<tables.ApplicationWithInterviewModel[], string>> {
     try {
       const applications = this.db
         .select({
@@ -17,9 +17,11 @@ export class ApplicationsRepository {
           application_date: tables.applications.application_date,
           status: tables.applications.status,
           job_description: tables.applications.job_description,
-          interviewsCount: count(tables.interviews.id)
+          interviewsCount: count(tables.interviews.id),
+          user_id: tables.applications.user_id,
         })
         .from(tables.applications)
+        .where(eq(tables.applications.user_id, userId))
         .leftJoin(tables.interviews, eq(tables.applications.id, tables.interviews.application_id))
         .groupBy(tables.applications.id, tables.interviews.application_id)
         .all();
@@ -32,13 +34,17 @@ export class ApplicationsRepository {
     }
   }
 
-  async getApplicationById(id: string): Promise<Result<{
+  async getApplicationById(userId: string, id: string): Promise<Result<{
     application: tables.ApplicationModel,
     interviews: tables.InterviewModel[]
   }, string>> {
     try {
       const application = this.db.select().from(tables.applications)
-        .where(eq(tables.applications.id, id)).get();
+        .where(and(
+          eq(tables.applications.user_id, userId),
+          eq(tables.applications.id, id)
+        ))
+        .get();
       if (!application) {
         return new Err('Application not found');
       }
@@ -60,13 +66,18 @@ export class ApplicationsRepository {
   }
 
   async setApplicationStatus(
+    userId: string,
     id: string,
     newStatus: string
   ): Promise<Result<tables.ApplicationModel, string>> {
     try {
       const res = await this.db.update(tables.applications)
         .set({ status: newStatus })
-        .where(eq(tables.applications.id, id)).returning();
+        .where(and(
+          eq(tables.applications.id, id),
+          eq(tables.applications.user_id, userId),
+        ))
+        .returning();
 
       return new Ok(res[0]);
     } catch (e) {
@@ -78,13 +89,18 @@ export class ApplicationsRepository {
   }
 
   async setApplicationJobDescription(
+    userId: string,
     id: string,
     newJD: string
   ): Promise<Result<any, string>> {
     try {
       const res = await this.db.update(tables.applications)
         .set({ job_description: newJD })
-        .where(eq(tables.applications.id, id)).returning();
+        .where(and(
+          eq(tables.applications.id, id),
+          eq(tables.applications.user_id, userId),
+        ))
+        .returning();
 
       return new Ok(res[0]);
     } catch (e) {

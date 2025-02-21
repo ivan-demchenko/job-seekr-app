@@ -1,4 +1,12 @@
 import { migrate } from "drizzle-orm/bun-sqlite/migrator";
-import { db } from "./src/drivers/db";
+import { initDB } from "./src/drivers/db";
+import { EnvConfig } from './env';
 
-migrate(db, { migrationsFolder: "./drizzle" });
+const dbConnection = initDB(EnvConfig.DATABASE_URL);
+
+try {
+  migrate(dbConnection, { migrationsFolder: "./drizzle" });
+  console.log('Done!')
+} catch (e) {
+  console.error('Failed: ', e);
+}

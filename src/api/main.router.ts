@@ -9,31 +9,31 @@ function makeApplicationsRouter(
   applicationsController: ApplicationsController,
 ) {
   return new Hono()
-    .get('/', async (c) => {
-      return c.json({ data: await applicationsController.getAllApplications() });
+    .get('/', getUser, async (c) => {
+      return c.json({ data: await applicationsController.getAllApplications(c.var.user.id) });
     })
-    .post('/', async (c) => {
+    .post('/', getUser, async (c) => {
       const payload = await c.req.json();
       // TODO: separate the REST and DB schemas
-      const result = await applicationsController.addNewApplication(payload);
+      const result = await applicationsController.addNewApplication(c.var.user.id, payload);
       if (result.isErr()) {
         return c.json({ error: result.error }, 500);
       }
       return c.json({ data: result.value });
     })
-    .get('/:id', async (c) => {
-      const entry = await applicationsController.getApplicationById(c.req.param('id'));
+    .get('/:id', getUser, async (c) => {
+      const entry = await applicationsController.getApplicationById(c.var.user.id, c.req.param('id'));
       if (!entry) {
         return c.json({ error: 'not found' }, 404);
       }
       return c.json({ data: entry });
     })
-    .put('/:id', async (c) => {
+    .put('/:id', getUser, async (c) => {
       // TODO: validate request
       const id = c.req.param('id');
       const command = await c.req.json();
       // TODO: separate the REST and DB schemas
-      const result = await applicationsController.updateApplication(id, command);
+      const result = await applicationsController.updateApplication(c.var.user.id, id, command);
       if (result.isErr()) {
         return c.json({ error: result.error }, 500);
       }
@@ -45,7 +45,7 @@ function makeInterviewsRouter(
   interviewsController: InterviewsController,
 ) {
   return new Hono()
-    .post('/', async (c) => {
+    .post('/', getUser, async (c) => {
       const payload = await c.req.json();
       // TODO: separate the REST and DB schemas
       const result = await interviewsController.addNewInterview(payload);
@@ -60,8 +60,8 @@ function makeExportsRouter(
   exportController: ExportController
 ) {
   return new Hono()
-    .get('/', async (c) => {
-      const res = await exportController.generateReport();
+    .get('/', getUser, async (c) => {
+      const res = await exportController.generateReport(c.var.user.id);
       if (res.isErr()) {
         return c.json({ error: res.error }, 500);
       }
@@ -102,7 +102,6 @@ function makeAPIRoutes(
 ) {
   app.route('/auth', makeAuthRouter())
   app.basePath('/api')
-    .use(getUser)
     .route('/applications', makeApplicationsRouter(applicationsController))
     .route('/interviews', makeInterviewsRouter(interviewsController))
     .route('/export', makeExportsRouter(exportController));

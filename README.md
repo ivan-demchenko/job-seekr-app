@@ -51,6 +51,18 @@ bun run index.ts
 
 Play around with it and submit a PR. Any other suggestions are also welcome.
 
+#### If you change DB schema
+
+- Generate the migration script:
+  ```sh
+  bun run db:migration:generate
+  ```
+
+- Execute the migration:
+  ```
+  db:migration:run
+  ```
+
 ### Other types of contributions
 
 I'm happy to review any design suggestions, just create an issue here on GitHub.
