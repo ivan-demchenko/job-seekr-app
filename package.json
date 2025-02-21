@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
+    "@neondatabase/serverless": "^0.10.4",
     "@react-pdf/renderer": "^4.2.1",
     "bun-plugin-tailwind": "latest",
     "date-fns": "^4.1.0",

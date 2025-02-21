@@ -1,15 +1,15 @@
 import { Result, Ok, Err } from 'neverthrow';
 import * as tables from '../../drivers/schemas';
 import { and, count, eq } from 'drizzle-orm';
-import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
+import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 
 export class ApplicationsRepository {
   constructor(
-    private db: BunSQLiteDatabase
+    private db: NeonHttpDatabase
   ) { }
   async getAllApplications(userId: string): Promise<Result<tables.ApplicationWithInterviewModel[], string>> {
     try {
-      const applications = this.db
+      const applications = await this.db
         .select({
           id: tables.applications.id,
           company: tables.applications.company,
@@ -23,8 +23,7 @@ export class ApplicationsRepository {
         .from(tables.applications)
         .where(eq(tables.applications.user_id, userId))
         .leftJoin(tables.interviews, eq(tables.applications.id, tables.interviews.application_id))
-        .groupBy(tables.applications.id, tables.interviews.application_id)
-        .all();
+        .groupBy(tables.applications.id, tables.interviews.application_id);
       return new Ok(applications);
     } catch (e) {
       if (e instanceof Error) {
@@ -35,23 +34,24 @@ export class ApplicationsRepository {
   }
 
   async getApplicationById(userId: string, id: string): Promise<Result<{
-    application: tables.ApplicationModel,
+    application: tables.ApplicationSelectModel,
     interviews: tables.InterviewModel[]
   }, string>> {
     try {
-      const application = this.db.select().from(tables.applications)
+      const applications = await this.db.select()
+        .from(tables.applications)
         .where(and(
           eq(tables.applications.user_id, userId),
           eq(tables.applications.id, id)
-        ))
-        .get();
-      if (!application) {
+        ));
+
+      const application = applications[0];
+      if (!applications) {
         return new Err('Application not found');
       }
-      const interviews = this.db.select().from(tables.interviews)
+      const interviews = await this.db.select().from(tables.interviews)
         .where(eq(tables.interviews.application_id, id))
-        .orderBy(tables.interviews.interview_date)
-        .all();
+        .orderBy(tables.interviews.interview_date);
 
       return new Ok({
         application,
@@ -69,7 +69,7 @@ export class ApplicationsRepository {
     userId: string,
     id: string,
     newStatus: string
-  ): Promise<Result<tables.ApplicationModel, string>> {
+  ): Promise<Result<tables.ApplicationSelectModel, string>> {
     try {
       const res = await this.db.update(tables.applications)
         .set({ status: newStatus })
@@ -113,10 +113,10 @@ export class ApplicationsRepository {
 
   async addApplication(
     payload: tables.NewApplicationModel
-  ): Promise<Result<tables.ApplicationModel, string>> {
+  ): Promise<Result<tables.ApplicationSelectModel, string>> {
     try {
-      await this.db.insert(tables.applications).values(payload).onConflictDoNothing();
-      return new Ok(payload);
+      const record = await this.db.insert(tables.applications).values(payload).onConflictDoNothing().returning();
+      return new Ok(record[0]);
     } catch (e) {
       if (e instanceof Error) {
         return new Err(`Failed to insert into the applications table: ${e.message}`);

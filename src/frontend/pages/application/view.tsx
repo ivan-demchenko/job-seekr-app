@@ -4,13 +4,13 @@ import AddInterviewForm from "../../components/interview_form";
 import { printDate, renderMD } from "../../../utils";
 import { InterviewsList } from "../../components/interviews_list";
 import { Banner } from "../../components/banner";
-import type { ApplicationModel, InterviewModel } from "../../../drivers/schemas";
+import type { ApplicationSelectModel, InterviewModel } from "../../../drivers/schemas";
 
 export default function ViewApplication() {
   let { id } = useParams();
 
   const [addingInterview, setAddingInterview] = useState(false);
-  const [application, setApplication] = useState<ApplicationModel | null>(null);
+  const [application, setApplication] = useState<ApplicationSelectModel | null>(null);
   const [interviews, setInterviews] = useState<InterviewModel[]>([]);
   const [isEditingJD, setIsEditingJD] = useState(false);
   const [newJD, setNewJD] = useState('');

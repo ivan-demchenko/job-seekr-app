@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { getCurrentTimestamp } from "../../../utils";
-import type { ApplicationModel } from "../../../drivers/schemas";
+import type { ApplicationSelectModel } from "../../../drivers/schemas";
 
-type FormApplicationModel = Omit<ApplicationModel, 'id'>;
+type FormApplicationModel = Omit<ApplicationSelectModel, 'id' | 'user_id'>;
 
 export default function NewApplication() {
   let navigate = useNavigate();

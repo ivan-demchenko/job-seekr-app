@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { NavLink, useNavigate } from "react-router";
+import { NavLink } from "react-router";
 import { dateToTimestamp } from "../../utils";
 import type { InterviewModel } from "../../drivers/schemas";
 
@@ -16,7 +16,6 @@ type AddInterviewForm = {
 }
 
 export default function AddInterviewForm(props: AddInterviewForm) {
-  let navigate = useNavigate();
   const [form, setForm] = useState<FormInterviewModel>({
     application_id: props.application_id,
     interview_date: '',

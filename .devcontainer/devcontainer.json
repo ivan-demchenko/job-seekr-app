@@ -16,8 +16,8 @@
         "ms-azuretools.vscode-docker"
       ]
     }
-},
-"features": {
-	"ghcr.io/shyim/devcontainers-features/bun:0": {}
-}
+  },
+  "features": {
+    "ghcr.io/shyim/devcontainers-features/bun:0": {}
+  }
 }

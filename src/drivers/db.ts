@@ -1,8 +1,6 @@
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
 
 export function initDB(dbURL: string) {
-  // TODO: connect to either local sqlite or remote db
-  const sqlite = new Database(dbURL);
-  return drizzle(sqlite);
+  return drizzleNeon(neon(dbURL));
 }

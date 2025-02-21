@@ -1,12 +1,26 @@
 {
   "version": "7",
-  "dialect": "sqlite",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "6",
-      "when": 1740144653051,
-      "tag": "0000_living_wildside",
+      "version": "7",
+      "when": 1740150299412,
+      "tag": "0000_previous_terrax",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1740152978438,
+      "tag": "0001_shocking_sage",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740153437148,
+      "tag": "0002_greedy_outlaw_kid",
       "breakpoints": true
     }
   ]

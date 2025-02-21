@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from 'neverthrow';
 import { type ApplicationsRepository } from '../repository/applications';
-import { applicationInsertSchema, type ApplicationModel, type NewApplicationModel } from '../../drivers/schemas';
+import { applicationInsertSchema, type ApplicationSelectModel, type NewApplicationModel } from '../../drivers/schemas';
 
 export class ApplicationsController {
   constructor(
@@ -28,7 +28,7 @@ export class ApplicationsController {
     userId: string,
     id: string,
     command: any
-  ): Promise<Result<ApplicationModel, string>> {
+  ): Promise<Result<ApplicationSelectModel, string>> {
     if (command.target === 'status') {
       const result = await this.applicationsRepository.setApplicationStatus(userId, id, command.status);
       if (result.isErr()) {
@@ -51,11 +51,10 @@ export class ApplicationsController {
   async addNewApplication(
     userId: string,
     payload: object
-  ): Promise<Result<ApplicationModel, string>> {
+  ): Promise<Result<ApplicationSelectModel, string>> {
     const parsedPayload = applicationInsertSchema.safeParse({
       id: Bun.randomUUIDv7(),
       status: 'applied',
-      application_date: new Date().toISOString(),
       user_id: userId,
       ...payload
     });
@@ -66,7 +65,7 @@ export class ApplicationsController {
 
     const result = await this.applicationsRepository.addApplication(parsedPayload.data);
     if (result.isOk()) {
-      return new Ok(parsedPayload.data);
+      return new Ok(result.value);
     }
 
     return new Err('Database error: ' + result.error);

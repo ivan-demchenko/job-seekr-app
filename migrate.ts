@@ -1,4 +1,4 @@
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
+import { migrate } from "drizzle-orm/neon-http/migrator";
 import { initDB } from "./src/drivers/db";
 import { EnvConfig } from './env';
 

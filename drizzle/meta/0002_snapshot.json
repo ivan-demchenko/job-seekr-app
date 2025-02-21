@@ -1,6 +1,6 @@
 {
-  "id": "02993817-c2db-4da3-9347-0d88c5b39f08",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "66f52248-6523-42d1-8319-9c9b8e917bf2",
+  "prevId": "5a506a5a-5b77-46d0-a58d-32506134651f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -40,9 +40,10 @@
         },
         "application_date": {
           "name": "application_date",
-          "type": "integer",
+          "type": "bigint",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "extract(epoch from now())"
         },
         "status": {
           "name": "status",
@@ -85,7 +86,7 @@
         },
         "interview_date": {
           "name": "interview_date",
-          "type": "integer",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },

@@ -1,11 +1,11 @@
 import { Result, Ok, Err } from 'neverthrow';
 import * as tables from '../../drivers/schemas';
 import { eq } from 'drizzle-orm';
-import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
+import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 
 export class InterviewsRepository {
   constructor(
-    private db: BunSQLiteDatabase
+    private db: NeonHttpDatabase
   ) { }
   async addInterview(
     payload: tables.InterviewModel
@@ -25,7 +25,10 @@ export class InterviewsRepository {
     applicationId: string
   ): Promise<Result<tables.InterviewModel[], string>> {
     try {
-      const data = this.db.select().from(tables.interviews).where(eq(tables.interviews.application_id, applicationId)).all();
+      const data = await this.db
+        .select()
+        .from(tables.interviews)
+        .where(eq(tables.interviews.application_id, applicationId));
       return new Ok(data);
     } catch (e) {
       if (e instanceof Error) {
@@ -37,7 +40,7 @@ export class InterviewsRepository {
 
   async getAllInterviews(): Promise<Result<tables.InterviewModel[], string>> {
     try {
-      const rawData = this.db.select().from(tables.interviews).all();
+      const rawData = await this.db.select().from(tables.interviews);
       return new Ok(rawData);
     } catch (e) {
       if (e instanceof Error) {

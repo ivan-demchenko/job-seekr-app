@@ -16,6 +16,7 @@ export class InterviewsController {
     });
 
     if (!parsedPayload.success) {
+      console.error(parsedPayload.error);
       return new Err('Bad request body');
     }
 
