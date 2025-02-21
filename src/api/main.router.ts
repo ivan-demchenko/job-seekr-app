@@ -4,6 +4,7 @@ import { type InterviewsController } from './controllers/interviews';
 import { type ExportController } from './controllers/export';
 import { logger } from 'hono/logger';
 import { getUser, kindeClient, sessionManager } from './auth.middleware';
+import * as stream from 'hono/streaming'
 
 function makeApplicationsRouter(
   applicationsController: ApplicationsController,
@@ -65,7 +66,9 @@ function makeExportsRouter(
       if (res.isErr()) {
         return c.json({ error: res.error }, 500);
       }
-      return c.json({ done: res.value });
+      return stream.stream(c, async (stream) => {
+        await stream.write(res.value);
+      })
     });
 }
 

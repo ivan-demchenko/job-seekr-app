@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, render } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, render, renderToStream, renderToBuffer } from '@react-pdf/renderer';
 import { Err, Ok, type Result } from 'neverthrow';
 import { type InterviewsRepository } from '../repository/interviews';
 import { type ApplicationsRepository } from '../repository/applications';
@@ -61,11 +61,8 @@ export class ExportController {
     private applicationsRepository: ApplicationsRepository,
     private interviewsRepository: InterviewsRepository,
   ) { }
-  async generateReport(userId: string): Promise<Result<string, string>> {
+  async generateReport(userId: string): Promise<Result<Buffer<ArrayBufferLike>, string>> {
     try {
-      const filename = new Date().toISOString().substring(0, "yyyy-mm-dd".length);
-      const filepath = `files/${filename}.pdf`;
-
       const applications = await this.applicationsRepository.getAllApplications(userId);
       const interviews = await this.interviewsRepository.getAllInterviews();
 
@@ -76,9 +73,9 @@ export class ExportController {
       if (interviews.isErr()) {
         return new Err(`PDF generation failed: ${interviews.error}`);
       }
+      const buffer = await renderToBuffer(<MyDocument applications={applications.value} interviews={interviews.value} />);
 
-      await render(<MyDocument applications={applications.value} interviews={interviews.value} />, filepath);
-      return new Ok(filepath)
+      return new Ok(buffer)
     } catch {
       return new Err(`PDF generation failed`);
     }

@@ -22,11 +22,17 @@ export default function MainLayout() {
 
   const handleExport = async () => {
     const resp = await fetch('/api/export');
-    const data = await resp.json();
-    if (data.done) {
-      return alert(`Done! The file name is ${data.done}`);
-    }
-    return alert(`Something went wrong...`);
+    const rawData = await resp.blob();
+    const newBlob = new Blob([rawData]);
+    const blobUrl = window.URL.createObjectURL(newBlob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.setAttribute('download', `export-${Date.now()}.pdf`);
+    // document.body.appendChild(link);
+    link.click();
+    // link.parentNode?.removeChild(link);
+    // clean up Url
+    window.URL.revokeObjectURL(blobUrl);
   }
 
   if (authStatus.state._kind === 'Loading' || authStatus.state._kind === 'Idle') {
@@ -52,7 +58,7 @@ export default function MainLayout() {
             <NavLink to="/application/new" className="btn green">
               Add application
             </NavLink>
-            <button className="btn green" onClick={handleExport}>
+            <button className="btn green" onClick={() => handleExport()}>
               Export PDF
             </button>
             <a href="/auth/logout" className="btn green">
