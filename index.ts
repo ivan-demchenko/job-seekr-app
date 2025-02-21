@@ -29,8 +29,8 @@ const server = Bun.serve({
   static: {
     '/': indexHtml,
     '/about': indexHtml,
-    '/application': indexHtml,
-    '/application/*': indexHtml
+    '/applications': indexHtml,
+    '/application/*': indexHtml,
   },
   port: EnvConfig.PORT,
   fetch: api.fetch

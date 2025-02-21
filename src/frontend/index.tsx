@@ -6,6 +6,7 @@ import About from './pages/about';
 import ApplicationsList from './pages/applications-list';
 import NewApplication from './pages/application/new';
 import ViewApplication from './pages/application/view';
+import HomePage from './pages/home';
 
 const rootElement = document.getElementById('app')!
 
@@ -15,8 +16,9 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<ApplicationsList />} />
-          <Route path="about" element={<About />} />
+          <Route index path="/" element={<HomePage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/applications" element={<ApplicationsList />} />
           <Route path="application">
             <Route path="view/:id" element={<ViewApplication />} />
             <Route path="new" element={<NewApplication />} />
