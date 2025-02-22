@@ -10,6 +10,7 @@ const userDecoder = z.object({
 
 export default function MainLayout() {
   const navigate = useNavigate();
+
   const authStatus = useHTTP({
     url: '/auth/me',
     decoder: userDecoder,
@@ -28,10 +29,7 @@ export default function MainLayout() {
     const link = document.createElement('a');
     link.href = blobUrl;
     link.setAttribute('download', `export-${Date.now()}.pdf`);
-    // document.body.appendChild(link);
     link.click();
-    // link.parentNode?.removeChild(link);
-    // clean up Url
     window.URL.revokeObjectURL(blobUrl);
   }
 
@@ -80,7 +78,10 @@ export default function MainLayout() {
       </aside>
 
       <main className="p-4 container flex-1">
-        <Outlet />
+        {authStatus.state._kind === 'Error'
+          ? <p>Please, <a href="/auth/login">login</a> first</p>
+          : <Outlet />
+        }
       </main>
     </>
   );
