@@ -41,46 +41,47 @@ export default function MainLayout() {
 
   return (
     <>
-      <header className="flex gap-4 p-4 items-center justify-between container px-4 border-b border-b-gray-300">
-        <h3 className="font-bold">Job Seeks</h3>
-        {authStatus.state._kind === 'Error' && (
-          <div className="flex gap-2">
-            <a href="/auth/login" className="btn green">
-              Login
-            </a>
-          </div>
-        )}
-        {authStatus.state._kind === 'Ready' && (
-          <div className="flex gap-2">
-            <NavLink to="/applications" className="btn green">
-              My applications
-            </NavLink>
-            <NavLink to="/application/new" className="btn green">
-              Add application
-            </NavLink>
-            <button className="btn green" onClick={() => handleExport()}>
-              Export PDF
-            </button>
-            <a href="/auth/logout" className="btn green">
-              Logout
-            </a>
-          </div>
-        )}
-      </header>
+      <aside className="flex flex-col gap-4 p-4 bg-gray-50">
+        <div className="flex-1">
+          <h3 className="font-bold text-2xl mb-6">Job Seekr</h3>
+          {authStatus.state._kind === 'Error' && (
+            <div className="flex gap-2">
+              <a href="/auth/login" className="btn green">
+                Login
+              </a>
+            </div>
+          )}
+          {authStatus.state._kind === 'Ready' && (
+            <div className="flex flex-col gap-2">
+              <NavLink to="/applications" className="btn green">
+                My applications
+              </NavLink>
+              <NavLink to="/application/new" className="btn green">
+                Add application
+              </NavLink>
+              <button className="btn green" onClick={() => handleExport()}>
+                Export PDF
+              </button>
+              <a href="/auth/logout" className="btn green">
+                Logout
+              </a>
+            </div>
+          )}
+        </div>
+        <footer className="page-footer">
+          <p><NavLink to="/about">Read more about this project.</NavLink></p>
+          <p className="text-sm">
+            Developed by <a href="https://www.linkedin.com/in/ivandemchenko/" target="_blank">Ivan Demchenko</a>
+          </p>
+          <p className="text-sm">
+            <a href="https://github.com/ivan-demchenko/job-seekr-app" target="_blank">View it on GitHub</a> or <a href="https://buymeacoffee.com/ivan.demchenko" target="_blank">support the project</a>
+          </p>
+        </footer>
+      </aside>
 
-      <main className="p-4 container flex-1 overflow-auto">
+      <main className="p-4 container flex-1">
         <Outlet />
       </main>
-
-      <footer className="page-footer">
-        <p>All data gets stored locally. <NavLink to="/about">Read more about this project.</NavLink></p>
-        <p className="text-sm">
-          Developed by <a href="https://www.linkedin.com/in/ivandemchenko/" target="_blank">Ivan Demchenko</a>
-        </p>
-        <p className="text-sm">
-          <a href="https://github.com/ivan-demchenko/job-seekr-app" target="_blank">View it on GitHub</a> or <a href="https://buymeacoffee.com/ivan.demchenko" target="_blank">support the project</a>
-        </p>
-      </footer>
     </>
   );
 }

@@ -14,7 +14,7 @@
 }
 
 .data-table tbody td {
-  @apply p-3 text-gray-600;
+  @apply p-3 text-gray-600 align-top;
 }
 
 .form-input {
@@ -35,7 +35,7 @@
 }
 
 .btn {
-  @apply rounded-full px-4 py-2;
+  @apply rounded-full px-4 py-3 text-left font-bold bg-gray-200 transition-colors cursor-pointer;
 }
 
 .btn.compact {
@@ -43,7 +43,8 @@
 }
 
 .btn.green {
-  @apply bg-green-600 text-white
+  @apply text-green-600;
+  @apply hover:bg-green-600 hover:text-green-200;
 }
 
 .btn.gray {
@@ -88,7 +89,7 @@
 }
 
 .page-footer {
-  @apply px-4 py-8 container text-gray-600 text-center;
+  @apply text-gray-600 text-center;
 
   a {
     @apply underline;

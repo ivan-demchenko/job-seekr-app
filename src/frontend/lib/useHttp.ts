@@ -4,11 +4,11 @@ import { ZodError, type ZodSchema } from "zod";
 import { CaseEmpty, CasePayload } from "./case";
 
 export type HTTPConfig<T> = {
-  method?: string,
-  body?: string,
   url: string,
   decoder: ZodSchema<T>,
-  onError: (error: HTTPError) => void
+  method?: string,
+  body?: string,
+  onError?: (error: HTTPError) => void
 }
 
 const Unauthenticated = () => new CaseEmpty('Unauthenticated' as const);
@@ -41,7 +41,7 @@ export function useHTTP<T extends { toString: () => string }>(
           if (resp.status === 401) {
             const err = Unauthenticated();
             setResponse(RD.Error(err));
-            return config.onError(err);
+            return config.onError && config.onError(err);
           }
         }
 
@@ -51,26 +51,26 @@ export function useHTTP<T extends { toString: () => string }>(
         setResponse(RD.Ready(data));
       } catch (e) {
         if (ac.signal.aborted) {
-          setResponse(RD.Idle());
+          return setResponse(RD.Idle());
         }
         if (e instanceof ZodError) {
           const err = BadResponse('Decoding failed due to unexpected data');
           setResponse(RD.Error(err));
-          return config.onError(err);
+          return config.onError && config.onError(err);
         }
         if (e instanceof SyntaxError) {
           const err = BadResponse('Invalid response body');
           setResponse(RD.Error(err));
-          return config.onError(err);
+          return config.onError && config.onError(err);
         }
         if (e instanceof Error) {
           const err = NetworkError(e.message);
           setResponse(RD.Error(err));
-          return config.onError(err);
+          return config.onError && config.onError(err);
         }
         const err = NetworkError('Unknown error');
         setResponse(RD.Error(err));
-        return config.onError(err);
+        return config.onError && config.onError(err);
       }
     }
     runFetch();

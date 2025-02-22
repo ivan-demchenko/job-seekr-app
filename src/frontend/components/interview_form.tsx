@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from "react";
-import { NavLink } from "react-router";
 import { dateToTimestamp } from "../../utils";
 import type { InterviewModel } from "../../drivers/schemas";
 
@@ -13,6 +12,7 @@ type FormInterviewModel = Omit<InterviewModel, 'id' | 'interview_date'> & { inte
 type AddInterviewForm = {
   application_id: string,
   onInterviewAdded: (interview: InterviewModel) => void
+  onCancel: () => void
 }
 
 export default function AddInterviewForm(props: AddInterviewForm) {
@@ -25,6 +25,7 @@ export default function AddInterviewForm(props: AddInterviewForm) {
   });
 
   const [isBusy, setIsBusy] = useState(false);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setIsBusy(true);
@@ -89,8 +90,8 @@ export default function AddInterviewForm(props: AddInterviewForm) {
         </div>
       </div>
       <div className="form-actions">
-        <button disabled={isBusy} type="submit" className="btn green">Add</button>
-        <NavLink to="/" className="btn gray">Back</NavLink>
+        <button disabled={isBusy} type="submit" className="btn green">Add interview</button>
+        <button disabled={isBusy} onClick={() => props.onCancel()} className="btn gray">Cancel</button>
       </div>
     </form>
   )

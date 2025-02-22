@@ -4,7 +4,15 @@ import AddInterviewForm from "../../components/interview_form";
 import { printDate, renderMD } from "../../../utils";
 import { InterviewsList } from "../../components/interviews_list";
 import { Banner } from "../../components/banner";
-import type { ApplicationSelectModel, InterviewModel } from "../../../drivers/schemas";
+import { applicationSelectSchema, interviewSelectSchema, type ApplicationSelectModel, type InterviewModel } from "../../../drivers/schemas";
+import { z } from "zod";
+
+const decoder = z.object({
+  data: z.object({
+    application: applicationSelectSchema,
+    interviews: z.array(interviewSelectSchema)
+  })
+});
 
 export default function ViewApplication() {
   let { id } = useParams();
@@ -20,10 +28,14 @@ export default function ViewApplication() {
       const resp = await fetch(`/api/applications/${id}`, {
         headers: { 'Accept': 'application/json' }
       });
-      const data = await resp.json();
-      setApplication(data.data.application);
-      setNewJD(data.data.application.job_description)
-      setInterviews(data.data.interviews)
+      const raw = await resp.json();
+      const parsed = decoder.safeParse(raw);
+      if (parsed.success) {
+        const { application, interviews } = parsed.data.data
+        setApplication(application);
+        setNewJD(application.job_description)
+        setInterviews(interviews)
+      }
     }
     fetchApplication();
   }, []);
@@ -65,9 +77,6 @@ export default function ViewApplication() {
   return (
     <>
       <section>
-        <div className="py-1 px-3 mb-2 bg-gray-100 rounded-xl">
-          <NavLink to="/" className="text-blue-500">Back</NavLink>
-        </div>
         <h1 className="text-center font-bold text-2xl mb-4">
           {application.position} @ {application.company}
         </h1>
@@ -124,6 +133,9 @@ export default function ViewApplication() {
             setInterviews(oldRecs => {
               return [...oldRecs, interview].sort((a, b) => a.interview_date - b.interview_date)
             })
+          }}
+          onCancel={() => {
+            setAddingInterview(false);
           }}
         />
       )}

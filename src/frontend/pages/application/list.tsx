@@ -1,8 +1,8 @@
 import { NavLink, useNavigate } from "react-router";
-import { printDate } from "../../utils";
-import { Banner } from "../components/banner";
-import { applicationWithInterviewSchema } from "../../drivers/schemas";
-import { useHTTP } from "../lib/useHttp";
+import { printDate } from "../../../utils";
+import { Banner } from "../../components/banner";
+import { applicationWithInterviewSchema } from "../../../drivers/schemas";
+import { useHTTP } from "../../lib/useHttp";
 import { z } from "zod";
 
 const decoder = z.object({
@@ -21,6 +21,8 @@ export default function Index() {
       }
     }
   });
+
+  console.log(state);
 
   switch (state._kind) {
     case 'Idle': return <Banner message="Loading..." />;
