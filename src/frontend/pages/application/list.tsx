@@ -56,20 +56,24 @@ export default function Index() {
                 <th>When applied</th>
                 <th>Interviews</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {applications.map(app => {
                 return (
                   <tr key={app.id}>
-                    <td>
-                      <NavLink to={`/application/view/${app.id}`}>
-                        {app.company}
-                      </NavLink>
+                    <td className="font-bold">
+                      {app.company}
                     </td>
                     <td>{printDate(app.application_date)}</td>
                     <td>{app.interviewsCount}</td>
                     <td>{app.status}</td>
+                    <td>
+                      <NavLink to={`/application/view/${app.id}`} className="btn compact">
+                        View
+                      </NavLink>
+                    </td>
                   </tr>
                 )
               })}

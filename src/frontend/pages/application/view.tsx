@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, useParams } from "react-router";
+import { useParams } from "react-router";
 import AddInterviewForm from "../../components/interview_form";
 import { printDate, renderMD } from "../../../utils";
 import { InterviewsList } from "../../components/interviews_list";
@@ -49,12 +49,9 @@ export default function ViewApplication() {
       })
     });
     const data = await resp.json();
-    if (data.data.ok) {
+    if (resp.ok) {
       setIsEditingJD(false);
-      setApplication({
-        ...application!,
-        job_description: newJD
-      });
+      setApplication(data.data);
       alert('Updated!');
     }
   }
@@ -65,8 +62,8 @@ export default function ViewApplication() {
       body: JSON.stringify({ target: 'status', status: newStatus })
     });
     const data = await resp.json();
-    if (data.data.ok) {
-      alert('Updated!');
+    if (resp.ok) {
+      alert(`New status: ${data.data.status}`);
     }
   }
 
@@ -111,7 +108,11 @@ export default function ViewApplication() {
       </section>
       <section>
         <h3 className="text-center font-bold text-xl m-4">Interviews</h3>
-        <div className="my-2">
+        {interviews.length === 0
+          ? <Banner message="No interviews scheduled yet." />
+          : <InterviewsList interviews={interviews} />
+        }
+        <div className="my-2 flex flex-col items-center">
           <button
             type="submit"
             className="btn green"
@@ -120,10 +121,6 @@ export default function ViewApplication() {
             Add interview
           </button>
         </div>
-        {interviews.length === 0
-          ? <Banner message="No interviews scheduled yet." />
-          : <InterviewsList interviews={interviews} />
-        }
       </section>
       {addingInterview && (
         <AddInterviewForm
