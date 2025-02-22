@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from 'neverthrow';
 import { type InterviewsRepository } from '../repository/interviews';
-import { interviewInsertSchema, type InterviewModel } from '../../drivers/schemas';
+import { type InterviewModel, interviewInsertSchema } from '../../domain/validation.schemas';
 
 export class InterviewsController {
   constructor(

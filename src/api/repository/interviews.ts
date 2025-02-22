@@ -1,17 +1,18 @@
 import { Result, Ok, Err } from 'neverthrow';
-import * as tables from '../../drivers/schemas';
+import { interviews } from '../../domain/db.schemas';
 import { eq } from 'drizzle-orm';
 import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { InterviewModel } from '../../domain/validation.schemas';
 
 export class InterviewsRepository {
   constructor(
     private db: NeonHttpDatabase
   ) { }
   async addInterview(
-    payload: tables.InterviewModel
-  ): Promise<Result<tables.InterviewModel, string>> {
+    payload: InterviewModel
+  ): Promise<Result<InterviewModel, string>> {
     try {
-      await this.db.insert(tables.interviews).values(payload).onConflictDoNothing();
+      await this.db.insert(interviews).values(payload).onConflictDoNothing();
       return new Ok(payload);
     } catch (e) {
       if (e instanceof Error) {
@@ -23,12 +24,12 @@ export class InterviewsRepository {
 
   async getInterviews(
     applicationId: string
-  ): Promise<Result<tables.InterviewModel[], string>> {
+  ): Promise<Result<InterviewModel[], string>> {
     try {
       const data = await this.db
         .select()
-        .from(tables.interviews)
-        .where(eq(tables.interviews.application_id, applicationId));
+        .from(interviews)
+        .where(eq(interviews.application_id, applicationId));
       return new Ok(data);
     } catch (e) {
       if (e instanceof Error) {
@@ -38,9 +39,9 @@ export class InterviewsRepository {
     }
   }
 
-  async getAllInterviews(): Promise<Result<tables.InterviewModel[], string>> {
+  async getAllInterviews(): Promise<Result<InterviewModel[], string>> {
     try {
-      const rawData = await this.db.select().from(tables.interviews);
+      const rawData = await this.db.select().from(interviews);
       return new Ok(rawData);
     } catch (e) {
       if (e instanceof Error) {

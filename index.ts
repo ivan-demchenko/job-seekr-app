@@ -5,7 +5,7 @@ import { InterviewsRepository } from './src/api/repository/interviews';
 import { ApplicationsController } from './src/api/controllers/applications';
 import { ApplicationsRepository } from './src/api/repository/applications';
 import { ExportController } from './src/api/controllers/export';
-import { initDB } from './src/drivers/db';
+import { initDB } from './src/api/db';
 import { EnvConfig } from './env';
 
 const dbConnection = initDB(EnvConfig.DATABASE_URL);

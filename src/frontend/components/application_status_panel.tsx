@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ApplicationSelectModel } from "../../drivers/schemas";
+import type { ApplicationSelectModel } from "../../domain/validation.schemas";
 
 type Props = {
   application: ApplicationSelectModel;

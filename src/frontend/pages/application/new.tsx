@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { dateToTimestamp, getCurrentTimestamp, timestampToISO } from "../../../utils";
-import type { ApplicationSelectModel } from "../../../drivers/schemas";
+import type { ApplicationSelectModel } from "../../../domain/validation.schemas";
 
-type FormApplicationModel = Omit<ApplicationSelectModel, 'id' | 'user_id' | 'application_date'> & { application_date: string };
+type FormApplicationModel =
+  Omit<ApplicationSelectModel, 'id' | 'user_id' | 'application_date'>
+  & { application_date: string };
 
 export default function NewApplication() {
   let navigate = useNavigate();

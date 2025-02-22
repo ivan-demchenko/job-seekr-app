@@ -2,8 +2,8 @@ import { Document, Page, Text, View, StyleSheet, render, renderToStream, renderT
 import { Err, Ok, type Result } from 'neverthrow';
 import { type InterviewsRepository } from '../repository/interviews';
 import { type ApplicationsRepository } from '../repository/applications';
-import type { ApplicationWithInterviewModel, InterviewModel } from '../../drivers/schemas';
 import { printDate } from '../../utils';
+import type { ApplicationWithInterviewModel, InterviewModel } from '../../domain/validation.schemas';
 
 // Create styles
 const styles = StyleSheet.create({

@@ -1,9 +1,9 @@
 import { NavLink, useNavigate } from "react-router";
 import { printDate } from "../../../utils";
 import { Banner } from "../../components/banner";
-import { applicationWithInterviewSchema } from "../../../drivers/schemas";
 import { useHTTP } from "../../lib/useHttp";
 import { z } from "zod";
+import { applicationWithInterviewSchema } from "../../../domain/validation.schemas";
 
 const decoder = z.object({
   data: z.array(applicationWithInterviewSchema)

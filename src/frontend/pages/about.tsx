@@ -10,7 +10,7 @@ export default function About() {
         they need to report to the Agency every once in a while.
       </p>
       <p className="mb-4">
-        This app design specifically to work locally (to avoid any concerns about data privacy), be open source and minimal.
+        This project is open source and follows minimal design. You can run it locally, or use a cloud version.
         I built in in my spare time and would appreciate any <a href="https://buymeacoffee.com/ivan.demchenko" target="_blank" className="text-blue-700">support</a> or <a href="https://github.com/ivan-demchenko/job-seekr-app" target="_blank" className="text-blue-700">contribution</a>.
       </p>
       <p className="mb-4">

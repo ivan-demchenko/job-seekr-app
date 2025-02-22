@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from 'neverthrow';
 import { type ApplicationsRepository } from '../repository/applications';
-import { applicationInsertSchema, type ApplicationSelectModel, type NewApplicationModel } from '../../drivers/schemas';
+import { applicationInsertSchema, type ApplicationSelectModel } from '../../domain/validation.schemas';
 
 export class ApplicationsController {
   constructor(

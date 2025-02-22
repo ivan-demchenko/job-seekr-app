@@ -1,13 +1,16 @@
 import { Result, Ok, Err } from 'neverthrow';
-import * as tables from '../../drivers/schemas';
+import * as tables from '../../domain/db.schemas';
 import { and, count, eq } from 'drizzle-orm';
 import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { ApplicationSelectModel, ApplicationWithInterviewModel, InterviewModel, NewApplicationModel } from '../../domain/validation.schemas';
 
 export class ApplicationsRepository {
   constructor(
     private db: NeonHttpDatabase
   ) { }
-  async getAllApplications(userId: string): Promise<Result<tables.ApplicationWithInterviewModel[], string>> {
+  async getAllApplications(
+    userId: string
+  ): Promise<Result<ApplicationWithInterviewModel[], string>> {
     try {
       const applications = await this.db
         .select({
@@ -35,8 +38,8 @@ export class ApplicationsRepository {
   }
 
   async getApplicationById(userId: string, id: string): Promise<Result<{
-    application: tables.ApplicationSelectModel,
-    interviews: tables.InterviewModel[]
+    application: ApplicationSelectModel,
+    interviews: InterviewModel[]
   }, string>> {
     try {
       const applications = await this.db.select()
@@ -70,7 +73,7 @@ export class ApplicationsRepository {
     userId: string,
     id: string,
     newStatus: string
-  ): Promise<Result<tables.ApplicationSelectModel, string>> {
+  ): Promise<Result<ApplicationSelectModel, string>> {
     try {
       const res = await this.db.update(tables.applications)
         .set({ status: newStatus })
@@ -113,8 +116,8 @@ export class ApplicationsRepository {
   }
 
   async addApplication(
-    payload: tables.NewApplicationModel
-  ): Promise<Result<tables.ApplicationSelectModel, string>> {
+    payload: NewApplicationModel
+  ): Promise<Result<ApplicationSelectModel, string>> {
     try {
       const record = await this.db.insert(tables.applications).values(payload).onConflictDoNothing().returning();
       return new Ok(record[0]);

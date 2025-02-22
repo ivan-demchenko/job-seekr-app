@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { dateToTimestamp } from "../../utils";
-import type { InterviewModel } from "../../drivers/schemas";
+import type { InterviewModel } from "../../domain/validation.schemas";
 
 /**
  * This is because of the date input below.

@@ -1,4 +1,4 @@
-import type { InterviewModel } from "../../drivers/schemas"
+import type { InterviewModel } from "../../domain/validation.schemas"
 import { printDateTime, renderMD } from "../../utils"
 
 type Props = {

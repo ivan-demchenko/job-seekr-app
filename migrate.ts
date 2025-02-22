@@ -1,5 +1,5 @@
 import { migrate } from "drizzle-orm/neon-http/migrator";
-import { initDB } from "./src/drivers/db";
+import { initDB } from "./src/api/db";
 import { EnvConfig } from './env';
 
 const dbConnection = initDB(EnvConfig.DATABASE_URL);

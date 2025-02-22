@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import AddInterviewForm from "../../components/interview_form";
-import { printDate, renderMD } from "../../../utils";
+import { printDate } from "../../../utils";
 import { InterviewsList } from "../../components/interviews_list";
 import { Banner } from "../../components/banner";
-import { applicationSelectSchema, interviewSelectSchema, type ApplicationSelectModel, type InterviewModel } from "../../../drivers/schemas";
 import { z } from "zod";
 import ApplicationStatusPanel from "../../components/application_status_panel";
 import ApplicationJobDescription from "../../components/application_jd";
+import { applicationSelectSchema, interviewSelectSchema, type ApplicationSelectModel, type InterviewModel } from "../../../domain/validation.schemas";
 
 const decoder = z.object({
   data: z.object({
