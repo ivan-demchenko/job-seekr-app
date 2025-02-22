@@ -37,7 +37,13 @@ export default function Index() {
     case 'Ready': {
       const applications = state._payload.data;
       if (applications.length === 0) {
-        return <Banner message="No applications in here yet. Use the green button to add one!" />
+        return (
+          <div className="flex flex-col items-center">
+            <h1 className="text-2xl font-bold text-center">Applications</h1>
+            <Banner message="No applications in here yet. Add your first one!" />
+            <NavLink to="/application/new" className="btn green">Add application</NavLink>
+          </div>
+        )
       }
 
       return (
