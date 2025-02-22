@@ -11,6 +11,7 @@ export default function NewApplication() {
     company: '',
     position: '',
     job_description: '',
+    job_posting_url: '',
     application_date: timestampToISO(getCurrentTimestamp()),
     status: 'applied'
   });
@@ -42,22 +43,29 @@ export default function NewApplication() {
           <label>Company name</label>
           <input disabled={isBusy} type="text" name="company" value={form.company} onChange={e => setForm(oldForm => ({
             ...oldForm,
-            [e.target.name]: e.target.value
+            company: e.target.value
           }))} />
         </div>
         <div className="form-input">
           <label>Position</label>
           <input disabled={isBusy} type="text" name="position" value={form.position} onChange={e => setForm(oldForm => ({
             ...oldForm,
-            [e.target.name]: e.target.value
+            position: e.target.value
+          }))} />
+        </div>
+        <div className="form-input">
+          <label>Job posting url</label>
+          <input disabled={isBusy} type="url" name="job_posting_url" value={form.job_posting_url} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            job_posting_url: e.target.value
           }))} />
         </div>
         <div className="form-input">
           <label>Job description</label>
           <textarea disabled={isBusy} name="job_description" value={form.job_description} onChange={e => setForm(oldForm => ({
             ...oldForm,
-            [e.target.name]: e.target.value
-          }))}></textarea>
+            job_description: e.target.value
+          }))} />
         </div>
         <div className="form-input">
           <label>Application Date</label>

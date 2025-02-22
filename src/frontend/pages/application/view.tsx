@@ -54,6 +54,12 @@ export default function ViewApplication() {
         <dl className="def-list">
           <dt>Applied</dt>
           <dd>{printDate(application.application_date)}</dd>
+          <dt>Job posting url</dt>
+          <dd>
+            <a href={application.job_posting_url} target="_blank">
+              View on {new URL(application.job_posting_url).host}
+            </a>
+          </dd>
           <dt>Job description</dt>
           <dd>
             <ApplicationJobDescription

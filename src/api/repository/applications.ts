@@ -17,6 +17,7 @@ export class ApplicationsRepository {
           application_date: tables.applications.application_date,
           status: tables.applications.status,
           job_description: tables.applications.job_description,
+          job_posting_url: tables.applications.job_posting_url,
           interviewsCount: count(tables.interviews.id),
           user_id: tables.applications.user_id,
         })

@@ -1,0 +1,1 @@
+ALTER TABLE "applications" RENAME COLUMN "job_url" TO "job_posting_url";

@@ -9,6 +9,7 @@ export const applications = pgTable("applications", {
   company: text().notNull(),
   position: text().notNull(),
   job_description: text().notNull(),
+  job_posting_url: text().notNull().default(''),
   application_date: bigint({ mode: 'number' }).notNull().default(sql`extract(epoch from now())`),
   status: varchar({ length: 30 }).notNull()
 });
