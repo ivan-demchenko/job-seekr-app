@@ -22,8 +22,6 @@ export default function Index() {
     }
   });
 
-  console.log(state);
-
   switch (state._kind) {
     case 'Idle': return <Banner message="Loading..." />;
     case 'Loading': return <Banner message="Loading..." />;

@@ -51,7 +51,7 @@ export default function MainLayout() {
           )}
           {authStatus.state._kind === 'Ready' && (
             <div className="flex flex-col gap-2">
-              <NavLink to="/applications" className="btn green">
+              <NavLink to="/" className="btn green">
                 My applications
               </NavLink>
               <NavLink to="/application/new" className="btn green">
