@@ -1,4 +1,4 @@
-import { format, getTime } from 'date-fns';
+import { format, formatISO, getTime } from 'date-fns';
 import { Marked } from 'marked';
 import DOMPurify from 'dompurify';
 
@@ -20,6 +20,10 @@ export const printDateTime = (timestamp?: number): string => {
 
 export const dateToTimestamp = (str: string): number => {
   return getTime(str);
+}
+
+export const timestampToISO = (timestamp: number): string => {
+  return formatISO(new Date(timestamp)).substring(0, "yyyy-MM-ddThh:mm".length);
 }
 
 export const getCurrentTimestamp = (): number => {

@@ -6,6 +6,8 @@ import { InterviewsList } from "../../components/interviews_list";
 import { Banner } from "../../components/banner";
 import { applicationSelectSchema, interviewSelectSchema, type ApplicationSelectModel, type InterviewModel } from "../../../drivers/schemas";
 import { z } from "zod";
+import ApplicationStatusPanel from "../../components/application_status_panel";
+import ApplicationJobDescription from "../../components/application_jd";
 
 const decoder = z.object({
   data: z.object({
@@ -20,52 +22,23 @@ export default function ViewApplication() {
   const [addingInterview, setAddingInterview] = useState(false);
   const [application, setApplication] = useState<ApplicationSelectModel | null>(null);
   const [interviews, setInterviews] = useState<InterviewModel[]>([]);
-  const [isEditingJD, setIsEditingJD] = useState(false);
-  const [newJD, setNewJD] = useState('');
+
+  async function fetchApplication() {
+    const resp = await fetch(`/api/applications/${id}`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    const raw = await resp.json();
+    const parsed = decoder.safeParse(raw);
+    if (parsed.success) {
+      const { application, interviews } = parsed.data.data
+      setApplication(application);
+      setInterviews(interviews)
+    }
+  }
 
   useEffect(() => {
-    async function fetchApplication() {
-      const resp = await fetch(`/api/applications/${id}`, {
-        headers: { 'Accept': 'application/json' }
-      });
-      const raw = await resp.json();
-      const parsed = decoder.safeParse(raw);
-      if (parsed.success) {
-        const { application, interviews } = parsed.data.data
-        setApplication(application);
-        setNewJD(application.job_description)
-        setInterviews(interviews)
-      }
-    }
     fetchApplication();
   }, []);
-
-  async function saveNewJD(newJD: string) {
-    const resp = await fetch(`/api/applications/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        target: 'job_description',
-        job_description: newJD
-      })
-    });
-    const data = await resp.json();
-    if (resp.ok) {
-      setIsEditingJD(false);
-      setApplication(data.data);
-      alert('Updated!');
-    }
-  }
-
-  async function setStatus(newStatus: string) {
-    const resp = await fetch(`/api/applications/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ target: 'status', status: newStatus })
-    });
-    const data = await resp.json();
-    if (resp.ok) {
-      alert(`New status: ${data.data.status}`);
-    }
-  }
 
   if (!application) {
     return <div>Loading...</div>
@@ -77,39 +50,25 @@ export default function ViewApplication() {
         <h1 className="text-center font-bold text-2xl mb-4">
           {application.position} @ {application.company}
         </h1>
-        <div>
-          <dl className="def-list">
-            <dt>Applied</dt>
-            <dd>{printDate(application.application_date)}</dd>
-            <dt className="inline-flex gap-1">
-              <span>Job description</span>
-              {isEditingJD
-                ? <>
-                  <button className="text-green-600 text-sm" onClick={() => saveNewJD(newJD)}>Save</button>
-                  <button className="text-gray-600 text-sm" onClick={() => setIsEditingJD(false)}>Cancel</button>
-                </>
-                : <button className="text-blue-600 text-sm" onClick={() => setIsEditingJD(true)}>Edit</button>
-              }
-            </dt>
-            {isEditingJD
-              ? <dd className="form-input">
-                <textarea value={newJD} onChange={e => setNewJD(e.target.value)}></textarea>
-              </dd>
-              : <dd className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(application.job_description) }} />
-            }
-          </dl>
-        </div>
-      </section>
-      <section className="flex gap-2 bg-gray-100 p-2 items-center">
-        <span>Set status:</span>
-        <button className="btn compact" onClick={() => setStatus('interviews')}>Interviews</button>
-        <button className="btn compact" onClick={() => setStatus('no_response')}>No response</button>
-        <button className="btn compact" onClick={() => setStatus('rejection')}>Rejection</button>
+        <ApplicationStatusPanel application={application} />
+        <dl className="def-list">
+          <dt>Applied</dt>
+          <dd>{printDate(application.application_date)}</dd>
+          <dt>Job description</dt>
+          <dd>
+            <ApplicationJobDescription
+              application={application}
+              onSave={() => {
+                fetchApplication();
+              }}
+            />
+          </dd>
+        </dl>
       </section>
       <section>
         <h3 className="text-center font-bold text-xl m-4">Interviews</h3>
         {interviews.length === 0
-          ? <Banner message="No interviews scheduled yet." />
+          ? <Banner>No interviews scheduled yet</Banner>
           : <InterviewsList interviews={interviews} />
         }
         <div className="my-2 flex flex-col items-center">

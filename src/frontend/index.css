@@ -9,6 +9,7 @@
 }
 
 .data-table tbody tr {
+  @apply cursor-pointer;
   @apply nth-[2n+1]:bg-gray-100;
   @apply hover:bg-green-100;
 }
@@ -36,10 +37,19 @@
 
 .btn {
   @apply rounded-full px-4 py-3 text-left font-bold bg-gray-200 transition-colors cursor-pointer;
+  @apply disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn.busy {
+  @apply cursor-wait opacity-50;
 }
 
 .btn.compact {
   @apply rounded px-2 py-1 bg-gray-200 text-gray-600 font-bold;
+}
+
+.btn.active {
+  @apply bg-green-200 text-green-700;
 }
 
 .btn.green {

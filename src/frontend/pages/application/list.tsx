@@ -23,15 +23,15 @@ export default function Index() {
   });
 
   switch (state._kind) {
-    case 'Idle': return <Banner message="Loading..." />;
-    case 'Loading': return <Banner message="Loading..." />;
+    case 'Idle': return <Banner>Loading...</Banner>;
+    case 'Loading': return <Banner>Loading...</Banner>;
     case 'Error': {
       switch (state._payload._kind) {
         case 'Unauthenticated': {
-          return <Banner message="You need to login" />
+          return <Banner type="warning">You need to <a href="/auth/login">login</a>.</Banner>
         }
-        case 'BadResponse': return <Banner message="Sorry, the app is missbehaving" />
-        case 'NetworkError': return <Banner message="Looks like the connection is unstable" />
+        case 'BadResponse': return <Banner type="warning">Sorry, the app is missbehaving</Banner>
+        case 'NetworkError': return <Banner type="warning">Looks like the connection is unstable</Banner>
       }
     }
     case 'Ready': {
@@ -40,7 +40,7 @@ export default function Index() {
         return (
           <div className="flex flex-col items-center">
             <h1 className="text-2xl font-bold text-center">Applications</h1>
-            <Banner message="No applications in here yet. Add your first one!" />
+            <Banner>No applications in here yet. Add your first one!</Banner>
             <NavLink to="/application/new" className="btn green">Add application</NavLink>
           </div>
         )
@@ -56,24 +56,22 @@ export default function Index() {
                 <th>When applied</th>
                 <th>Interviews</th>
                 <th>Status</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
               {applications.map(app => {
                 return (
-                  <tr key={app.id}>
+                  <tr key={app.id} onClick={() => {
+                    navigate(`/application/view/${app.id}`);
+                  }}>
                     <td className="font-bold">
-                      {app.company}
+                      <NavLink to={`/application/view/${app.id}`}>
+                        {app.company}
+                      </NavLink>
                     </td>
                     <td>{printDate(app.application_date)}</td>
                     <td>{app.interviewsCount}</td>
                     <td>{app.status}</td>
-                    <td>
-                      <NavLink to={`/application/view/${app.id}`} className="btn compact">
-                        View
-                      </NavLink>
-                    </td>
                   </tr>
                 )
               })}

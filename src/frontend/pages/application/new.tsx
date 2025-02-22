@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
-import { getCurrentTimestamp } from "../../../utils";
+import { dateToTimestamp, getCurrentTimestamp, timestampToISO } from "../../../utils";
 import type { ApplicationSelectModel } from "../../../drivers/schemas";
 
-type FormApplicationModel = Omit<ApplicationSelectModel, 'id' | 'user_id'>;
+type FormApplicationModel = Omit<ApplicationSelectModel, 'id' | 'user_id' | 'application_date'> & { application_date: string };
 
 export default function NewApplication() {
   let navigate = useNavigate();
@@ -11,7 +11,7 @@ export default function NewApplication() {
     company: '',
     position: '',
     job_description: '',
-    application_date: getCurrentTimestamp(),
+    application_date: timestampToISO(getCurrentTimestamp()),
     status: 'applied'
   });
 
@@ -22,7 +22,10 @@ export default function NewApplication() {
     try {
       const resp = await fetch('/api/applications', {
         method: 'POST',
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          ...form,
+          application_date: dateToTimestamp(form.application_date)
+        })
       });
       const data = resp.json();
       navigate('/');
@@ -55,6 +58,23 @@ export default function NewApplication() {
             ...oldForm,
             [e.target.name]: e.target.value
           }))}></textarea>
+        </div>
+        <div className="form-input">
+          <label>Application Date</label>
+          <input
+            disabled={isBusy}
+            type="datetime-local"
+            name="application_date"
+            value={form.application_date}
+            onChange={e => {
+              setForm(oldForm => {
+                return {
+                  ...oldForm,
+                  application_date: e.target.value
+                };
+              })
+            }}
+          />
         </div>
         <div className="form-actions">
           <button disabled={isBusy} type="submit" className="btn green">Add</button>

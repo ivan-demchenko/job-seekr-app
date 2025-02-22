@@ -1,10 +1,21 @@
+import type { FunctionComponent, PropsWithChildren } from "react";
+
 type Props = {
-  message: string;
+  type?: 'info' | 'warning'
 }
-export function Banner({ message }: Props) {
+
+export const Banner: FunctionComponent<PropsWithChildren<Props>> = ({ children, type }) => {
+  const classes = [
+    'm-4 p-6 shadow-md rounded-xl border',
+    type === 'info'
+      ? 'border-blue-200'
+      : type === 'warning'
+        ? 'border-orange-200'
+        : 'border-gray-200'
+  ]
   return (
-    <div className="m-4 max-w-5xl p-6 shadow-xl rounded-xl mx-auto">
-      {message}
+    <div className={classes.join(' ')}>
+      {children}
     </div>
   );
 }
