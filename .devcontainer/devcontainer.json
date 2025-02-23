@@ -1,8 +1,12 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/marcosgomesneto/bun-devcontainers/tree/main/src/basic-bun
 {
-  "name": "Bun",
-  "dockerFile": "Dockerfile",
+  "name": "job-seekr-app",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "shutdownAction": "stopCompose",
+  // "dockerFile": "Dockerfile",
   // Configure tool-specific properties.
   "customizations": {
     // Configure properties specific to VS Code.
@@ -17,6 +21,9 @@
       ]
     }
   },
+  "forwardPorts": [
+    3000
+  ],
   "features": {
     "ghcr.io/shyim/devcontainers-features/bun:0": {}
   }

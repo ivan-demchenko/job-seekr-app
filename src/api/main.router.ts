@@ -3,17 +3,18 @@ import { type ApplicationsController } from './controllers/applications';
 import { type InterviewsController } from './controllers/interviews';
 import { type ExportController } from './controllers/export';
 import { logger } from 'hono/logger';
-import { getUser, kindeClient, sessionManager } from './auth.middleware';
+import { type WithAuthMiddleware } from './auth.middleware';
 import * as stream from 'hono/streaming'
 
 function makeApplicationsRouter(
+  authMiddleware: WithAuthMiddleware,
   applicationsController: ApplicationsController,
 ) {
   return new Hono()
-    .get('/', getUser, async (c) => {
+    .get('/', authMiddleware.middleware, async (c) => {
       return c.json({ data: await applicationsController.getAllApplications(c.var.user.id) });
     })
-    .post('/', getUser, async (c) => {
+    .post('/', authMiddleware.middleware, async (c) => {
       const payload = await c.req.json();
       // TODO: separate the REST and DB schemas
       const result = await applicationsController.addNewApplication(c.var.user.id, payload);
@@ -22,14 +23,14 @@ function makeApplicationsRouter(
       }
       return c.json({ data: result.value });
     })
-    .get('/:id', getUser, async (c) => {
+    .get('/:id', authMiddleware.middleware, async (c) => {
       const entry = await applicationsController.getApplicationById(c.var.user.id, c.req.param('id'));
       if (!entry) {
         return c.json({ error: 'not found' }, 404);
       }
       return c.json({ data: entry });
     })
-    .put('/:id', getUser, async (c) => {
+    .put('/:id', authMiddleware.middleware, async (c) => {
       // TODO: validate request
       const id = c.req.param('id');
       const command = await c.req.json();
@@ -43,10 +44,11 @@ function makeApplicationsRouter(
 }
 
 function makeInterviewsRouter(
+  authMiddleware: WithAuthMiddleware,
   interviewsController: InterviewsController,
 ) {
   return new Hono()
-    .post('/', getUser, async (c) => {
+    .post('/', authMiddleware.middleware, async (c) => {
       const payload = await c.req.json();
       // TODO: separate the REST and DB schemas
       const result = await interviewsController.addNewInterview(payload);
@@ -58,10 +60,11 @@ function makeInterviewsRouter(
 }
 
 function makeExportsRouter(
+  authMiddleware: WithAuthMiddleware,
   exportController: ExportController
 ) {
   return new Hono()
-    .get('/', getUser, async (c) => {
+    .get('/', authMiddleware.middleware, async (c) => {
       const res = await exportController.generateReport(c.var.user.id);
       if (res.isErr()) {
         return c.json({ error: res.error }, 500);
@@ -72,26 +75,44 @@ function makeExportsRouter(
     });
 }
 
-function makeAuthRouter() {
+function makeAuthRouter(
+  authMiddleware: WithAuthMiddleware,
+) {
   return new Hono()
     .get("/login", async (c) => {
-      const loginUrl = await kindeClient.login(sessionManager(c));
-      return c.redirect(loginUrl.toString());
+      if (authMiddleware._kind === 'cloud') {
+        const { authClient, sessionManager } = authMiddleware;
+        const loginUrl = await authClient.login(sessionManager(c));
+        return c.redirect(loginUrl.toString());
+      }
+      return c.redirect('/');
     })
     .get("/register", async (c) => {
-      const registerUrl = await kindeClient.register(sessionManager(c));
-      return c.redirect(registerUrl.toString());
+      if (authMiddleware._kind === 'cloud') {
+        const { authClient, sessionManager } = authMiddleware;
+        const registerUrl = await authClient.register(sessionManager(c));
+        return c.redirect(registerUrl.toString());
+      }
+      return c.redirect('/');
     })
     .get("/callback", async (c) => {
-      const url = new URL(c.req.url);
-      await kindeClient.handleRedirectToApp(sessionManager(c), url);
+      if (authMiddleware._kind === 'cloud') {
+        const { authClient, sessionManager } = authMiddleware;
+        const url = new URL(c.req.url);
+        await authClient.handleRedirectToApp(sessionManager(c), url);
+        return c.redirect("/");
+      }
       return c.redirect("/");
     })
     .get("/logout", async (c) => {
-      const logoutUrl = await kindeClient.logout(sessionManager(c));
-      return c.redirect(logoutUrl.toString());
+      if (authMiddleware._kind === 'cloud') {
+        const { authClient, sessionManager } = authMiddleware;
+        const logoutUrl = await authClient.logout(sessionManager(c));
+        return c.redirect(logoutUrl.toString());
+      }
+      return c.redirect("/");
     })
-    .get("/me", getUser, async (c) => {
+    .get("/me", authMiddleware.middleware, async (c) => {
       const user = c.var.user;
       return c.json({ user });
     });
@@ -99,18 +120,26 @@ function makeAuthRouter() {
 
 function makeAPIRoutes(
   app: Hono,
+  authMiddleware: WithAuthMiddleware,
   applicationsController: ApplicationsController,
   interviewsController: InterviewsController,
   exportController: ExportController,
 ) {
-  app.route('/auth', makeAuthRouter())
+  app.route('/auth', makeAuthRouter(authMiddleware))
   app.basePath('/api')
-    .route('/applications', makeApplicationsRouter(applicationsController))
-    .route('/interviews', makeInterviewsRouter(interviewsController))
-    .route('/export', makeExportsRouter(exportController));
+    .route('/applications', makeApplicationsRouter(
+      authMiddleware, applicationsController
+    ))
+    .route('/interviews', makeInterviewsRouter(
+      authMiddleware, interviewsController
+    ))
+    .route('/export', makeExportsRouter(
+      authMiddleware, exportController
+    ));
 }
 
 export default function makeMainRouter(
+  authMiddleware: WithAuthMiddleware,
   applicationsController: ApplicationsController,
   interviewsController: InterviewsController,
   exportController: ExportController,
@@ -120,6 +149,7 @@ export default function makeMainRouter(
   app.get('/health', (c) => c.text('ok'));
   makeAPIRoutes(
     app,
+    authMiddleware,
     applicationsController,
     interviewsController,
     exportController

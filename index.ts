@@ -7,11 +7,13 @@ import { ApplicationsRepository } from './src/api/repository/applications';
 import { ExportController } from './src/api/controllers/export';
 import { initDB } from './src/api/db';
 import { EnvConfig } from './env';
+import { makeAuthMiddleware } from './src/api/auth.middleware';
 
 const dbConnection = initDB(EnvConfig.DATABASE_URL);
 const applicationsRepository = new ApplicationsRepository(dbConnection);
 const interviewsRepository = new InterviewsRepository(dbConnection);
 const api = makeMainRouter(
+  makeAuthMiddleware(EnvConfig),
   new ApplicationsController(
     applicationsRepository
   ),
@@ -24,7 +26,7 @@ const api = makeMainRouter(
   )
 )
 
-// Use Bun insteaed of Vite or similar...
+// Use Bun instead of Vite or similar...
 const server = Bun.serve({
   static: {
     '/': indexHtml,

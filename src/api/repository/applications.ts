@@ -1,12 +1,12 @@
 import { Result, Ok, Err } from 'neverthrow';
 import * as tables from '../../domain/db.schemas';
 import { and, count, eq } from 'drizzle-orm';
-import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { ApplicationSelectModel, ApplicationWithInterviewModel, InterviewModel, NewApplicationModel } from '../../domain/validation.schemas';
 
 export class ApplicationsRepository {
   constructor(
-    private db: NeonHttpDatabase
+    private db: NodePgDatabase
   ) { }
   async getAllApplications(
     userId: string

@@ -1,12 +1,12 @@
 import { Result, Ok, Err } from 'neverthrow';
 import { interviews } from '../../domain/db.schemas';
 import { eq } from 'drizzle-orm';
-import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import type { InterviewModel } from '../../domain/validation.schemas';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 export class InterviewsRepository {
   constructor(
-    private db: NeonHttpDatabase
+    private db: NodePgDatabase
   ) { }
   async addInterview(
     payload: InterviewModel
