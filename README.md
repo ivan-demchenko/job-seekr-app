@@ -8,25 +8,20 @@ If you're looking for a job, I hope you'll find something quickly.
 
 I deliberately designed this app to run locally. I want your data to belong to you.
 
-So you can use Docker to spin it up using this command:
+So you can use Docker Compose to spin it up using this command:
 
 ```sh
-docker run -d --name job-seekr-app -p 3000:3000 -v ./db:/app/database -v ./reports:/app/files ghcr.io/ivan-demchenko/job-seekr-app:latest
+docker compose up -d
 ```
 
 Just type this line into your terminal and a few moments later you can open [http://localhost:3000](http://localhost:3000) to get started.
 
-What this command does is tell Docker to download the app, run it locally and in isolation, and give the app access to two folders on your machine:
-
-```
-./db - for the database
-./reports - for the generated PDFs
-```
+What this command does is tell Docker to download the app, setup the database, run them locally and in isolation.
 
 To stop the app, use:
 
-```
-docker kill job-seekr-app
+```sh
+docker compose down
 ```
 
 But you don't have to - it can sit there like a website running on your machine.
@@ -54,6 +49,7 @@ Play around with it and submit a PR. Any other suggestions are also welcome.
 #### If you change DB schema
 
 - Generate the migration script:
+
   ```sh
   bun run db:migration:generate
   ```
