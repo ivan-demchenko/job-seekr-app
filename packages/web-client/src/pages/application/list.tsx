@@ -28,7 +28,15 @@ export default function Index() {
     case 'Error': {
       switch (state._payload._kind) {
         case 'Unauthenticated': {
-          return <Banner type="warning">You need to <a href="/api/auth/login">login</a>.</Banner>
+          return (
+            <Banner type="warning">
+              <h3>Welcome to Job Seekr</h3>
+              <p>Here you can track your applications and interviews.</p>
+              <p>
+                But first, you need to <a href="/api/auth/login">login</a> or <a href="/api/auth/register">register</a>.
+              </p>
+            </Banner>
+          )
         }
         case 'BadResponse': return <Banner type="warning">Sorry, the app is missbehaving</Banner>
         case 'NetworkError': return <Banner type="warning">Looks like the connection is unstable</Banner>

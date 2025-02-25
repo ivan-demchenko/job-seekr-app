@@ -1,8 +1,16 @@
 # job-seekr-app
 
-This app was born during my job search.
+This app was born during my job search. If you're looking for a job, I hope you'll find something quickly.
 
-If you're looking for a job, I hope you'll find something quickly.
+## What this app does?
+
+Currently, it is a simple application tracker. You can:
+
+- Add a company and a position you applied to
+- Add interviews for an applicaton
+- Export your applications and interviews as a PDF
+
+More features are planned.
 
 ## How to run it?
 
@@ -38,25 +46,27 @@ This project was created using `bun init` in bun v1.2.2. [Bun](https://bun.sh) i
 bun install
 ```
 
-... and run it:
+and then run this command to spin up the API and Vite servers:
 
 ```bash
-bun run index.ts
+bun run --filter=@job-seekr/* dev
 ```
 
-Play around with it and submit a PR. Any other suggestions are also welcome.
+Now you can open [localhost:5173](http://localhost:5173/) to view the dev version of the app.
+
+Play around with it and submit a PR or an issue.
 
 #### If you change DB schema
 
 - Generate the migration script:
 
   ```sh
-  bun run db:migration:generate
+  bun run --filter=@job-seekr/data db:migration:generate
   ```
 
 - Execute the migration:
-  ```
-  db:migration:run
+  ```sh
+  bun run --filter=@job-seekr/data db:migration:run
   ```
 
 ### Other types of contributions
