@@ -11,6 +11,7 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV="production"
+ENV ENV="prod"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -22,6 +23,13 @@ FROM base AS build
 # Copy application code
 COPY . .
 RUN bun install --ci
+RUN bun run --filter=@job-seekr/api build
+RUN bun run --filter=@job-seekr/web-client build
+RUN bun run --filter=@job-seekr/data build
+
+# Remove unnecessary stuff
+RUN rm -rf ./packages
+RUN rm -rf ./node_modules
 
 # Final stage for app image
 FROM base
@@ -32,4 +40,4 @@ WORKDIR /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "bun", "run", "app:start" ]
+CMD [ "bun", "run", "start" ]

@@ -22,7 +22,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
-  
+
   job-seekr-db-setup:
     image: ghcr.io/ivan-demchenko/job-seekr-app:latest
     restart: "no"
@@ -32,7 +32,7 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@job-seekr-db:5432/postgres
       - HOSTING_MODE=local
       - ENV=prod
-    entrypoint: [ "bash", "-c", "bun run db:migration:run"]
+    entrypoint: [ "bash", "-c", "bun run db:migration:run" ]
 
 volumes:
   job-seekr-data:

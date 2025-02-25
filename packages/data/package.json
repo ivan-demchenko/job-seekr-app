@@ -1,0 +1,37 @@
+{
+  "name": "@job-seekr/data",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./db": "./db.ts",
+    "./utils": "./utils.ts",
+    "./tables": "./domain/db.schemas.ts",
+    "./validation": "./domain/validation.schemas.ts"
+  },
+  "scripts": {
+    "build": "bun build ./migrate.ts --target bun --outdir ../../dist/db",
+    "postbuild": "cp -r ./drizzle ../../dist/db",
+    "db:migration:generate": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:migration:run": "bun ./migrate.ts"
+  },
+  "author": {
+    "name": "Ivan Demchenko",
+    "email": "idemchenko.js@gmail.com",
+    "url": "https://github.com/ivan-demchenko/job-seekr-app"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@job-seekr/config": "workspace:*",
+    "drizzle-orm": "^0.39.3",
+    "drizzle-zod": "^0.7.0",
+    "pg": "^8.13.3",
+    "zod": "^3.24.2"
+  }
+}
