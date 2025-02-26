@@ -27,4 +27,25 @@ export class InterviewsController {
 
     return new Err('Database error: ' + result.error);
   }
+
+  async updateInterview(
+    interviewId: string,
+    payload: object
+  ): Promise<Result<InterviewModel, string>> {
+    const parsedPayload = interviewInsertSchema.safeParse(payload);
+
+    if (!parsedPayload.success) {
+      console.error(parsedPayload.error);
+      return new Err('Bad request body');
+    }
+
+    const result = await this.interviewsRepository
+      .updateInterview(interviewId, parsedPayload.data);
+
+    if (result.isOk()) {
+      return new Ok(parsedPayload.data);
+    }
+
+    return new Err('Database error: ' + result.error);
+  }
 }

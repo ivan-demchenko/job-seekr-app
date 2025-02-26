@@ -21,6 +21,25 @@ export class InterviewsRepository {
     }
   }
 
+  async updateInterview(
+    interviewId: string,
+    payload: InterviewModel
+  ): Promise<Result<InterviewModel, string>> {
+    try {
+      const res = await this.db
+        .update(tInterviews)
+        .set(payload)
+        .where(eq(tInterviews.id, interviewId))
+        .returning();
+      return new Ok(res[0]);
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to add an interview: ${e.message}`);
+      }
+      return new Err(`Failed to add an interview: unknown error`);
+    }
+  }
+
   async getInterviews(
     applicationId: string
   ): Promise<Result<InterviewModel[], string>> {

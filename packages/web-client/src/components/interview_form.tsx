@@ -1,26 +1,32 @@
-import { useState, type FormEvent } from "react";
-import { dateToTimestamp, timestampToISO } from "../utils";
-import type { InterviewModel } from "@job-seekr/data/validation";
+import { useState } from "react";
+import { timestampToISO } from "../utils";
+import type { InterviewModel, NewInterviewModel } from "@job-seekr/data/validation";
 
 /**
  * This is because of the date input below.
  * I'll let it do it's thing without interfering, but will convert
  * the input into a timestamp just before sending the form.
  */
-type InterviewFormModel = Omit<InterviewModel, 'id' | 'interview_date'> & {
-  id?: string
+export type AddInterviewFormModel = Omit<NewInterviewModel, 'interview_date'> & {
   interview_date: string
 };
 
+export type UpdateInterviewFormModel = Omit<InterviewModel, 'interview_date'> & {
+  interview_date: string
+};
+
+export type InterviewFormModel = AddInterviewFormModel | UpdateInterviewFormModel;
+
 type InterviewFormProps = {
   application_id: string,
-  onInterviewAdded: (interview: InterviewModel) => void
+  isBusy: boolean,
+  onSubmit: (interview: InterviewFormModel) => void
   onCancel: () => void
 } & (
     { mode: 'edit', interview: InterviewModel } | { mode: 'add', }
   )
 
-export default function AddInterviewForm(props: InterviewFormProps) {
+export default function InterviewForm(props: InterviewFormProps) {
   const [form, setForm] = useState<InterviewFormModel>(
     props.mode === 'add'
       ? {
@@ -36,29 +42,11 @@ export default function AddInterviewForm(props: InterviewFormProps) {
       }
   );
 
-  const [isBusy, setIsBusy] = useState(false);
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setIsBusy(true);
-    try {
-      const resp = await fetch('/api/interviews', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...form,
-          interview_date: dateToTimestamp(form.interview_date)
-        })
-      });
-      const data: { data: InterviewModel } = await resp.json();
-      props.onInterviewAdded(data.data);
-      setIsBusy(false);
-    } catch {
-      setIsBusy(false);
-    }
-  }
-
   return (
-    <form className="m-8 p-8 rounded-xl shadow-xl" onSubmit={handleSubmit}>
+    <form className="m-8 p-8 rounded-xl shadow-xl" onSubmit={(e) => {
+      e.preventDefault();
+      props.onSubmit(form);
+    }}>
       <h1 className="text-center font-bold text-2xl mb-4">
         {props.mode === 'add'
           ? `Add interview`
@@ -69,7 +57,7 @@ export default function AddInterviewForm(props: InterviewFormProps) {
         <div className="form-input">
           <label htmlFor="interview_date">When</label>
           <input
-            disabled={isBusy}
+            disabled={props.isBusy}
             type="datetime-local"
             name="interview_date"
             value={form.interview_date}
@@ -85,14 +73,14 @@ export default function AddInterviewForm(props: InterviewFormProps) {
         </div>
         <div className="form-input">
           <label htmlFor="topic">Topic</label>
-          <input disabled={isBusy} type="text" name="topic" value={form.topic} onChange={e => setForm(oldForm => ({
+          <input disabled={props.isBusy} type="text" name="topic" value={form.topic} onChange={e => setForm(oldForm => ({
             ...oldForm,
             topic: e.target.value
           }))} />
         </div>
         <div className="form-input">
           <label htmlFor="participants">Participants</label>
-          <textarea disabled={isBusy} name="participants" value={form.participants} onChange={e => setForm(oldForm => ({
+          <textarea disabled={props.isBusy} name="participants" value={form.participants} onChange={e => setForm(oldForm => ({
             ...oldForm,
             participants: e.target.value
           }))}></textarea>
@@ -100,17 +88,17 @@ export default function AddInterviewForm(props: InterviewFormProps) {
         <div className="form-input">
           <label htmlFor="participants">Any prep notes?</label>
           <textarea
-            disabled={isBusy}
+            disabled={props.isBusy}
             name="prep_notes"
             value={form.prep_notes}
             onChange={e => setForm(oldForm => ({ ...oldForm, prep_notes: e.target.value }))}></textarea>
         </div>
       </div>
       <div className="form-actions">
-        <button disabled={isBusy} type="submit" className="btn green">
+        <button disabled={props.isBusy} type="submit" className="btn green">
           {props.mode === 'add' ? `Add interview` : `Save changes`}
         </button>
-        <button disabled={isBusy} onClick={() => props.onCancel()} className="btn gray">Cancel</button>
+        <button disabled={props.isBusy} onClick={() => props.onCancel()} className="btn gray">Cancel</button>
       </div>
     </form>
   )

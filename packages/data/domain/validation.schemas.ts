@@ -19,5 +19,10 @@ export type PatchApplicationModel = z.infer<typeof applicationUpdateSchema>;
 export const interviewSelectSchema = createSelectSchema(interviews);
 export type InterviewModel = z.infer<typeof interviewSelectSchema>;
 
-export const interviewInsertSchema = createInsertSchema(interviews);
+export const interviewInsertSchema = createInsertSchema(interviews).omit({
+  id: true
+});
 export type NewInterviewModel = z.infer<typeof interviewInsertSchema>;
+
+export const interviewUpdateSchema = createUpdateSchema(interviews);
+export type UpdateInterviewModel = z.infer<typeof interviewUpdateSchema>;

@@ -6,7 +6,6 @@ import { type ExportController } from './controllers/export';
 import { logger } from 'hono/logger';
 import { type WithAuthMiddleware } from './auth.middleware';
 import * as stream from 'hono/streaming'
-import { EnvConfig } from '@job-seekr/config';
 
 function makeApplicationsRouter(
   authMiddleware: WithAuthMiddleware,
@@ -54,6 +53,15 @@ function makeInterviewsRouter(
       const payload = await c.req.json();
       // TODO: separate the REST and DB schemas
       const result = await interviewsController.addNewInterview(payload);
+      if (result.isErr()) {
+        return c.json({ error: result.error }, 500);
+      }
+      return c.json({ data: result.value });
+    })
+    .put('/:id', authMiddleware.middleware, async (c) => {
+      const id = c.req.param('id');
+      const payload = await c.req.json();
+      const result = await interviewsController.updateInterview(id, payload);
       if (result.isErr()) {
         return c.json({ error: result.error }, 500);
       }
