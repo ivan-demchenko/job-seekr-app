@@ -2,7 +2,8 @@ import type { InterviewModel } from "@job-seekr/data/validation"
 import { printDateTime, renderMD } from "../utils"
 
 type Props = {
-  interviews: InterviewModel[]
+  interviews: InterviewModel[],
+  onEdit: (interview: InterviewModel) => void
 }
 
 export function InterviewsList(props: Props) {
@@ -14,6 +15,7 @@ export function InterviewsList(props: Props) {
           <th>Topic</th>
           <th>Participants</th>
           <th>Prep notes</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -24,6 +26,9 @@ export function InterviewsList(props: Props) {
               <td>{interview.topic}</td>
               <td className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(interview.participants) }} />
               <td className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(interview.prep_notes) }} />
+              <td>
+                <button className="btn compact" onClick={() => props.onEdit(interview)}>Edit</button>
+              </td>
             </tr>
           )
         })}

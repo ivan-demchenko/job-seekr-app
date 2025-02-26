@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { dateToTimestamp } from "../utils";
+import { dateToTimestamp, timestampToISO } from "../utils";
 import type { InterviewModel } from "@job-seekr/data/validation";
 
 /**
@@ -7,22 +7,34 @@ import type { InterviewModel } from "@job-seekr/data/validation";
  * I'll let it do it's thing without interfering, but will convert
  * the input into a timestamp just before sending the form.
  */
-type FormInterviewModel = Omit<InterviewModel, 'id' | 'interview_date'> & { interview_date: string };
+type InterviewFormModel = Omit<InterviewModel, 'id' | 'interview_date'> & {
+  id?: string
+  interview_date: string
+};
 
-type AddInterviewForm = {
+type InterviewFormProps = {
   application_id: string,
   onInterviewAdded: (interview: InterviewModel) => void
   onCancel: () => void
-}
+} & (
+    { mode: 'edit', interview: InterviewModel } | { mode: 'add', }
+  )
 
-export default function AddInterviewForm(props: AddInterviewForm) {
-  const [form, setForm] = useState<FormInterviewModel>({
-    application_id: props.application_id,
-    interview_date: '',
-    prep_notes: '',
-    topic: '',
-    participants: ''
-  });
+export default function AddInterviewForm(props: InterviewFormProps) {
+  const [form, setForm] = useState<InterviewFormModel>(
+    props.mode === 'add'
+      ? {
+        application_id: props.application_id,
+        interview_date: '',
+        prep_notes: '',
+        topic: '',
+        participants: '',
+      }
+      : {
+        ...props.interview,
+        interview_date: timestampToISO(props.interview.interview_date),
+      }
+  );
 
   const [isBusy, setIsBusy] = useState(false);
 
@@ -47,7 +59,12 @@ export default function AddInterviewForm(props: AddInterviewForm) {
 
   return (
     <form className="m-8 p-8 rounded-xl shadow-xl" onSubmit={handleSubmit}>
-      <h1 className="text-center font-bold text-2xl mb-4">Add interview</h1>
+      <h1 className="text-center font-bold text-2xl mb-4">
+        {props.mode === 'add'
+          ? `Add interview`
+          : `Edit "${props.interview.topic}" interview`
+        }
+      </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div className="form-input">
           <label htmlFor="interview_date">When</label>
@@ -90,7 +107,9 @@ export default function AddInterviewForm(props: AddInterviewForm) {
         </div>
       </div>
       <div className="form-actions">
-        <button disabled={isBusy} type="submit" className="btn green">Add interview</button>
+        <button disabled={isBusy} type="submit" className="btn green">
+          {props.mode === 'add' ? `Add interview` : `Save changes`}
+        </button>
         <button disabled={isBusy} onClick={() => props.onCancel()} className="btn gray">Cancel</button>
       </div>
     </form>

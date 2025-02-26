@@ -16,10 +16,15 @@ const decoder = z.object({
   })
 });
 
+type InterviewAction =
+  | { _type: 'none' }
+  | { _type: 'add' }
+  | { _type: 'edit', interview: InterviewModel }
+
 export default function ViewApplication() {
   let { id } = useParams();
 
-  const [addingInterview, setAddingInterview] = useState(false);
+  const [interviewAction, setInterviewAction] = useState<InterviewAction>({ _type: 'none' });
   const [application, setApplication] = useState<ApplicationSelectModel | null>(null);
   const [interviews, setInterviews] = useState<InterviewModel[]>([]);
 
@@ -75,29 +80,51 @@ export default function ViewApplication() {
         <h3 className="text-center font-bold text-xl m-4">Interviews</h3>
         {interviews.length === 0
           ? <Banner>No interviews scheduled yet</Banner>
-          : <InterviewsList interviews={interviews} />
+          : <InterviewsList
+            interviews={interviews}
+            onEdit={interview => {
+              setInterviewAction({ _type: 'edit', interview });
+            }}
+          />
         }
         <div className="my-2 flex flex-col items-center">
-          <button
-            type="submit"
-            className="btn green"
-            onClick={() => setAddingInterview(true)}
-          >
+          <button className="btn green" onClick={() => setInterviewAction({ _type: 'add' })}>
             Add interview
           </button>
         </div>
       </section>
-      {addingInterview && (
+      {interviewAction._type === 'add' && (
         <AddInterviewForm
+          mode="add"
           application_id={id!}
           onInterviewAdded={interview => {
-            setAddingInterview(false);
+            setInterviewAction({ _type: 'none' });
             setInterviews(oldRecs => {
               return [...oldRecs, interview].sort((a, b) => a.interview_date - b.interview_date)
             })
           }}
           onCancel={() => {
-            setAddingInterview(false);
+            setInterviewAction({ _type: 'none' });
+          }}
+        />
+      )}
+      {interviewAction._type === 'edit' && (
+        <AddInterviewForm
+          mode="edit"
+          interview={interviewAction.interview}
+          application_id={id!}
+          onInterviewAdded={updatedInterview => {
+            setInterviewAction({ _type: 'none' });
+            setInterviews(oldInterviews =>
+              oldInterviews.map(oldOne =>
+                oldOne.id === interviewAction.interview.id
+                  ? updatedInterview
+                  : oldOne
+              )
+            )
+          }}
+          onCancel={() => {
+            setInterviewAction({ _type: 'none' });
           }}
         />
       )}
