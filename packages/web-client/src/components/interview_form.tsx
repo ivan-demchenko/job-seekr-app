@@ -1,21 +1,15 @@
 import { useState } from "react";
 import { timestampToISO } from "../utils";
-import type { InterviewModel, NewInterviewModel } from "@job-seekr/data/validation";
+import type { InterviewModel, InterviewClientModel } from "@job-seekr/data/validation";
 
 /**
  * This is because of the date input below.
  * I'll let it do it's thing without interfering, but will convert
  * the input into a timestamp just before sending the form.
  */
-export type AddInterviewFormModel = Omit<NewInterviewModel, 'interview_date'> & {
+export type InterviewFormModel = Omit<InterviewClientModel, 'interview_date'> & {
   interview_date: string
 };
-
-export type UpdateInterviewFormModel = Omit<InterviewModel, 'interview_date'> & {
-  interview_date: string
-};
-
-export type InterviewFormModel = AddInterviewFormModel | UpdateInterviewFormModel;
 
 type InterviewFormProps = {
   application_id: string,

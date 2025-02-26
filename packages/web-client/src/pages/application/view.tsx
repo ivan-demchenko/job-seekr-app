@@ -7,7 +7,7 @@ import { Banner } from "../../components/banner";
 import { z } from "zod";
 import ApplicationStatusPanel from "../../components/application_status_panel";
 import ApplicationJobDescription from "../../components/application_jd";
-import { applicationSelectSchema, interviewSelectSchema, type ApplicationSelectModel, type InterviewModel, type NewInterviewModel, type UpdateInterviewModel } from "@job-seekr/data/validation";
+import { applicationSelectSchema, interviewSelectSchema, type ApplicationSelectModel, type InterviewClientModel, type InterviewModel, type NewInterviewModel, type UpdateInterviewModel } from "@job-seekr/data/validation";
 import { CaseEmpty, CasePayload } from "../../lib/case";
 
 const applicationInterviewsPairDecoder = z.object({
@@ -50,7 +50,7 @@ export default function ViewApplication() {
     }
   }
 
-  async function addInterview(formData: NewInterviewModel) {
+  async function addInterview(formData: InterviewClientModel) {
     return await fetch('/api/interviews', {
       method: 'POST',
       body: JSON.stringify(formData)
