@@ -12,6 +12,10 @@ Currently, it is a simple application tracker. You can:
 
 More features are planned.
 
+## Contributors
+
+- [Sourav Kumar](https://github.com/souravnub)
+
 ## How to run it?
 
 I deliberately designed this app to run locally. I want your data to belong to you.

@@ -19,6 +19,7 @@
     "url": "https://github.com/ivan-demchenko/job-seekr-app"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.0.8",
     "@types/bun": "latest",
     "@types/react": "^19.0.8",
