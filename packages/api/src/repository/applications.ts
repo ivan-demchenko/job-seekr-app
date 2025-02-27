@@ -118,7 +118,11 @@ export class ApplicationsRepository {
     payload: NewApplicationModel
   ): Promise<Result<ApplicationSelectModel, string>> {
     try {
-      const record = await this.db.insert(tApplications).values(payload).onConflictDoNothing().returning();
+      const record = await this.db
+        .insert(tApplications)
+        .values(payload)
+        .onConflictDoNothing()
+        .returning();
       return new Ok(record[0]);
     } catch (e) {
       if (e instanceof Error) {
