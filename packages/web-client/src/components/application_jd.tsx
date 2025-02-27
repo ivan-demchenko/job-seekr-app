@@ -12,6 +12,7 @@ export default function ApplicationJobDescription(props: Props) {
   const [jd, setJd] = useState(application.job_description);
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [isBusy, setIsBusy] = useState(false);
+  const [isFullJDShown, setIsFullJDShown] = useState(false);
 
   async function patchJD() {
     setIsBusy(true);
@@ -32,8 +33,12 @@ export default function ApplicationJobDescription(props: Props) {
   if (mode === 'view') {
     return (
       <div>
-        <button className="btn compact gray" onClick={() => setMode('edit')}>Edit</button>
-        <div className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(jd) }} />
+        <div className="space-x-2"> 
+          <button className="btn compact gray" onClick={() => setMode('edit')}>Edit</button>
+          <button className="btn compact" onClick={() => setIsFullJDShown(prev => !prev)}>{isFullJDShown ? 'View less' : "View more"}</button>
+        </div>
+
+        <div className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(isFullJDShown ? jd : `${jd.slice(0, 200)}...`) }} />
       </div>
     )
   }
