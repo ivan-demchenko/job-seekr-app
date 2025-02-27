@@ -6,6 +6,10 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../..:/workspaces:cached
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres@db:5432/postgres"
+      HOSTING_MODE: "local"
+      ENV: "dev"
     network_mode: service:db
     command: sleep infinity
 
