@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router";
 import InterviewForm, { type InterviewFormModel } from "../../components/interview_form";
 import { dateToTimestamp, printDate } from "../../utils";
@@ -7,8 +7,9 @@ import { Banner } from "../../components/banner";
 import { z } from "zod";
 import ApplicationStatusPanel from "../../components/application_status_panel";
 import ApplicationJobDescription from "../../components/application_jd";
-import { applicationSelectSchema, interviewSelectSchema, type ApplicationSelectModel, type InterviewClientModel, type InterviewModel, type NewInterviewModel, type UpdateInterviewModel } from "@job-seekr/data/validation";
+import { applicationSelectSchema, interviewSelectSchema, type InterviewClientModel, type InterviewModel, type UpdateInterviewModel } from "@job-seekr/data/validation";
 import { CaseEmpty, CasePayload } from "../../lib/case";
+import { useHTTPGet } from "../../lib/useHttp";
 
 const applicationInterviewsPairDecoder = z.object({
   data: z.object({
@@ -33,22 +34,12 @@ export default function ViewApplication() {
   let { id } = useParams();
 
   const [interviewAction, setInterviewAction] = useState<InterviewAction>(InterviewActionNone());
-  const [application, setApplication] = useState<ApplicationSelectModel | null>(null);
-  const [interviews, setInterviews] = useState<InterviewModel[]>([]);
   const [isInterviewFormBusy, setIsInterviewFormBusy] = useState(false);
 
-  async function fetchApplication() {
-    const resp = await fetch(`/api/applications/${id}`, {
-      headers: { 'Accept': 'application/json' }
-    });
-    const raw = await resp.json();
-    const parsed = applicationInterviewsPairDecoder.safeParse(raw);
-    if (parsed.success) {
-      const { application, interviews } = parsed.data.data
-      setApplication(application);
-      setInterviews(interviews)
-    }
-  }
+  const pageData = useHTTPGet({
+    url: `/api/applications/${id}`,
+    decoder: applicationInterviewsPairDecoder,
+  });
 
   async function addInterview(formData: InterviewClientModel) {
     return await fetch('/api/interviews', {
@@ -83,33 +74,21 @@ export default function ViewApplication() {
       if (!parseResult.success) {
         return setInterviewAction(InterviewActionNone());
       }
-      const interview = parseResult.data.data;
-      if (interviewAction._kind === 'add') {
-        return setInterviews(existingRecs => {
-          return [...existingRecs, interview].sort((a, b) => a.interview_date - b.interview_date)
-        })
-      }
-      if (interviewAction._kind === 'edit') {
-        return setInterviews(existingRecs =>
-          existingRecs.map(rec =>
-            rec.id === interviewAction._payload.id
-              ? interview
-              : rec
-          )
-        )
-      }
+      pageData.rerun();
     } catch {
       setIsInterviewFormBusy(false);
     }
   }
 
-  useEffect(() => {
-    fetchApplication();
-  }, []);
-
-  if (!application) {
+  if (pageData.state._kind === 'Idle' || pageData.state._kind === 'Loading') {
     return <div>Loading...</div>
   }
+
+  if (pageData.state._kind === 'Error') {
+    return <div>Error: <pre>{pageData.state._payload.toString()}</pre></div>
+  }
+
+  const { application, interviews } = pageData.state._payload.data;
 
   return (
     <>
@@ -132,7 +111,7 @@ export default function ViewApplication() {
             <ApplicationJobDescription
               application={application}
               onSave={() => {
-                fetchApplication();
+                pageData.rerun();
               }}
             />
           </dd>

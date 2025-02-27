@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import * as RD from './remote-data';
 import { ZodError, type ZodSchema } from "zod";
-import { CaseEmpty, CasePayload } from "./case";
+import { CaseEmpty, CasePayload, type Show } from "./case";
 
-export type HTTPConfig<T> = {
+export type HTTPGetConfig<T> = {
   url: string,
   decoder: ZodSchema<T>,
-  method?: string,
-  body?: string,
   onError?: (error: HTTPError) => void
 }
 
@@ -19,66 +17,101 @@ export type HTTPError =
   | ReturnType<typeof BadResponse>
   | ReturnType<typeof NetworkError>
 
-export function useHTTP<T extends { toString: () => string }>(
-  config: HTTPConfig<T>
+async function runFetch<TData extends Show>(
+  ac: AbortController,
+  config: HTTPGetConfig<TData>,
+  setResponse: (status: RD.Status<TData, HTTPError>) => void
 ) {
-  const [response, setResponse] = useState<RD.Status<T, HTTPError>>(RD.Idle());
+  try {
+    setResponse(RD.Loading());
 
-  useEffect(() => {
-    const ac = new AbortController();
-    async function runFetch() {
-      try {
-        setResponse(RD.Loading());
+    const resp = await fetch(config.url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      signal: ac.signal
+    });
 
-        const resp = await fetch(config.url, {
-          method: config.method || 'GET',
-          headers: { 'Accept': 'application/json' },
-          body: config.body,
-          signal: ac.signal
-        });
-
-        if (!resp.ok) {
-          if (resp.status === 401) {
-            const err = Unauthenticated();
-            setResponse(RD.Error(err));
-            return config.onError && config.onError(err);
-          }
-        }
-
-        const raw = await resp.json();
-        const data = config.decoder.parse(raw);
-
-        setResponse(RD.Ready(data));
-      } catch (e) {
-        if (ac.signal.aborted) {
-          return setResponse(RD.Idle());
-        }
-        if (e instanceof ZodError) {
-          const err = BadResponse('Decoding failed due to unexpected data');
-          setResponse(RD.Error(err));
-          return config.onError && config.onError(err);
-        }
-        if (e instanceof SyntaxError) {
-          const err = BadResponse('Invalid response body');
-          setResponse(RD.Error(err));
-          return config.onError && config.onError(err);
-        }
-        if (e instanceof Error) {
-          const err = NetworkError(e.message);
-          setResponse(RD.Error(err));
-          return config.onError && config.onError(err);
-        }
-        const err = NetworkError('Unknown error');
+    if (!resp.ok) {
+      if (resp.status === 401) {
+        const err = Unauthenticated();
         setResponse(RD.Error(err));
         return config.onError && config.onError(err);
       }
     }
-    runFetch();
-    return () => {
-      setResponse(RD.Idle());
-      return ac.abort();
-    }
-  }, [config.url, config.method, config.decoder, config.body]);
 
-  return { state: response };
+    const raw = await resp.json();
+    const data = config.decoder.parse(raw);
+
+    setResponse(RD.Ready(data));
+  } catch (e) {
+    if (ac.signal.aborted) {
+      return setResponse(RD.Idle());
+    }
+    if (e instanceof ZodError) {
+      const err = BadResponse('Decoding failed due to unexpected data');
+      setResponse(RD.Error(err));
+      return config.onError && config.onError(err);
+    }
+    if (e instanceof SyntaxError) {
+      const err = BadResponse('Invalid response body');
+      setResponse(RD.Error(err));
+      return config.onError && config.onError(err);
+    }
+    if (e instanceof Error) {
+      const err = NetworkError(e.message);
+      setResponse(RD.Error(err));
+      return config.onError && config.onError(err);
+    }
+    const err = NetworkError('Unknown error');
+    setResponse(RD.Error(err));
+    return config.onError && config.onError(err);
+  }
+}
+
+class FetchEntity<TData extends Show> {
+  private ac: AbortController;
+  constructor(
+    private config: HTTPGetConfig<TData>,
+    private setResponse: (status: RD.Status<TData, HTTPError>) => void
+  ) {
+    this.ac = new AbortController();
+  }
+  run(): Promise<void> {
+    return runFetch(this.ac, this.config, this.setResponse);
+  }
+  retry() {
+    this.ac = new AbortController();
+  }
+  cancel() {
+    this.setResponse(RD.Idle());
+    this.ac.abort();
+  }
+}
+
+export function useHTTPGet<TData extends Show>(
+  config: HTTPGetConfig<TData>
+) {
+  const [response, setResponse] = useState<RD.Status<TData, HTTPError>>(RD.Idle());
+  const [entity] = useState(
+    new FetchEntity(config, setResponse)
+  );
+
+  const rerun = () => {
+    entity.retry();
+    entity.run();
+  }
+
+  useEffect(() => {
+    entity.retry();
+    entity.run();
+    return () => {
+      return entity.cancel();
+    }
+  }, [config.url]);
+
+  return {
+    state: response,
+    cancel: () => entity.cancel(),
+    rerun,
+  };
 }

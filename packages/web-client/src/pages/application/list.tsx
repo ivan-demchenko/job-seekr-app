@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router";
 import { printDate } from "../../utils";
 import { Banner } from "../../components/banner";
-import { useHTTP } from "../../lib/useHttp";
+import { useHTTPGet } from "../../lib/useHttp";
 import { z } from "zod";
 import { applicationWithInterviewSchema } from "@job-seekr/data/validation";
 
@@ -12,7 +12,7 @@ const decoder = z.object({
 export default function Index() {
   const navigate = useNavigate();
 
-  const { state } = useHTTP({
+  const { state } = useHTTPGet({
     url: '/api/applications',
     decoder,
     onError: (err) => {

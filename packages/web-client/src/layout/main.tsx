@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router";
-import { useHTTP } from "../lib/useHttp";
+import { useHTTPGet } from "../lib/useHttp";
 import { z } from "zod";
 
 const userDecoder = z.object({
@@ -11,7 +11,7 @@ const userDecoder = z.object({
 export default function MainLayout() {
   const navigate = useNavigate();
 
-  const authStatus = useHTTP({
+  const authStatus = useHTTPGet({
     url: '/api/auth/me',
     decoder: userDecoder,
     onError: (err) => {
