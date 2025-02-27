@@ -77,7 +77,7 @@ export default function MainLayout() {
         </footer>
       </aside>
 
-      <main className="p-4 container flex-1">
+      <main className="p-4 flex-1 overflow-auto">
         {authStatus.state._kind === 'Error'
           ? <p>Please, <a href="/api/auth/login">login</a> first</p>
           : <Outlet />

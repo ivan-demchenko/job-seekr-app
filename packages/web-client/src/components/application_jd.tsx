@@ -7,6 +7,8 @@ type Props = {
   onSave: () => void
 }
 
+const SHOW_LIMIT = 200;
+
 export default function ApplicationJobDescription(props: Props) {
   const { application, onSave } = props;
   const [jd, setJd] = useState(application.job_description);
@@ -31,14 +33,26 @@ export default function ApplicationJobDescription(props: Props) {
   }
 
   if (mode === 'view') {
+    const renderedJD = jd.length > SHOW_LIMIT
+      ? renderMD(isFullJDShown ? jd : `${jd.slice(0, SHOW_LIMIT)}...`)
+      : renderMD(jd);
     return (
       <div>
-        <div className="space-x-2"> 
+        <div className="space-x-2">
           <button className="btn compact gray" onClick={() => setMode('edit')}>Edit</button>
-          <button className="btn compact" onClick={() => setIsFullJDShown(prev => !prev)}>{isFullJDShown ? 'View less' : "View more"}</button>
+          {jd.length > SHOW_LIMIT &&
+            <button
+              className="btn compact"
+              onClick={() => setIsFullJDShown(prev => !prev)}
+            >
+              {isFullJDShown ? 'View less' : "View more"}
+            </button>}
         </div>
 
-        <div className="formatted-html" dangerouslySetInnerHTML={{ __html: renderMD(isFullJDShown ? jd : `${jd.slice(0, 200)}...`) }} />
+        <div
+          className="formatted-html"
+          dangerouslySetInnerHTML={{ __html: renderedJD }}
+        />
       </div>
     )
   }
