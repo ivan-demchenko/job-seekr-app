@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, render, renderToStream, renderToBuffer } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, renderToBuffer } from '@react-pdf/renderer';
 import { Err, Ok, type Result } from 'neverthrow';
 import { type InterviewsRepository } from '../repository/interviews';
 import { type ApplicationsRepository } from '../repository/applications';
@@ -9,22 +9,29 @@ import { type ApplicationWithInterviewModel, type InterviewModel } from '@job-se
 const styles = StyleSheet.create({
   pageTitle: {
     fontWeight: 'bold',
+    fontSize: '16px',
   },
   pageDetails: {
     fontSize: '14px'
   },
   section: {
-    margin: 10,
+    marginButton: 5,
     padding: 10,
     fontWeight: 'bold'
   },
   position: {
     fontWeight: 'bold'
   },
+  interviews: {
+    fontSize: '14px',
+  },
   whenApplied: {
     color: '#555',
     fontSize: '13px',
     marginBottom: 5
+  },
+  interviewNote: {
+    fontSize: '14px',
   }
 });
 
@@ -42,10 +49,10 @@ const MyDocument = (props: {
         <View key={app.id} style={styles.section}>
           <Text style={styles.position}>{app.position} @ {app.company}</Text>
           <Text style={styles.whenApplied}>Applied: {printDate(app.application_date)}</Text>
-          <Text style={styles.position}>Interviews:</Text>
+          <Text style={styles.interviews}>Interviews:</Text>
           {props.interviews.filter(rec => rec.application_id === app.id).map(interview => {
             return (
-              <Text key={interview.id}>
+              <Text key={interview.id} style={styles.interviewNote}>
                 - {printDate(interview.interview_date)}: {interview.topic}
               </Text>
             )
