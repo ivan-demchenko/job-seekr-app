@@ -1,26 +1,15 @@
 import { useState } from "react";
 import { useParams } from "react-router";
-import InterviewForm, { type InterviewFormModel } from "../../components/interview_form";
-import { dateToTimestamp, printDate } from "../../utils";
+import InterviewForm from "../../components/interview_form";
+import { printDate } from "../../utils";
 import { InterviewsList } from "../../components/interviews_list";
 import { Banner } from "../../components/banner";
-import { z } from "zod";
 import ApplicationStatusPanel from "../../components/application_status_panel";
 import ApplicationJobDescription from "../../components/application_jd";
-import { applicationSelectSchema, interviewSelectSchema, type InterviewClientModel, type InterviewModel, type UpdateInterviewModel } from "@job-seekr/data/validation";
+import { type InterviewModel } from "@job-seekr/data/validation";
 import { CaseEmpty, CasePayload } from "../../lib/case";
-import { useHTTPGet } from "../../lib/useHttp";
-
-const applicationInterviewsPairDecoder = z.object({
-  data: z.object({
-    application: applicationSelectSchema,
-    interviews: z.array(interviewSelectSchema)
-  })
-});
-
-const interviewDecoder = z.object({
-  data: interviewSelectSchema
-});
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { addInterview, applicationDetailsQueryOptions, updateInterview } from "../../lib/api";
 
 const InterviewActionNone = () => new CaseEmpty('none' as const);
 const InterviewActionAdd = () => new CaseEmpty('add' as const);
@@ -36,59 +25,50 @@ export default function ViewApplication() {
   const [interviewAction, setInterviewAction] = useState<InterviewAction>(InterviewActionNone());
   const [isInterviewFormBusy, setIsInterviewFormBusy] = useState(false);
 
-  const pageData = useHTTPGet({
-    url: `/api/applications/${id}`,
-    decoder: applicationInterviewsPairDecoder,
-  });
+  const queryClient = useQueryClient();
+  const pageDataQuery = useQuery(applicationDetailsQueryOptions(id!));
 
-  async function addInterview(formData: InterviewClientModel) {
-    return await fetch('/api/interviews', {
-      method: 'POST',
-      body: JSON.stringify(formData)
-    });
-  }
-
-  async function updateInterview(formData: UpdateInterviewModel) {
-    return await fetch(`/api/interviews/${formData.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(formData)
-    });
-  }
-
-  async function handleInterviewFormData(formData: InterviewFormModel) {
-    setIsInterviewFormBusy(true);
-    try {
-      const payload = {
-        ...formData,
-        interview_date: dateToTimestamp(formData.interview_date)
-      };
-      const resp = interviewAction._kind === 'add'
-        ? await addInterview(payload)
-        : await updateInterview(payload);
-
-      const rawData = await resp.json();
-      setIsInterviewFormBusy(false);
-      setInterviewAction(InterviewActionNone())
-
-      const parseResult = interviewDecoder.safeParse(rawData);
-      if (!parseResult.success) {
-        return setInterviewAction(InterviewActionNone());
-      }
-      pageData.rerun();
-    } catch {
-      setIsInterviewFormBusy(false);
+  const addInterviewMutation = useMutation(
+    {
+      mutationFn: addInterview,
+      onSuccess: async () => {
+        queryClient.invalidateQueries({ queryKey: [`application.${id}`] });
+        setIsInterviewFormBusy(false);
+        setInterviewAction(InterviewActionNone());
+      },
+      onError: (error: unknown) => {
+        console.error(error);
+        setIsInterviewFormBusy(false);
+        setInterviewAction(InterviewActionNone())
+      },
     }
-  }
+  )
 
-  if (pageData.state._kind === 'Idle' || pageData.state._kind === 'Loading') {
+  const updateInterviewMutation = useMutation(
+    {
+      mutationFn: updateInterview,
+      onSuccess: async () => {
+        queryClient.invalidateQueries({ queryKey: [`application.${id}`] });
+        setIsInterviewFormBusy(false);
+        setInterviewAction(InterviewActionNone())
+      },
+      onError: (error: unknown) => {
+        console.error(error);
+        setIsInterviewFormBusy(false);
+        setInterviewAction(InterviewActionNone());
+      },
+    }
+  )
+
+  if (pageDataQuery.isLoading || !pageDataQuery.data) {
     return <div>Loading...</div>
   }
 
-  if (pageData.state._kind === 'Error') {
-    return <div>Error: <pre>{pageData.state._payload.toString()}</pre></div>
+  if (pageDataQuery.error || 'error' in pageDataQuery.data) {
+    return <div>Error: <pre>{String(pageDataQuery.error)}</pre></div>
   }
 
-  const { application, interviews } = pageData.state._payload.data;
+  const { application, interviews } = pageDataQuery.data.data;
 
   return (
     <>
@@ -108,12 +88,7 @@ export default function ViewApplication() {
           </dd>
           <dt>Job description</dt>
           <dd>
-            <ApplicationJobDescription
-              application={application}
-              onSave={() => {
-                pageData.rerun();
-              }}
-            />
+            <ApplicationJobDescription application={application} />
           </dd>
         </dl>
       </section>
@@ -139,7 +114,10 @@ export default function ViewApplication() {
           mode="add"
           application_id={id!}
           isBusy={isInterviewFormBusy}
-          onSubmit={handleInterviewFormData}
+          onSubmit={formData => {
+            setIsInterviewFormBusy(true);
+            addInterviewMutation.mutate(formData)
+          }}
           onCancel={() => {
             setInterviewAction(InterviewActionNone());
           }}
@@ -150,8 +128,10 @@ export default function ViewApplication() {
           mode="edit"
           isBusy={isInterviewFormBusy}
           interview={interviewAction._payload}
-          application_id={id!}
-          onSubmit={handleInterviewFormData}
+          onSubmit={(id, formData) => {
+            setIsInterviewFormBusy(true);
+            updateInterviewMutation.mutate({ id, json: formData })
+          }}
           onCancel={() => {
             setInterviewAction(InterviewActionNone());
           }}

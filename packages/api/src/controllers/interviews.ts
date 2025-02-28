@@ -1,51 +1,37 @@
-import { Err, Ok, type Result } from 'neverthrow';
-import { type InterviewsRepository } from '../repository/interviews';
-import { type InterviewModel, interviewInsertSchema } from '@job-seekr/data/validation';
+import type { Result } from 'neverthrow';
+import type { InterviewsRepository } from '../repository/interviews';
+import type { InterviewModel, NewInterviewModel } from '@job-seekr/data/validation';
 
 export class InterviewsController {
   constructor(
     private interviewsRepository: InterviewsRepository
   ) { }
 
-  async addNewInterview(
-    payload: object
-  ): Promise<Result<InterviewModel, string>> {
-    const parsedPayload = interviewInsertSchema.safeParse({
+  private prepareNewInterview(payload: NewInterviewModel): InterviewModel {
+    return {
       id: Bun.randomUUIDv7(),
       ...payload
-    });
-
-    if (!parsedPayload.success) {
-      console.error(parsedPayload.error);
-      return new Err('Bad request body');
     }
+  }
 
-    const result = await this.interviewsRepository.addInterview(parsedPayload.data);
-    if (result.isOk()) {
-      return new Ok(parsedPayload.data);
-    }
-
-    return new Err('Database error: ' + result.error);
+  async addNewInterview(
+    payload: NewInterviewModel
+  ): Promise<Result<InterviewModel, string>> {
+    return (await this.interviewsRepository.addInterview(
+      this.prepareNewInterview(payload)
+    ))
+      .orTee(error => `Failed to insert the interview: ${error}`)
+      .mapErr(() => `Database error`);
   }
 
   async updateInterview(
     interviewId: string,
-    payload: object
+    payload: NewInterviewModel
   ): Promise<Result<InterviewModel, string>> {
-    const parsedPayload = interviewInsertSchema.safeParse(payload);
-
-    if (!parsedPayload.success) {
-      console.error(parsedPayload.error);
-      return new Err('Bad request body');
-    }
-
-    const result = await this.interviewsRepository
-      .updateInterview(interviewId, parsedPayload.data);
-
-    if (result.isOk()) {
-      return new Ok(parsedPayload.data);
-    }
-
-    return new Err('Database error: ' + result.error);
+    return (await this.interviewsRepository
+      .updateInterview(interviewId, payload)
+    )
+      .orTee(error => `Failed to update the interview: ${error}`)
+      .mapErr(() => `Database error`);
   }
 }

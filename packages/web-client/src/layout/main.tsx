@@ -1,25 +1,9 @@
-import { NavLink, Outlet, useNavigate } from "react-router";
-import { useHTTPGet } from "../lib/useHttp";
-import { z } from "zod";
-
-const userDecoder = z.object({
-  user: z.object({
-    name: z.string()
-  })
-});
+import { NavLink, Outlet } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { meQueryOptions } from "../lib/api";
 
 export default function MainLayout() {
-  const navigate = useNavigate();
-
-  const authStatus = useHTTPGet({
-    url: '/api/auth/me',
-    decoder: userDecoder,
-    onError: (err) => {
-      if (err._kind === 'Unauthenticated') {
-        navigate('/');
-      }
-    }
-  });
+  const meQuery = useQuery(meQueryOptions);
 
   const handleExport = async () => {
     const resp = await fetch('/api/export');
@@ -33,7 +17,7 @@ export default function MainLayout() {
     window.URL.revokeObjectURL(blobUrl);
   }
 
-  if (authStatus.state._kind === 'Loading' || authStatus.state._kind === 'Idle') {
+  if (meQuery.isLoading || !meQuery.data) {
     return <p>Loading...</p>;
   }
 
@@ -42,14 +26,14 @@ export default function MainLayout() {
       <aside className="flex flex-col gap-4 p-4 bg-gray-50">
         <div className="flex-1">
           <h3 className="font-bold text-2xl mb-6">Job Seekr</h3>
-          {authStatus.state._kind === 'Error' && (
+          {'error' in meQuery.data && (
             <div className="flex gap-2">
               <a href="/api/auth/login" className="btn green">
                 Login
               </a>
             </div>
           )}
-          {authStatus.state._kind === 'Ready' && (
+          {'user' in meQuery.data && (
             <div className="flex flex-col gap-2">
               <NavLink to="/" className="btn green">
                 My applications
@@ -78,7 +62,7 @@ export default function MainLayout() {
       </aside>
 
       <main className="p-4 flex-1 overflow-auto">
-        {authStatus.state._kind === 'Error'
+        {'error' in meQuery.data
           ? <p>Please, <a href="/api/auth/login">login</a> first</p>
           : <Outlet />
         }

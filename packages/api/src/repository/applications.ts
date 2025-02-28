@@ -1,7 +1,7 @@
 import { Result, Ok, Err } from 'neverthrow';
 import { applications as tApplications, interviews as tInterviews } from '@job-seekr/data/tables';
 import { type DBType, eq, count, and } from '@job-seekr/data/utils';
-import { type ApplicationSelectModel, type ApplicationWithInterviewModel, type InterviewModel, type NewApplicationModel } from '@job-seekr/data/validation';
+import { type ApplicationModel, type ApplicationListModel, type InterviewModel, type NewApplicationModel } from '@job-seekr/data/validation';
 
 export class ApplicationsRepository {
   constructor(
@@ -9,7 +9,7 @@ export class ApplicationsRepository {
   ) { }
   async getAllApplications(
     userId: string
-  ): Promise<Result<ApplicationWithInterviewModel[], string>> {
+  ): Promise<Result<ApplicationListModel[], string>> {
     try {
       const applications = await this.db
         .select({
@@ -37,7 +37,7 @@ export class ApplicationsRepository {
   }
 
   async getApplicationById(userId: string, id: string): Promise<Result<{
-    application: ApplicationSelectModel,
+    application: ApplicationModel,
     interviews: InterviewModel[]
   }, string>> {
     try {
@@ -72,7 +72,7 @@ export class ApplicationsRepository {
     userId: string,
     id: string,
     newStatus: string
-  ): Promise<Result<ApplicationSelectModel, string>> {
+  ): Promise<Result<ApplicationModel, string>> {
     try {
       const res = await this.db.update(tApplications)
         .set({ status: newStatus })
@@ -115,8 +115,8 @@ export class ApplicationsRepository {
   }
 
   async addApplication(
-    payload: NewApplicationModel
-  ): Promise<Result<ApplicationSelectModel, string>> {
+    payload: ApplicationModel
+  ): Promise<Result<ApplicationModel, string>> {
     try {
       const record = await this.db
         .insert(tApplications)

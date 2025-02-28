@@ -1,36 +1,38 @@
 import { useState } from "react";
 import { renderMD } from "../utils";
-import type { ApplicationSelectModel } from "@job-seekr/data/validation";
+import type { ApplicationModel } from "@job-seekr/data/validation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateApplication } from "../lib/api";
 
 type Props = {
-  application: ApplicationSelectModel;
-  onSave: () => void
+  application: ApplicationModel
 }
 
 const SHOW_LIMIT = 200;
 
 export default function ApplicationJobDescription(props: Props) {
-  const { application, onSave } = props;
+  const { application } = props;
   const [jd, setJd] = useState(application.job_description);
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [isBusy, setIsBusy] = useState(false);
   const [isFullJDShown, setIsFullJDShown] = useState(false);
 
-  async function patchJD() {
-    setIsBusy(true);
-    const resp = await fetch(`/api/applications/${application.id}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        target: 'job_description',
-        job_description: jd
-      })
-    });
-    if (resp.ok) {
-      setMode('view');
-      setIsBusy(false);
-      onSave();
+  const queryClient = useQueryClient();
+  const updateJDMutation = useMutation(
+    {
+      mutationFn: updateApplication(application.id),
+      onSuccess: async () => {
+        queryClient.invalidateQueries({ queryKey: [`application.${application.id}`] });
+        setIsBusy(false);
+        setMode('view');
+      },
+      onError: (error: unknown) => {
+        console.error(error);
+        setIsBusy(false);
+        setMode('view');
+      },
     }
-  }
+  )
 
   if (mode === 'view') {
     const renderedJD = jd.length > SHOW_LIMIT
@@ -69,7 +71,12 @@ export default function ApplicationJobDescription(props: Props) {
             <button
               className="btn compact green"
               disabled={isBusy}
-              onClick={() => patchJD()}
+              onClick={() => {
+                updateJDMutation.mutate({
+                  target: 'job_description',
+                  job_description: jd
+                })
+              }}
             >
               Save
             </button>

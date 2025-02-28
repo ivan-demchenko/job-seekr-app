@@ -1,29 +1,34 @@
 import { useState } from "react";
-import type { ApplicationSelectModel } from "@job-seekr/data/validation";
+import type { ApplicationModel } from "@job-seekr/data/validation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateApplication } from "../lib/api";
 
 type Props = {
-  application: ApplicationSelectModel;
+  application: ApplicationModel;
 }
 
 export default function ApplicationStatusPanel(props: Props) {
   const { application } = props;
-  const [currStatus, setCurrStatus] = useState(application.status);
   const [isBusy, setIsBusy] = useState(false);
 
-  async function patchStatus(newStatus: string) {
-    if (isBusy) {
-      return;
+  const queryClient = useQueryClient();
+  const updateStatusMutation = useMutation(
+    {
+      mutationFn: updateApplication(application.id),
+      onSuccess: async () => {
+        queryClient.invalidateQueries({ queryKey: [`application.${application.id}`] });
+        setIsBusy(false);
+      },
+      onError: (error: unknown) => {
+        console.error(error);
+        setIsBusy(false);
+      },
     }
+  )
+
+  const handleNewStatus = (status: string) => {
     setIsBusy(true);
-    const resp = await fetch(`/api/applications/${application.id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ target: 'status', status: newStatus })
-    });
-    if (resp.ok) {
-      setIsBusy(false);
-      setCurrStatus(newStatus);
-      // alert(`New status: ${data.data.status}`);
-    }
+    updateStatusMutation.mutate({ target: 'status', status });
   }
 
   const statuses = [
@@ -39,14 +44,14 @@ export default function ApplicationStatusPanel(props: Props) {
       {statuses.map(([status, label]) => {
         const className = [
           'btn compact',
-          status === currStatus ? 'active' : '',
+          status === application.status ? 'active' : '',
           isBusy ? 'busy' : ''
         ];
         return (
           <button
             key={status}
             className={className.join(' ')}
-            onClick={() => patchStatus(status)}
+            onClick={() => handleNewStatus(status)}
           >
             {label}
           </button>

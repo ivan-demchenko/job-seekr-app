@@ -2,6 +2,9 @@ import { describe, test, expect, beforeAll } from 'bun:test';
 import { app } from '../src/main';
 
 describe('Interviews', () => {
+  /**
+   * Create a single application and work with it in different test cases.
+   */
   let applicationId: string | null = null;
 
   beforeAll(async () => {
@@ -11,6 +14,7 @@ describe('Interviews', () => {
     const marker = Date.now();
     const postRes = await app.request('/api/applications', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         company: `Test company ${marker}`,
         position: `Test position ${marker}`,
@@ -28,6 +32,7 @@ describe('Interviews', () => {
     const timestamt = Date.now();
     const newInterviewRes = await app.request('/api/interviews', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         application_id: applicationId,
         interview_date: timestamt,
@@ -56,6 +61,7 @@ describe('Interviews', () => {
     const timestamt = Date.now();
     const newInterviewRes = await app.request('/api/interviews', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         application_id: applicationId,
         interview_date: timestamt,
@@ -69,6 +75,7 @@ describe('Interviews', () => {
 
     const updateRes = await app.request(`/api/interviews/${interview.data.id}`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: interview.data.id,
         interview_date: interview.data.interview_date,

@@ -1,73 +1,75 @@
-import { Err, Ok, type Result } from 'neverthrow';
-import { type ApplicationsRepository } from '../repository/applications';
-import { applicationInsertSchema, type ApplicationSelectModel } from '@job-seekr/data/validation';
+import type { Result } from 'neverthrow';
+import type { ApplicationsRepository } from '../repository/applications';
+import type { ApplicationListModel, ApplicationModel, NewApplicationModel } from '@job-seekr/data/validation';
+import { z } from 'zod';
+
+export const applicationUpdateCommandSchema = z.discriminatedUnion('target', [
+  z.object({ target: z.literal('status'), status: z.string() }),
+  z.object({ target: z.literal('job_description'), job_description: z.string() })
+]);
+
+type ApplicationUpdateCommand = z.infer<typeof applicationUpdateCommandSchema>;
 
 export class ApplicationsController {
   constructor(
     private applicationsRepository: ApplicationsRepository
   ) { }
-  async getAllApplications(userId: string) {
-    const records = await this.applicationsRepository.getAllApplications(userId);
-    if (records.isErr()) {
-      console.error(`Failed to fetch all applications: ${records.error}`);
-      return [];
-    }
-    return records.value;
+
+  async getAllApplications(
+    userId: string
+  ): Promise<Result<ApplicationListModel[], string>> {
+    return (await this.applicationsRepository.getAllApplications(userId))
+      .orTee(error => `Failed to fetch all applications: ${error}`)
+      .mapErr(() => `Database error`);
   }
 
-  async getApplicationById(userId: string, id: string) {
-    const application = await this.applicationsRepository.getApplicationById(userId, id);
-    if (application.isErr()) {
-      console.error(`Failed to fetch an application: ${application.error}`);
-      return null;
-    }
-    return application.value;
+  async getApplicationById(
+    userId: string,
+    id: string
+  ) {
+    return (await this.applicationsRepository.getApplicationById(userId, id))
+      .orTee(error => `Failed to fetch an application: ${error}`)
+      .unwrapOr(null);
   }
 
   async updateApplication(
     userId: string,
     id: string,
-    command: any
-  ): Promise<Result<ApplicationSelectModel, string>> {
-    if (command.target === 'status') {
-      const result = await this.applicationsRepository.setApplicationStatus(userId, id, command.status);
-      if (result.isErr()) {
-        console.error(`Failed to update the application: ${result.error}`);
-        return new Err('Failed to update application');
+    command: ApplicationUpdateCommand
+  ): Promise<Result<ApplicationModel, string>> {
+    switch (command.target) {
+      case 'status': {
+        return (await this.applicationsRepository
+          .setApplicationStatus(userId, id, command.status)
+        )
+          .orTee(error => console.error(`Failed to update the application: ${error}`))
+          .mapErr(() => 'Failed to update application')
       }
-      return new Ok(result.value);
-    }
-    if (command.target === 'job_description') {
-      const result = await this.applicationsRepository.setApplicationJobDescription(userId, id, command.job_description);
-      if (result.isErr()) {
-        console.error(`Failed to update the application: ${result.error}`);
-        return new Err('Failed to update application');
+      case 'job_description': {
+        return (await this.applicationsRepository.setApplicationJobDescription(userId, id, command.job_description))
+          .orTee(error => console.error(`Failed to update the application: ${error}`))
+          .mapErr(() => 'Failed to update application');
       }
-      return new Ok(result.value);
     }
-    return new Err('Unknown command');
+  }
+
+  private prepareNewAppication(
+    payload: NewApplicationModel,
+    userId: string,
+  ): ApplicationModel {
+    return {
+      id: Bun.randomUUIDv7(),
+      user_id: userId,
+      ...payload
+    };
   }
 
   async addNewApplication(
     userId: string,
-    payload: object
-  ): Promise<Result<ApplicationSelectModel, string>> {
-    const parsedPayload = applicationInsertSchema.safeParse({
-      id: Bun.randomUUIDv7(),
-      status: 'applied',
-      user_id: userId,
-      ...payload
-    });
-
-    if (!parsedPayload.success) {
-      return new Err('Bad request body');
-    }
-
-    const result = await this.applicationsRepository.addApplication(parsedPayload.data);
-    if (result.isOk()) {
-      return new Ok(result.value);
-    }
-
-    return new Err('Database error: ' + result.error);
+    payload: NewApplicationModel
+  ): Promise<Result<ApplicationModel, string>> {
+    return (await this.applicationsRepository.addApplication(
+      this.prepareNewAppication(payload, userId)
+    )).mapErr(error => `Database error: ${error}`);
   }
 }

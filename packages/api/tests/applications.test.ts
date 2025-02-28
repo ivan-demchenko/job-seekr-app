@@ -1,15 +1,28 @@
 import { describe, test, expect, beforeAll } from 'bun:test';
 import { app } from '../src/main';
+import type { NewApplicationModel } from '@job-seekr/data/validation';
 
 describe('Applications', () => {
+
+  /**
+   * This is used to make entities unique
+   */
   const marker = Date.now();
+
+  /**
+   * Create a single application and work with it in different test cases.
+   */
   let applicationId: string | null = null;
+
   beforeAll(async () => {
+    // Each test case will need an application.
+    // If there's one already, we don't need to create another one.
     if (applicationId) {
       return applicationId;
     }
     const postRes = await app.request('/api/applications', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         company: `Test company ${marker}`,
         position: `Test position ${marker}`,
@@ -17,10 +30,11 @@ describe('Applications', () => {
         job_posting_url: `http://test.com/job/${marker}`,
         application_date: marker,
         status: 'applied'
-      })
+      } as NewApplicationModel)
     });
+    const newApplication = await postRes.json();
     expect(postRes.status).toEqual(200);
-    const newApplication = await postRes.json()
+
     applicationId = newApplication.data.id;
     expect(newApplication.data).toMatchObject({
       company: `Test company ${marker}`,
@@ -50,6 +64,7 @@ describe('Applications', () => {
   test('Update the job description', async () => {
     const updateJDReq = await app.request(`/api/applications/${applicationId}`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         target: 'job_description',
         job_description: 'A new JD'
@@ -69,6 +84,7 @@ describe('Applications', () => {
   test('Update the status', async () => {
     const updateJDReq = await app.request(`/api/applications/${applicationId}`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         target: 'status',
         status: 'offer'

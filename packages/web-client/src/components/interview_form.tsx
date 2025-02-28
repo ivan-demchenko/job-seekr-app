@@ -1,45 +1,62 @@
 import { useState } from "react";
-import { timestampToISO } from "../utils";
-import type { InterviewModel, InterviewClientModel } from "@job-seekr/data/validation";
+import { dateToTimestamp, timestampToISO } from "../utils";
+import type { InterviewModel, NewInterviewModel } from "@job-seekr/data/validation";
 
-/**
- * This is because of the date input below.
- * I'll let it do it's thing without interfering, but will convert
- * the input into a timestamp just before sending the form.
- */
-export type InterviewFormModel = Omit<InterviewClientModel, 'interview_date'> & {
-  interview_date: string
-};
-
-type InterviewFormProps = {
-  application_id: string,
-  isBusy: boolean,
-  onSubmit: (interview: InterviewFormModel) => void
+type AddInterviewProps = {
+  mode: 'add'
+  application_id: string
+  isBusy: boolean
+  onSubmit: (interview: NewInterviewModel) => void
   onCancel: () => void
-} & (
-    { mode: 'edit', interview: InterviewModel } | { mode: 'add', }
-  )
+}
+
+type EditInterviewProps = {
+  mode: 'edit',
+  isBusy: boolean
+  interview: InterviewModel
+  onSubmit: (id: string, interview: NewInterviewModel) => void
+  onCancel: () => void
+}
+
+type InterviewFormProps = AddInterviewProps | EditInterviewProps;
+
+type FormState =
+  Omit<NewInterviewModel, 'interview_date'> & { interview_date: string };
+
+const getInitialFormState = (props: InterviewFormProps): FormState => {
+  if (props.mode === 'add') {
+    return {
+      application_id: props.application_id,
+      interview_date: '',
+      topic: '',
+      participants: '',
+      prep_notes: '',
+    };
+  }
+  return {
+    ...props.interview,
+    interview_date: timestampToISO(props.interview.interview_date),
+  };
+}
+
+function formStateToOutput(form: FormState): NewInterviewModel {
+  return {
+    ...form,
+    interview_date: dateToTimestamp(form.interview_date),
+  }
+}
 
 export default function InterviewForm(props: InterviewFormProps) {
-  const [form, setForm] = useState<InterviewFormModel>(
-    props.mode === 'add'
-      ? {
-        application_id: props.application_id,
-        interview_date: '',
-        prep_notes: '',
-        topic: '',
-        participants: '',
-      }
-      : {
-        ...props.interview,
-        interview_date: timestampToISO(props.interview.interview_date),
-      }
+  const [form, setForm] = useState<FormState>(
+    getInitialFormState(props)
   );
 
   return (
     <form className="m-8 p-8 rounded-xl shadow-xl" onSubmit={(e) => {
       e.preventDefault();
-      props.onSubmit(form);
+      props.mode === 'add'
+        ? props.onSubmit(formStateToOutput(form))
+        : props.onSubmit(props.interview.id, formStateToOutput(form))
     }}>
       <h1 className="text-center font-bold text-2xl mb-4">
         {props.mode === 'add'

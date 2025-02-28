@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { dateToTimestamp, getCurrentTimestamp, timestampToISO } from "../../utils";
-import type { ApplicationSelectModel } from "@job-seekr/data/validation";
+import type { NewApplicationModel } from "@job-seekr/data/validation";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { saveApplication } from "../../lib/api";
 
 type FormApplicationModel =
-  Omit<ApplicationSelectModel, 'id' | 'user_id' | 'application_date'>
-  & { application_date: string };
+  Omit<NewApplicationModel, 'application_date'> & { application_date: string };
 
 export default function NewApplication() {
   let navigate = useNavigate();
@@ -17,24 +18,31 @@ export default function NewApplication() {
     application_date: timestampToISO(getCurrentTimestamp()),
     status: 'applied'
   });
-
   const [isBusy, setIsBusy] = useState(false);
+  const queryClient = useQueryClient();
+  const mutation = useMutation(
+    {
+      mutationFn: saveApplication,
+      onSuccess: async () => {
+        queryClient.invalidateQueries({ queryKey: ['applications'] });
+        setIsBusy(false);
+        navigate('/');
+      },
+      onError: (error: unknown) => {
+        console.error(error);
+        setIsBusy(false);
+        navigate('/');
+      },
+    }
+  )
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setIsBusy(true);
-    try {
-      const resp = await fetch('/api/applications', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...form,
-          application_date: dateToTimestamp(form.application_date)
-        })
-      });
-      const data = resp.json();
-      navigate('/');
-    } catch {
-      setIsBusy(false);
-    }
+    mutation.mutate({
+      ...form,
+      application_date: dateToTimestamp(form.application_date)
+    });
   }
 
   return (

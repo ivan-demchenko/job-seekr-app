@@ -1,7 +1,7 @@
 import { Result, Ok, Err } from 'neverthrow';
 import { type DBType, eq } from '@job-seekr/data/utils';
 import { interviews as tInterviews } from '@job-seekr/data/tables';
-import { type InterviewModel } from '@job-seekr/data/validation';
+import { type InterviewModel, type NewInterviewModel } from '@job-seekr/data/validation';
 
 export class InterviewsRepository {
   constructor(
@@ -23,7 +23,7 @@ export class InterviewsRepository {
 
   async updateInterview(
     interviewId: string,
-    payload: InterviewModel
+    payload: NewInterviewModel
   ): Promise<Result<InterviewModel, string>> {
     try {
       const res = await this.db

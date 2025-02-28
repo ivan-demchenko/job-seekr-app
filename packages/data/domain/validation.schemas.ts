@@ -2,30 +2,28 @@ import { createSelectSchema, createInsertSchema, createUpdateSchema } from 'driz
 import { z } from 'zod';
 import { applications, interviews } from './db.schemas';
 
-export const applicationSelectSchema = createSelectSchema(applications);
-export type ApplicationSelectModel = z.infer<typeof applicationSelectSchema>;
+export const applicationSchema = createSelectSchema(applications);
+export type ApplicationModel = z.infer<typeof applicationSchema>;
 
-export const applicationWithInterviewSchema = applicationSelectSchema.extend({
+export const applicationListSchema = applicationSchema.extend({
   interviewsCount: z.number()
 })
-export type ApplicationWithInterviewModel = z.infer<typeof applicationWithInterviewSchema>;
+export type ApplicationListModel = z.infer<typeof applicationListSchema>;
 
-export const applicationInsertSchema = createInsertSchema(applications);
-export type NewApplicationModel = z.infer<typeof applicationInsertSchema>;
+export const newApplicationSchema = applicationSchema.omit({
+  id: true,
+  user_id: true,
+});
+export type NewApplicationModel = z.infer<typeof newApplicationSchema>;
 
-export const applicationUpdateSchema = createUpdateSchema(applications);
-export type PatchApplicationModel = z.infer<typeof applicationUpdateSchema>;
 
 export const interviewSelectSchema = createSelectSchema(interviews);
 export type InterviewModel = z.infer<typeof interviewSelectSchema>;
 
-export const interviewInsertSchema = createInsertSchema(interviews);
-export type NewInterviewModel = z.infer<typeof interviewInsertSchema>;
-
-export const interviewClientSchema = createInsertSchema(interviews).omit({
+export const newInterviewSchema = createInsertSchema(interviews).omit({
   id: true,
 });
-export type InterviewClientModel = z.infer<typeof interviewClientSchema>;
+export type NewInterviewModel = z.infer<typeof newInterviewSchema>;
 
 export const interviewUpdateSchema = createUpdateSchema(interviews);
 export type UpdateInterviewModel = z.infer<typeof interviewUpdateSchema>;

@@ -3,7 +3,7 @@ import { Err, Ok, type Result } from 'neverthrow';
 import { type InterviewsRepository } from '../repository/interviews';
 import { type ApplicationsRepository } from '../repository/applications';
 import { printDate } from '../utils';
-import { type ApplicationWithInterviewModel, type InterviewModel } from '@job-seekr/data/validation';
+import { type ApplicationListModel, type InterviewModel } from '@job-seekr/data/validation';
 
 // Create styles
 const styles = StyleSheet.create({
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
 });
 
 const MyDocument = (props: {
-  applications: ApplicationWithInterviewModel[],
+  applications: ApplicationListModel[],
   interviews: InterviewModel[]
 }) => (
   <Document>
