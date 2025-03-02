@@ -15,6 +15,7 @@ More features are planned.
 ## Contributors
 
 - [Sourav Kumar](https://github.com/souravnub)
+- [Akshaya S.](https://github.com/fairyaksh)
 
 ## How to run it?
 

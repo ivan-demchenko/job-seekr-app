@@ -20,6 +20,9 @@ export default function About() {
         <li>
           <a href="https://github.com/souravnub" target="_blank">Sourav Kumar</a>
         </li>
+        <li>
+          <a href="https://github.com/fairyaksh" target="_blank">Akshaya S.</a>
+        </li>
       </ul>
       <p>
         Good luck with your job hunt! You can do it!
