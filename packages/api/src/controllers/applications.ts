@@ -72,4 +72,24 @@ export class ApplicationsController {
       this.prepareNewAppication(payload, userId)
     )).mapErr(error => `Database error: ${error}`);
   }
+
+  async deleteUserApplications(
+    userId: string
+  ) {
+    return (await this.applicationsRepository
+      .deleteApplications({ _tag: 'of-user', id: userId })
+    )
+      .orTee(error => console.error(`Failed to update the application: ${error}`))
+      .mapErr(error => `Database error: ${error}`);
+  }
+
+  async deleteApplicarionById(
+    id: string
+  ) {
+    return (await this.applicationsRepository
+      .deleteApplications({ _tag: 'applications', ids: [id] })
+    )
+      .orTee(error => console.error(`Failed to delete applications: ${error}`))
+      .mapErr(error => `Database error: ${error}`);
+  }
 }

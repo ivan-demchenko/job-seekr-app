@@ -58,6 +58,11 @@
   @apply hover:bg-green-600 hover:text-green-200;
 }
 
+.btn.red {
+  @apply text-red-600;
+  @apply hover:bg-red-600 hover:text-red-200;
+}
+
 .btn.gray {
   @apply bg-gray-400 text-white
 }

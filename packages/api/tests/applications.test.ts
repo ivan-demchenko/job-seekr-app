@@ -2,7 +2,7 @@ import { describe, test, expect, beforeAll } from 'bun:test';
 import { app } from '../src/main';
 import type { NewApplicationModel } from '@job-seekr/data/validation';
 
-describe('Applications', () => {
+describe('Create applications', () => {
 
   /**
    * This is used to make entities unique
@@ -99,5 +99,47 @@ describe('Applications', () => {
       id: applicationId,
       status: `offer`
     });
+  });
+});
+
+describe('Delete applications', async () => {
+  test('it can delete an application', async () => {
+    const marker = Date.now();
+
+    const postRes = await app.request('/api/applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        company: `Test company ${marker}`,
+        position: `Test position ${marker}`,
+        job_description: `Test JD ${marker}`,
+        job_posting_url: `http://test.com/job/${marker}`,
+        application_date: marker,
+        status: 'applied'
+      } as NewApplicationModel)
+    });
+    const newApplication = await postRes.json();
+    expect(postRes.status).toEqual(200);
+
+    const deleteRes = await app.request(`/api/applications/${newApplication.data.id}`, {
+      method: 'DELETE'
+    });
+    expect(deleteRes.status).toEqual(200);
+
+    const check2Res = await app.request(`/api/applications/${newApplication.data.id}`);
+    expect(check2Res.status).toEqual(404);
+  });
+
+  test('it can delete all applications for a user', async () => {
+    const deleteRes = await app.request(`/api/applications/of-user`, {
+      method: 'DELETE'
+    });
+    expect(deleteRes.status).toEqual(200);
+
+    const checkRes = await app.request(`/api/applications`);
+    const checkData = await checkRes.json();
+    expect(checkData).toMatchObject({
+      data: []
+    })
   });
 });

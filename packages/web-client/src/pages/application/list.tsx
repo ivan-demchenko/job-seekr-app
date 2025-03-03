@@ -1,13 +1,24 @@
 import { NavLink, useNavigate } from "react-router";
 import { printDate } from "../../utils";
 import { Banner } from "../../components/banner";
-import { useQuery } from '@tanstack/react-query'
-import { applicationsListQueryOptions } from "../../lib/api";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { applicationsListQueryOptions, deleteApplication } from "../../lib/api";
 
 export default function Index() {
   const navigate = useNavigate();
 
   const query = useQuery(applicationsListQueryOptions);
+
+  const queryClient = useQueryClient();
+  const deleteApplicationMutation = useMutation({
+    mutationFn: deleteApplication,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+    },
+    onError: (error: unknown) => {
+      console.error(error)
+    }
+  });
 
   if (query.isLoading) {
     return <Banner>Loading...</Banner>;
@@ -39,6 +50,7 @@ export default function Index() {
               <th>When applied</th>
               <th>Interviews</th>
               <th>Status</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -55,6 +67,17 @@ export default function Index() {
                   <td>{printDate(app.application_date)}</td>
                   <td>{app.interviewsCount}</td>
                   <td>{app.status}</td>
+                  <td>
+                    <button
+                      className="btn compact"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteApplicationMutation.mutate(app.id)
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               )
             })}

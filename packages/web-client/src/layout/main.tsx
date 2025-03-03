@@ -1,9 +1,20 @@
 import { NavLink, Outlet } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import { meQueryOptions } from "../lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteUserApplications, meQueryOptions } from "../lib/api";
 
 export default function MainLayout() {
   const meQuery = useQuery(meQueryOptions);
+
+  const queryClient = useQueryClient();
+  const deleteUserApplicationsMutation = useMutation({
+    mutationFn: deleteUserApplications,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+    },
+    onError: (error: unknown) => {
+      console.error(error)
+    }
+  });
 
   const handleExport = async () => {
     const resp = await fetch('/api/export');
@@ -34,20 +45,35 @@ export default function MainLayout() {
             </div>
           )}
           {'user' in meQuery.data && (
-            <div className="flex flex-col gap-2">
-              <NavLink to="/" className="btn green">
-                My applications
-              </NavLink>
-              <NavLink to="/application/new" className="btn green">
-                Add application
-              </NavLink>
-              <button className="btn green" onClick={() => handleExport()}>
-                Export PDF
-              </button>
-              <a href="/api/auth/logout" className="btn green">
-                Logout
-              </a>
-            </div>
+            <>
+              <div className="p-4 font-bold">
+                Hello, {meQuery.data.user.given_name}!
+              </div>
+              <div className="flex flex-col gap-2">
+                <NavLink to="/" className="btn green">
+                  My applications
+                </NavLink>
+                <NavLink to="/application/new" className="btn green">
+                  Add application
+                </NavLink>
+                <button className="btn green" onClick={() => handleExport()}>
+                  Export PDF
+                </button>
+                <a href="/api/auth/logout" className="btn green">
+                  Logout
+                </a>
+                <button
+                  onClick={() => {
+                    if (confirm('Are you sure you want to delete your data?')) {
+                      deleteUserApplicationsMutation.mutate();
+                    }
+                  }}
+                  className="btn red"
+                >
+                  Delete my data
+                </button>
+              </div>
+            </>
           )}
         </div>
         <footer className="page-footer">
