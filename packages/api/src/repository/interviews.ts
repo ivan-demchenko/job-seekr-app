@@ -40,6 +40,14 @@ export class InterviewsRepository {
     }
   }
 
+  async getInterviewById(interviewId: string): Promise<Result<InterviewModel, string>> {
+    const interviews = await this.db.select().from(tInterviews).where(eq(tInterviews.id, interviewId));
+    if(!interviews) {
+      return new Err('Interview not found')
+    }
+    return new Ok(interviews[0])
+  }
+
   async getInterviews(
     applicationId: string
   ): Promise<Result<InterviewModel[], string>> {

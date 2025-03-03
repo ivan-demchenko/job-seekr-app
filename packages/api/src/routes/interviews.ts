@@ -33,5 +33,14 @@ export function makeInterviewsRouter(
           return c.json({ error: result.error }, 500);
         }
         return c.json({ data: result.value });
-      });
+      }).get('/:id', authMiddleware.middleware, zValidator('param', z.object({id: z.string()})), async (c) => {
+
+        const id = c.req.valid('param').id;
+
+        const result = await interviewsController.getInterview(id)
+         if (result.isErr()) {
+          return c.json({ error: result.error }, 500);
+        }
+        return c.json({data: result.value})
+      })
 }

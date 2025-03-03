@@ -34,4 +34,10 @@ export class InterviewsController {
       .orTee(error => `Failed to update the interview: ${error}`)
       .mapErr(() => `Database error`);
   }
+
+
+  async getInterview(interviewId: string) : Promise<Result<InterviewModel, string>> {
+    return (await this.interviewsRepository.getInterviewById(interviewId)).orTee(error => `Failed to fetch interview :${error}`).mapErr(() => `Database`)
+  }
+
 }
