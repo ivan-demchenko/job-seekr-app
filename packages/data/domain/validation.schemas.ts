@@ -37,7 +37,8 @@ export const interviewCommentSchema = createSelectSchema(interviewComments)
 export type InterviewCommentModel = z.infer<typeof interviewCommentSchema>
 
 export const newIntervewCommentSchema = createInsertSchema(interviewComments).omit({
-  id: true
+  id: true,
+  interview_id:true
 })
 
 export type NewInterviewCommentModel = z.infer<typeof newIntervewCommentSchema> 

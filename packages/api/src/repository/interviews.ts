@@ -80,7 +80,7 @@ export class InterviewsRepository {
     }
   }
 
-  async addNewComment(payload: {id: string} & NewInterviewCommentModel): Promise<Result<InterviewCommentModel, string>> {
+  async addNewComment(payload: Omit<InterviewCommentModel, 'pinned'>): Promise<Result<InterviewCommentModel, string>> {
      try {
       const newComment = await this.db.insert(tInterviewCommments).values(payload).onConflictDoNothing().returning();
       return new Ok(newComment[0]);

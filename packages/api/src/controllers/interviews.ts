@@ -13,9 +13,10 @@ export class InterviewsController {
       ...payload
     }
   }
-  private prepareNewInterviewComment(payload: NewInterviewCommentModel){
+  private prepareNewInterviewComment(payload: NewInterviewCommentModel, interviewId: string){
     return {
       id: Bun.randomUUIDv7(),
+      interview_id: interviewId,
       ...payload
     }
   }
@@ -46,6 +47,6 @@ export class InterviewsController {
   }
 
   async addInterviewComment(interviewId: string, payload: NewInterviewCommentModel): Promise<Result<InterviewCommentModel, string>> {
-    return (await this.interviewsRepository.addNewComment(this.prepareNewInterviewComment(payload))).orTee(error => `Failed to insert comment: ${error}`).mapErr(() => `Database error`)
+    return (await this.interviewsRepository.addNewComment(this.prepareNewInterviewComment(payload, interviewId))).orTee(error => `Failed to insert comment: ${error}`).mapErr(() => `Database error`)
   }
 }
