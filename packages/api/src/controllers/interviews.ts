@@ -1,6 +1,6 @@
 import type { Result } from 'neverthrow';
 import type { InterviewsRepository } from '../repository/interviews';
-import type { InterviewModel, NewInterviewModel } from '@job-seekr/data/validation';
+import type { InterviewModel, InterviewWithCommentModel, NewInterviewModel } from '@job-seekr/data/validation';
 
 export class InterviewsController {
   constructor(
@@ -34,10 +34,8 @@ export class InterviewsController {
       .orTee(error => `Failed to update the interview: ${error}`)
       .mapErr(() => `Database error`);
   }
-
-
-  async getInterview(interviewId: string) : Promise<Result<InterviewModel, string>> {
+   
+  async getInterview(interviewId: string) : Promise<Result<InterviewWithCommentModel, string>> {
     return (await this.interviewsRepository.getInterviewById(interviewId)).orTee(error => `Failed to fetch interview :${error}`).mapErr(() => `Database`)
   }
-
 }

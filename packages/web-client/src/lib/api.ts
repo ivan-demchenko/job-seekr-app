@@ -74,3 +74,11 @@ export async function updateInterview(
   })
   return res.json();
 }
+
+export const interviewDetailsQueryOptions = (id: string) => queryOptions({
+  queryKey: [`interview.${id}`],
+  queryFn: async () => {
+    const res = await apiClient.interviews[":id"].$get({param: {id}})
+    return await res.json();
+  }
+})

@@ -1,7 +1,7 @@
 import { Result, Ok, Err } from 'neverthrow';
 import { type DBType, eq } from '@job-seekr/data/utils';
-import { interviews as tInterviews } from '@job-seekr/data/tables';
-import { type InterviewModel, type NewInterviewModel } from '@job-seekr/data/validation';
+import { interviews as tInterviews, interviewComments as tInterviewCommments } from '@job-seekr/data/tables';
+import { type InterviewModel, type InterviewWithCommentModel, type NewInterviewModel } from '@job-seekr/data/validation';
 
 export class InterviewsRepository {
   constructor(
@@ -40,12 +40,15 @@ export class InterviewsRepository {
     }
   }
 
-  async getInterviewById(interviewId: string): Promise<Result<InterviewModel, string>> {
+  async getInterviewById(interviewId: string): Promise<Result<InterviewWithCommentModel, string>> {
     const interviews = await this.db.select().from(tInterviews).where(eq(tInterviews.id, interviewId));
+    const comments  = await this.db.select().from(tInterviewCommments).where(eq(tInterviewCommments.interview_id, interviewId))
+    
     if(!interviews) {
       return new Err('Interview not found')
     }
-    return new Ok(interviews[0])
+
+    return new Ok({...interviews[0], comments})
   }
 
   async getInterviews(

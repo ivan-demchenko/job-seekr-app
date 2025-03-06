@@ -10,6 +10,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import InterviewView from './pages/application/interviews/view';
 
 const rootElement = document.getElementById('app')!
 const queryClient = new QueryClient()
@@ -26,7 +27,10 @@ root.render(
             <Route path="application">
               <Route path="view/:id" element={<ViewApplication />} />
               <Route path="new" element={<NewApplication />} />
+
+              <Route path=':application_id/interviews/:interview_id' element={<InterviewView/>}></Route>
             </Route>
+
           </Route>
         </Routes>
       </QueryClientProvider>
