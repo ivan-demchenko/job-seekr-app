@@ -96,3 +96,9 @@ export const interviewDetailsQueryOptions = (id: string) => queryOptions({
     return await res.json();
   }
 })
+
+const addInterviewCommentEndpoint = apiClient.interviews[":id"]['comments']['$post']
+export async function addInterviewComment({id, json}: {id: string, json: InferRequestType<typeof addInterviewCommentEndpoint>['json']}) {
+  const res = await addInterviewCommentEndpoint({json, param: {id}})
+  return res.json();
+}
