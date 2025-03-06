@@ -1,7 +1,7 @@
 import { Result, Ok, Err } from 'neverthrow';
 import { type DBType, eq } from '@job-seekr/data/utils';
 import { interviews as tInterviews, interviewComments as tInterviewCommments } from '@job-seekr/data/tables';
-import { type InterviewModel, type InterviewWithCommentModel, type NewInterviewModel } from '@job-seekr/data/validation';
+import { type InterviewCommentModel, type InterviewModel, type InterviewWithCommentModel, type NewInterviewCommentModel, type NewInterviewModel } from '@job-seekr/data/validation';
 
 export class InterviewsRepository {
   constructor(
@@ -77,6 +77,18 @@ export class InterviewsRepository {
         return new Err(`Failed to read from the interviews table: ${e.message}`);
       }
       return new Err(`Failed to read from the interviews table: unknown error`);
+    }
+  }
+
+  async addNewComment(payload: {id: string} & NewInterviewCommentModel): Promise<Result<InterviewCommentModel, string>> {
+     try {
+      const newComment = await this.db.insert(tInterviewCommments).values(payload).onConflictDoNothing().returning();
+      return new Ok(newComment[0]);
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to add comment: ${e.message}`);
+      }
+      return new Err(`Failed to add comment: unknown error`);
     }
   }
 }

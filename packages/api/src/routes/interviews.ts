@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { WithAuthMiddleware } from "../auth.middleware";
 import type { InterviewsController } from "../controllers/interviews";
 import { zValidator } from "@hono/zod-validator";
-import { newInterviewSchema } from "@job-seekr/data/validation";
+import { newIntervewCommentSchema, newInterviewSchema } from "@job-seekr/data/validation";
 import { z } from "zod";
 
 export function makeInterviewsRouter(
@@ -42,5 +42,13 @@ export function makeInterviewsRouter(
           return c.json({ error: result.error }, 500);
         }
         return c.json({data: result.value})
+      }).post('/:id/comments', authMiddleware.middleware, zValidator('param', z.object({id: z.string()})), zValidator('json', newIntervewCommentSchema), async (c) => {
+        const interviewId = c.req.valid('param').id;
+        const payload = c.req.valid('json');
+        const result = await interviewsController.addInterviewComment(interviewId, payload);
+        if (result.isErr()) {
+          return c.json({ error: result.error }, 500);
+        }
+        return c.json({ data: result.value });
       })
 }

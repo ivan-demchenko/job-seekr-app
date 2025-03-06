@@ -33,6 +33,16 @@ export const interviewUpdateSchema = createUpdateSchema(interviews);
 export type UpdateInterviewModel = z.infer<typeof interviewUpdateSchema>;
 
 
+export const interviewCommentSchema = createSelectSchema(interviewComments)
+export type InterviewCommentModel = z.infer<typeof interviewCommentSchema>
+
+export const newIntervewCommentSchema = createInsertSchema(interviewComments).omit({
+  id: true
+})
+
+export type NewInterviewCommentModel = z.infer<typeof newIntervewCommentSchema> 
+
+
 
 
 

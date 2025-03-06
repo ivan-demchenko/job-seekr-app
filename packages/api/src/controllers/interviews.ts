@@ -1,6 +1,6 @@
 import type { Result } from 'neverthrow';
 import type { InterviewsRepository } from '../repository/interviews';
-import type { InterviewModel, InterviewWithCommentModel, NewInterviewModel } from '@job-seekr/data/validation';
+import type { InterviewCommentModel, InterviewModel, InterviewWithCommentModel, NewInterviewCommentModel, NewInterviewModel } from '@job-seekr/data/validation';
 
 export class InterviewsController {
   constructor(
@@ -8,6 +8,12 @@ export class InterviewsController {
   ) { }
 
   private prepareNewInterview(payload: NewInterviewModel): InterviewModel {
+    return {
+      id: Bun.randomUUIDv7(),
+      ...payload
+    }
+  }
+  private prepareNewInterviewComment(payload: NewInterviewCommentModel){
     return {
       id: Bun.randomUUIDv7(),
       ...payload
@@ -37,5 +43,9 @@ export class InterviewsController {
    
   async getInterview(interviewId: string) : Promise<Result<InterviewWithCommentModel, string>> {
     return (await this.interviewsRepository.getInterviewById(interviewId)).orTee(error => `Failed to fetch interview :${error}`).mapErr(() => `Database`)
+  }
+
+  async addInterviewComment(interviewId: string, payload: NewInterviewCommentModel): Promise<Result<InterviewCommentModel, string>> {
+    return (await this.interviewsRepository.addNewComment(this.prepareNewInterviewComment(payload))).orTee(error => `Failed to insert comment: ${error}`).mapErr(() => `Database error`)
   }
 }
