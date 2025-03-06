@@ -1,5 +1,5 @@
 import { Result, Ok, Err } from 'neverthrow';
-import { type DBType, eq } from '@job-seekr/data/utils';
+import { and, type DBType, eq } from '@job-seekr/data/utils';
 import { interviews as tInterviews, interviewComments as tInterviewCommments } from '@job-seekr/data/tables';
 import { type InterviewCommentModel, type InterviewModel, type InterviewWithCommentModel, type NewInterviewCommentModel, type NewInterviewModel } from '@job-seekr/data/validation';
 
@@ -89,6 +89,20 @@ export class InterviewsRepository {
         return new Err(`Failed to add comment: ${e.message}`);
       }
       return new Err(`Failed to add comment: unknown error`);
+    }
+  }
+
+  async deleteComment(interveiwId: string, commentId: string): Promise<Result<boolean, string>> {
+     try {
+
+      await this.db.delete(tInterviewCommments).where(and(eq(tInterviewCommments.id, commentId), eq(tInterviewCommments.interview_id, interveiwId)));
+      return new Ok(true)
+
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to delete comment: ${e.message}`);
+      }
+      return new Err(`Failed to delete comment: unknown error`);
     }
   }
 }

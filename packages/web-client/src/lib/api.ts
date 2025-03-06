@@ -102,3 +102,9 @@ export async function addInterviewComment({id, json}: {id: string, json: InferRe
   const res = await addInterviewCommentEndpoint({json, param: {id}})
   return res.json();
 }
+
+const deleteInterviewCommentEndpoint = apiClient.interviews[":id"]['comments'][':comment_id'].$delete
+export async function deleteInterviewComment({interviewId, commentId}: {interviewId: string, commentId: string}) {
+  const res = await deleteInterviewCommentEndpoint({param: {id: interviewId, comment_id: commentId}});
+  return res.json()
+}

@@ -50,5 +50,13 @@ export function makeInterviewsRouter(
           return c.json({ error: result.error }, 500);
         }
         return c.json({ data: result.value });
+      }).delete('/:id/comments/:comment_id', authMiddleware.middleware, zValidator('param', z.object({id: z.string(), comment_id: z.string()})), async (c) => {
+        const interviewId = c.req.valid('param').id;
+        const commentId = c.req.valid('param').comment_id;
+        const result = await interviewsController.deleteInterviewCommentById(interviewId, commentId);
+         if (result.isErr()) {
+          return c.json({ error: result.error }, 500);
+        }
+        return c.json({ data: result.value });
       })
 }

@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router'
-import { addInterviewComment, interviewDetailsQueryOptions } from '../../../lib/api';
+import { addInterviewComment, deleteInterviewComment, interviewDetailsQueryOptions } from '../../../lib/api';
 import { printDate } from '../../../utils';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Banner } from '../../../components/banner';
 import { CaseEmpty } from '../../../lib/case';
 import InterviewCommentForm from '../../../components/comment_form';
+import { BsFillPinFill } from "react-icons/bs";
+
+
 
 
 const CommentActionNone = () => new CaseEmpty('none' as const);
@@ -33,6 +36,16 @@ const InterviewView = () => {
     onError: (error: unknown) => {
       console.error(error);
       setCommentAction(CommentActionNone())
+    },
+  })
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: deleteInterviewComment,
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: [`interview.${interview_id}`] });
+    },
+    onError: (error: unknown) => {
+      console.error(error);
     },
   })
 
@@ -76,10 +89,15 @@ const InterviewView = () => {
         <div className='mt-5'>
           <h2 className='font-semibold text-lg '>Comments</h2>
         </div>
-        <ul className='space-y-2'>
+        <ul className='space-y-2 pl-6 mt-2'>
           {interview.comments.length === 0 ? <Banner>No comments added yet</Banner> :
             interview.comments.map(comment => {
-              return <li className='bg-neutral-100 p-3 rounded-md' key={comment.id}>{comment.comment}</li>
+              return <li className='relative bg-gray-100 p-3 rounded-md flex justify-between items-center' key={comment.id}>
+                <p>{comment.comment}</p>
+                {comment.pinned &&
+                  <BsFillPinFill className='absolute -left-6 text-xl text-green-700' />}
+                <button className='btn compact red' onClick={() => { deleteCommentMutation.mutate({ interviewId: comment.interview_id, commentId: comment.id }) }}>Delete</button>
+              </li>
             })}
         </ul>
 
