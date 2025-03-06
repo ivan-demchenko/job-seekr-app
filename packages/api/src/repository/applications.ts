@@ -48,16 +48,15 @@ export class ApplicationsRepository {
           eq(tApplications.id, id)
         ));
 
-      const application = applications[0];
-      if (!applications) {
-        return new Err('Application not found');
+      if (applications.length === 0) {
+        return new Err('Not found');
       }
       const interviews = await this.db.select().from(tInterviews)
         .where(eq(tInterviews.application_id, id))
         .orderBy(tInterviews.interview_date);
 
       return new Ok({
-        application,
+        application: applications[0],
         interviews
       });
     } catch (e) {
@@ -129,6 +128,37 @@ export class ApplicationsRepository {
         return new Err(`Failed to insert into the applications table: ${e.message}`);
       }
       return new Err(`Failed to insert into the applications table: unknown error`);
+    }
+  }
+
+  async deleteApplications(
+    params:
+      | { _tag: 'of-user', id: string }
+      | { _tag: 'applications', ids: string[] }
+  ): Promise<Result<boolean, string>> {
+    try {
+      switch (params._tag) {
+        case 'of-user': {
+          await this.db
+            .delete(tApplications)
+            .where(eq(tApplications.user_id, params.id))
+            .execute();
+          return new Ok(true);
+        }
+        case 'applications': {
+          await this.db
+            .delete(tApplications)
+            .where(
+              and(...params.ids.map(id => eq(tApplications.id, id)))
+            ).execute();
+          return new Ok(true);
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to delete user applications: ${e.message}`);
+      }
+      return new Err(`Failed to delete user applications: unknown error`);
     }
   }
 }

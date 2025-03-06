@@ -26,6 +26,20 @@ export const applicationsListQueryOptions = queryOptions({
   },
 });
 
+const deleteApplicationEndpoint = apiClient.applications[":id"].$delete;
+export async function deleteApplication(
+  id: InferRequestType<typeof deleteApplicationEndpoint>['param']['id']
+) {
+  const res = await deleteApplicationEndpoint({ param: { id } });
+  return res.text();
+};
+
+const deleteUserApplicationsEndpoint = apiClient.applications["of-user"].$delete;
+export async function deleteUserApplications() {
+  const res = await deleteUserApplicationsEndpoint();
+  return res.text();
+};
+
 export const applicationDetailsQueryOptions = (
   id: string
 ) => queryOptions({
@@ -36,11 +50,11 @@ export const applicationDetailsQueryOptions = (
   },
 });
 
-const newApplicationEnvpoint = apiClient.applications.$post;
+const newApplicationEndpoint = apiClient.applications.$post;
 export async function saveApplication(
-  json: InferRequestType<typeof newApplicationEnvpoint>['json']
+  json: InferRequestType<typeof newApplicationEndpoint>['json']
 ) {
-  const res = await newApplicationEnvpoint({ json });
+  const res = await newApplicationEndpoint({ json });
   return res.json();
 };
 

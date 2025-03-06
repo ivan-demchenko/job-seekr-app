@@ -59,5 +59,30 @@ export function makeApplicationsRouter(
           return c.json({ error: result.error }, 500);
         }
         return c.json({ data: result.value });
-      });
+      })
+    .delete('/of-user',
+      authMiddleware.middleware,
+      async (c) => {
+        const result = await applicationsController.deleteUserApplications(
+          c.var.user.id
+        )
+        if (result.isErr()) {
+          return c.json({ error: result.error }, 500);
+        }
+        return c.text('done');
+      }
+    )
+    .delete('/:id',
+      authMiddleware.middleware,
+      zValidator('param', z.object({ id: z.string().uuid() })),
+      async (c) => {
+        const result = await applicationsController.deleteApplicarionById(
+          c.req.valid('param').id
+        )
+        if (result.isErr()) {
+          return c.json({ error: result.error }, 500);
+        }
+        return c.text('done');
+      }
+    );
 }
