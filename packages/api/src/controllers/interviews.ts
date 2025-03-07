@@ -54,4 +54,9 @@ export class InterviewsController {
     return (await this.interviewsRepository.deleteComment(interviewId, commentId)).orTee(error => console.error(`Failed to delete comment: ${error}`))
       .mapErr(error => `Database error: ${error}`);
   }
+
+  async updateInterviewComment(commentId: string, paylod: Omit<NewInterviewCommentModel, 'comment_date'> ): Promise<Result<InterviewCommentModel, string>> {
+    return (await this.interviewsRepository.updateComment(commentId, paylod)).orTee(error => console.error(`Failed to update comment: ${error}`))
+      .mapErr(error => `Database error: ${error}`);
+  }
 }

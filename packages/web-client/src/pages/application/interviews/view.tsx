@@ -1,22 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router'
-import { addInterviewComment, deleteInterviewComment, interviewDetailsQueryOptions } from '../../../lib/api';
+import { addInterviewComment, deleteInterviewComment, interviewDetailsQueryOptions, updateInterviewComment } from '../../../lib/api';
 import { printDate } from '../../../utils';
 import { useState } from 'react';
 import { Banner } from '../../../components/banner';
-import { CaseEmpty } from '../../../lib/case';
+import { CaseEmpty, CasePayload } from '../../../lib/case';
 import InterviewCommentForm from '../../../components/comment_form';
 import { BsFillPinFill } from "react-icons/bs";
-
-
+import type { InterviewCommentModel } from '@job-seekr/data/validation';
 
 
 const CommentActionNone = () => new CaseEmpty('none' as const);
 const CommentActionAdd = () => new CaseEmpty('add' as const);
+const CommentActionEdit = (comment: InterviewCommentModel) => new CasePayload('edit' as const, comment);
 
 type CommentAction =
   | ReturnType<typeof CommentActionNone>
   | ReturnType<typeof CommentActionAdd>
+  | ReturnType<typeof CommentActionEdit>
 
 const InterviewView = () => {
   const { interview_id } = useParams();
@@ -43,6 +44,18 @@ const InterviewView = () => {
     mutationFn: deleteInterviewComment,
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: [`interview.${interview_id}`] });
+    },
+    onError: (error: unknown) => {
+      console.error(error);
+    },
+  })
+
+  const updateInterviewMutation = useMutation({
+    mutationFn: updateInterviewComment,
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: [`interview.${interview_id}`] });
+      setIsInterviewCommentFormBusy(false);
+      setCommentAction(CommentActionNone())
     },
     onError: (error: unknown) => {
       console.error(error);
@@ -96,7 +109,10 @@ const InterviewView = () => {
                 <p>{comment.comment}</p>
                 {comment.pinned &&
                   <BsFillPinFill className='absolute -left-6 text-xl text-green-700' />}
-                <button className='btn compact red' onClick={() => { deleteCommentMutation.mutate({ interviewId: comment.interview_id, commentId: comment.id }) }}>Delete</button>
+                <div className='space-x-3'>
+                  <button className='btn compact red' onClick={() => { deleteCommentMutation.mutate({ interviewId: comment.interview_id, commentId: comment.id }) }}>Delete</button>
+                  <button className='btn compact grey' onClick={() => { setCommentAction(CommentActionEdit(comment)) }}>Edit</button>
+                </div>
               </li>
             })}
         </ul>
@@ -118,7 +134,19 @@ const InterviewView = () => {
         }}
       />}
 
-      {/* TODO: Handle edit comment */}
+      {commentAction._kind === 'edit' && <InterviewCommentForm
+        mode="edit"
+        isBusy={isInterviewCommentFormBusy}
+        comment={commentAction._payload}
+        onSubmit={(id, formData) => {
+          console.log(formData)
+          setIsInterviewCommentFormBusy(true);
+          updateInterviewMutation.mutate({ id, json: formData })
+        }}
+        onCancel={() => {
+          setCommentAction(CommentActionNone());
+        }}
+      />}
     </>
   )
 }

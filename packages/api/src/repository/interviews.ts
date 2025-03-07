@@ -105,4 +105,18 @@ export class InterviewsRepository {
       return new Err(`Failed to delete comment: unknown error`);
     }
   }
+
+  async updateComment(commentId: string, payload: Omit<NewInterviewCommentModel, 'comment_date'>): Promise<Result<InterviewCommentModel, string>> {
+    try {
+
+      const res = await this.db.update(tInterviewCommments).set(payload).where(eq(tInterviewCommments.id, commentId)).returning();
+      return new Ok(res[0])
+
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to update comment: ${e.message}`);
+      }
+      return new Err(`Failed to udpate comment: unknown error`);
+    }
+  }
 }

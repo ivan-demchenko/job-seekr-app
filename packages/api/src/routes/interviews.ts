@@ -58,5 +58,13 @@ export function makeInterviewsRouter(
           return c.json({ error: result.error }, 500);
         }
         return c.json({ data: result.value });
+      }).put('/:id/comments/:comment_id', authMiddleware.middleware, zValidator('param', z.object({comment_id: z.string()})), zValidator('json', newIntervewCommentSchema.omit({comment_date: true})), async (c) => {
+        const commentId = c.req.valid('param').comment_id;
+        const payload = c.req.valid('json')
+        const result = await interviewsController.updateInterviewComment(commentId, payload);
+          if (result.isErr()) {
+          return c.json({ error: result.error }, 500);
+        }
+        return c.json({ data: result.value });
       })
 }
