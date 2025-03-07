@@ -32,6 +32,7 @@ const InterviewView = () => {
     mutationFn: addInterviewComment,
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: [`interview.${interview_id}`] });
+      setIsInterviewCommentFormBusy(false);
       setCommentAction(CommentActionNone())
     },
     onError: (error: unknown) => {
