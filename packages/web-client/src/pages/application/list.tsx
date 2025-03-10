@@ -1,8 +1,8 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NavLink, useNavigate } from "react-router";
-import { printDate } from "../../utils";
 import { Banner } from "../../components/banner";
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { applicationsListQueryOptions, deleteApplication } from "../../lib/api";
+import { printDate } from "../../utils";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -13,19 +13,19 @@ export default function Index() {
   const deleteApplicationMutation = useMutation({
     mutationFn: deleteApplication,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
     onError: (error: unknown) => {
-      console.error(error)
-    }
+      console.error(error);
+    },
   });
 
   if (query.isLoading) {
     return <Banner>Loading...</Banner>;
   }
 
-  if (query.data && 'error' in query.data) {
-    return <Banner type="warning">Sorry, the app is missbehaving</Banner>
+  if (query.data && "error" in query.data) {
+    return <Banner type="warning">Sorry, the app is missbehaving</Banner>;
   }
 
   if (query.data?.data) {
@@ -35,9 +35,11 @@ export default function Index() {
         <div className="flex flex-col items-center">
           <h1 className="text-2xl font-bold text-center">Applications</h1>
           <Banner>No applications in here yet. Add your first one!</Banner>
-          <NavLink to="/application/new" className="btn green">Add application</NavLink>
+          <NavLink to="/application/new" className="btn green">
+            Add application
+          </NavLink>
         </div>
-      )
+      );
     }
 
     return (
@@ -50,15 +52,19 @@ export default function Index() {
               <th>When applied</th>
               <th>Interviews</th>
               <th>Status</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
-            {applications.map(app => {
+            {applications.map((app) => {
               return (
-                <tr key={app.id} onClick={() => {
-                  navigate(`/application/view/${app.id}`);
-                }}>
+                // biome-ignore lint/a11y/useKeyWithClickEvents: no need
+                <tr
+                  key={app.id}
+                  onClick={() => {
+                    navigate(`/application/view/${app.id}`);
+                  }}
+                >
                   <td className="font-bold">
                     <NavLink to={`/application/view/${app.id}`}>
                       {app.company}
@@ -69,21 +75,22 @@ export default function Index() {
                   <td>{app.status}</td>
                   <td>
                     <button
+                      type="button"
                       className="btn compact"
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteApplicationMutation.mutate(app.id)
+                        deleteApplicationMutation.mutate(app.id);
                       }}
                     >
                       Delete
                     </button>
                   </td>
                 </tr>
-              )
+              );
             })}
           </tbody>
         </table>
       </>
-    )
+    );
   }
 }

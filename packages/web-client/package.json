@@ -5,9 +5,7 @@
   "module": "index.ts",
   "type": "module",
   "license": "MIT",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

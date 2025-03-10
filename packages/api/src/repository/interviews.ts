@@ -1,14 +1,15 @@
-import { Result, Ok, Err } from 'neverthrow';
-import { type DBType, eq } from '@job-seekr/data/utils';
-import { interviews as tInterviews } from '@job-seekr/data/tables';
-import { type InterviewModel, type NewInterviewModel } from '@job-seekr/data/validation';
+import { interviews as tInterviews } from "@job-seekr/data/tables";
+import { type DBType, eq } from "@job-seekr/data/utils";
+import type {
+  InterviewModel,
+  NewInterviewModel,
+} from "@job-seekr/data/validation";
+import { Err, Ok, type Result } from "neverthrow";
 
 export class InterviewsRepository {
-  constructor(
-    private db: DBType
-  ) { }
+  constructor(private db: DBType) {}
   async addInterview(
-    payload: InterviewModel
+    payload: InterviewModel,
   ): Promise<Result<InterviewModel, string>> {
     try {
       await this.db.insert(tInterviews).values(payload).onConflictDoNothing();
@@ -17,13 +18,13 @@ export class InterviewsRepository {
       if (e instanceof Error) {
         return new Err(`Failed to add an interview: ${e.message}`);
       }
-      return new Err(`Failed to add an interview: unknown error`);
+      return new Err("Failed to add an interview: unknown error");
     }
   }
 
   async updateInterview(
     interviewId: string,
-    payload: NewInterviewModel
+    payload: NewInterviewModel,
   ): Promise<Result<InterviewModel, string>> {
     try {
       const res = await this.db
@@ -36,12 +37,12 @@ export class InterviewsRepository {
       if (e instanceof Error) {
         return new Err(`Failed to add an interview: ${e.message}`);
       }
-      return new Err(`Failed to add an interview: unknown error`);
+      return new Err("Failed to add an interview: unknown error");
     }
   }
 
   async getInterviews(
-    applicationId: string
+    applicationId: string,
   ): Promise<Result<InterviewModel[], string>> {
     try {
       const data = await this.db
@@ -51,9 +52,11 @@ export class InterviewsRepository {
       return new Ok(data);
     } catch (e) {
       if (e instanceof Error) {
-        return new Err(`Failed to read from the interviews table: ${e.message}`);
+        return new Err(
+          `Failed to read from the interviews table: ${e.message}`,
+        );
       }
-      return new Err(`Failed to read from the interviews table: unknown error`);
+      return new Err("Failed to read from the interviews table: unknown error");
     }
   }
 
@@ -63,9 +66,11 @@ export class InterviewsRepository {
       return new Ok(rawData);
     } catch (e) {
       if (e instanceof Error) {
-        return new Err(`Failed to read from the interviews table: ${e.message}`);
+        return new Err(
+          `Failed to read from the interviews table: ${e.message}`,
+        );
       }
-      return new Err(`Failed to read from the interviews table: unknown error`);
+      return new Err("Failed to read from the interviews table: unknown error");
     }
   }
 }

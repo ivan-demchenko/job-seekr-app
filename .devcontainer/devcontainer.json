@@ -17,13 +17,12 @@
         "bradlc.vscode-tailwindcss",
         "qwtel.sqlite-viewer",
         "GitHub.vscode-github-actions",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "biomejs.biome"
       ]
     }
   },
-  "forwardPorts": [
-    3000
-  ],
+  "forwardPorts": [3000],
   "features": {
     "ghcr.io/shyim/devcontainers-features/bun:0": {}
   }

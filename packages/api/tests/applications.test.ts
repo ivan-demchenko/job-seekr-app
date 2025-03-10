@@ -1,9 +1,8 @@
-import { describe, test, expect, beforeAll } from 'bun:test';
-import { app } from '../src/main';
-import type { NewApplicationModel } from '@job-seekr/data/validation';
+import { beforeAll, describe, expect, test } from "bun:test";
+import type { NewApplicationModel } from "@job-seekr/data/validation";
+import { app } from "../src/main";
 
-describe('Create applications', () => {
-
+describe("Create applications", () => {
   /**
    * This is used to make entities unique
    */
@@ -20,17 +19,17 @@ describe('Create applications', () => {
     if (applicationId) {
       return applicationId;
     }
-    const postRes = await app.request('/api/applications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const postRes = await app.request("/api/applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         company: `Test company ${marker}`,
         position: `Test position ${marker}`,
         job_description: `Test JD ${marker}`,
         job_posting_url: `http://test.com/job/${marker}`,
         application_date: marker,
-        status: 'applied'
-      } as NewApplicationModel)
+        status: "applied",
+      } as NewApplicationModel),
     });
     const newApplication = await postRes.json();
     expect(postRes.status).toEqual(200);
@@ -42,13 +41,13 @@ describe('Create applications', () => {
       job_description: `Test JD ${marker}`,
       job_posting_url: `http://test.com/job/${marker}`,
       application_date: marker,
-      status: 'applied'
+      status: "applied",
     });
   });
 
-  test('Add a new application', async () => {
+  test("Add a new application", async () => {
     const checkRes = await app.request(`/api/applications/${applicationId}`);
-    const checkData = await checkRes.json()
+    const checkData = await checkRes.json();
     expect(checkData.data.application).toMatchObject({
       id: applicationId,
       company: `Test company ${marker}`,
@@ -56,20 +55,23 @@ describe('Create applications', () => {
       job_description: `Test JD ${marker}`,
       job_posting_url: `http://test.com/job/${marker}`,
       application_date: marker,
-      status: 'applied',
+      status: "applied",
       user_id: "local-user",
     });
   });
 
-  test('Update the job description', async () => {
-    const updateJDReq = await app.request(`/api/applications/${applicationId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        target: 'job_description',
-        job_description: 'A new JD'
-      })
-    });
+  test("Update the job description", async () => {
+    const updateJDReq = await app.request(
+      `/api/applications/${applicationId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target: "job_description",
+          job_description: "A new JD",
+        }),
+      },
+    );
 
     expect(updateJDReq.status).toEqual(200);
 
@@ -77,19 +79,22 @@ describe('Create applications', () => {
     const checkData = await checkRes.json();
     expect(checkData.data.application).toMatchObject({
       id: applicationId,
-      job_description: `A new JD`
+      job_description: "A new JD",
     });
   });
 
-  test('Update the status', async () => {
-    const updateJDReq = await app.request(`/api/applications/${applicationId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        target: 'status',
-        status: 'offer'
-      })
-    });
+  test("Update the status", async () => {
+    const updateJDReq = await app.request(
+      `/api/applications/${applicationId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target: "status",
+          status: "offer",
+        }),
+      },
+    );
 
     expect(updateJDReq.status).toEqual(200);
 
@@ -97,49 +102,54 @@ describe('Create applications', () => {
     const checkData = await checkRes.json();
     expect(checkData.data.application).toMatchObject({
       id: applicationId,
-      status: `offer`
+      status: "offer",
     });
   });
 });
 
-describe('Delete applications', async () => {
-  test('it can delete an application', async () => {
+describe("Delete applications", async () => {
+  test("it can delete an application", async () => {
     const marker = Date.now();
 
-    const postRes = await app.request('/api/applications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const postRes = await app.request("/api/applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         company: `Test company ${marker}`,
         position: `Test position ${marker}`,
         job_description: `Test JD ${marker}`,
         job_posting_url: `http://test.com/job/${marker}`,
         application_date: marker,
-        status: 'applied'
-      } as NewApplicationModel)
+        status: "applied",
+      } as NewApplicationModel),
     });
     const newApplication = await postRes.json();
     expect(postRes.status).toEqual(200);
 
-    const deleteRes = await app.request(`/api/applications/${newApplication.data.id}`, {
-      method: 'DELETE'
-    });
+    const deleteRes = await app.request(
+      `/api/applications/${newApplication.data.id}`,
+      {
+        method: "DELETE",
+      },
+    );
     expect(deleteRes.status).toEqual(200);
 
-    const check2Res = await app.request(`/api/applications/${newApplication.data.id}`);
+    const check2Res = await app.request(
+      `/api/applications/${newApplication.data.id}`,
+    );
     expect(check2Res.status).toEqual(404);
   });
 
-  test('it can delete all applications for a user', async () => {
-    const deleteRes = await app.request(`/api/applications/of-user`, {
-      method: 'DELETE'
+  test("it can delete all applications for a user", async () => {
+    const deleteRes = await app.request("/api/applications/of-user", {
+      method: "DELETE",
     });
     expect(deleteRes.status).toEqual(200);
 
-    const checkRes = await app.request(`/api/applications`);
+    const checkRes = await app.request("/api/applications");
     const checkData = await checkRes.json();
     expect(checkData).toMatchObject({
-      data: []
-    })
+      data: [],
+    });
   });
 });

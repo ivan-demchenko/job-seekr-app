@@ -5,28 +5,57 @@ export default function About() {
     <div className="prose">
       <h1 className="">About this app</h1>
       <p>
-        <strong>Job Seekr</strong> was born out of a necessity to track job applications and generate reports about them.
+        <strong>Job Seekr</strong> was born out of a necessity to track job
+        applications and generate reports about them.
       </p>
       <p>
-        In Germany (probably as in other countries too), when a person registers as a job seeker,
-        they need to report to the Federal Employment Agency every once in a while.
+        In Germany (probably as in other countries too), when a person registers
+        as a job seeker, they need to report to the Federal Employment Agency
+        every once in a while.
       </p>
       <p>
-        This project is open source and follows minimal design. You can run it locally, or use a cloud version.
-        I built in in my spare time and would appreciate any <a href="https://buymeacoffee.com/ivan.demchenko" target="_blank">support</a> or <a href="https://github.com/ivan-demchenko/job-seekr-app" target="_blank">contribution</a>.
+        This project is open source and follows minimal design. You can run it
+        locally, or use a cloud version. I built in in my spare time and would
+        appreciate any{" "}
+        <a
+          href="https://buymeacoffee.com/ivan.demchenko"
+          target="_blank"
+          rel="noreferrer"
+        >
+          support
+        </a>{" "}
+        or{" "}
+        <a
+          href="https://github.com/ivan-demchenko/job-seekr-app"
+          target="_blank"
+          rel="noreferrer"
+        >
+          contribution
+        </a>
+        .
       </p>
       <h3>Kudos to contributors!</h3>
       <ul>
         <li>
-          <a href="https://github.com/souravnub" target="_blank">Sourav Kumar</a>
+          <a
+            href="https://github.com/souravnub"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Sourav Kumar
+          </a>
         </li>
         <li>
-          <a href="https://github.com/fairyaksh" target="_blank">Akshaya S.</a>
+          <a
+            href="https://github.com/fairyaksh"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Akshaya S.
+          </a>
         </li>
       </ul>
-      <p>
-        Good luck with your job hunt! You can do it!
-      </p>
+      <p>Good luck with your job hunt! You can do it!</p>
     </div>
-  )
+  );
 }

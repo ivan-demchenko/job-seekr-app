@@ -1,6 +1,6 @@
-import { EnvConfig } from '@job-seekr/config';
-import { initDB } from './db';
+import { EnvConfig } from "@job-seekr/config";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { initDB } from "./db";
 
 const main = async () => {
   const db = initDB(EnvConfig.DATABASE_URL);

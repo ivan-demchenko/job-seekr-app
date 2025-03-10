@@ -1,13 +1,17 @@
-import { createSelectSchema, createInsertSchema, createUpdateSchema } from 'drizzle-zod';
-import { z } from 'zod';
-import { applications, interviews } from './db.schemas';
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
+import { z } from "zod";
+import { applications, interviews } from "./db.schemas";
 
 export const applicationSchema = createSelectSchema(applications);
 export type ApplicationModel = z.infer<typeof applicationSchema>;
 
 export const applicationListSchema = applicationSchema.extend({
-  interviewsCount: z.number()
-})
+  interviewsCount: z.number(),
+});
 export type ApplicationListModel = z.infer<typeof applicationListSchema>;
 
 export const newApplicationSchema = applicationSchema.omit({
@@ -15,7 +19,6 @@ export const newApplicationSchema = applicationSchema.omit({
   user_id: true,
 });
 export type NewApplicationModel = z.infer<typeof newApplicationSchema>;
-
 
 export const interviewSelectSchema = createSelectSchema(interviews);
 export type InterviewModel = z.infer<typeof interviewSelectSchema>;

@@ -7,9 +7,7 @@
   },
   "type": "module",
   "license": "MIT",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "bun index.ts",
     "test": "bun test",

@@ -1,20 +1,17 @@
-import { StrictMode } from 'react'
-import ReactDOM from 'react-dom/client'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router";
-import MainLayout from './layout/main';
-import About from './pages/about';
-import ApplicationsList from './pages/application/list';
-import NewApplication from './pages/application/new';
-import ViewApplication from './pages/application/view';
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import MainLayout from "./layout/main";
+import About from "./pages/about";
+import ApplicationsList from "./pages/application/list";
+import NewApplication from "./pages/application/new";
+import ViewApplication from "./pages/application/view";
 
-const rootElement = document.getElementById('app')!
-const queryClient = new QueryClient()
+const rootElement = document.getElementById("app") as HTMLElement;
+const queryClient = new QueryClient();
 
-const root = ReactDOM.createRoot(rootElement)
+const root = ReactDOM.createRoot(rootElement);
 root.render(
   <StrictMode>
     <BrowserRouter>
@@ -32,4 +29,4 @@ root.render(
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,
-)
+);

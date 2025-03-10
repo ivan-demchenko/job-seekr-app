@@ -1,14 +1,14 @@
+import type { CloudEnvConf, EnvType } from "@job-seekr/config";
 import {
-  createKindeServerClient,
-  GrantType,
   type ACClient,
+  GrantType,
   type SessionManager,
   type UserType,
+  createKindeServerClient,
 } from "@kinde-oss/kinde-typescript-sdk";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { createMiddleware } from "hono/factory";
 import type { Context, MiddlewareHandler } from "hono";
-import type { CloudEnvConf, EnvType } from "@job-seekr/config";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { createMiddleware } from "hono/factory";
 
 type Env = {
   Variables: {
@@ -43,16 +43,13 @@ const getTrueAuthMiddleware = (env: CloudEnvConf): WithAuthMiddleware => {
       }
     },
   });
-  const authClient = createKindeServerClient(
-    GrantType.AUTHORIZATION_CODE,
-    {
-      authDomain: env.KINDE_ISSUER_URL,
-      clientId: env.KINDE_CLIENT_ID,
-      clientSecret: env.KINDE_CLIENT_SECRET,
-      redirectURL: env.KINDE_REDIRECT_URI,
-      logoutRedirectURL: env.KINDE_LOGOUT_REDIRECT_URI,
-    },
-  );
+  const authClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
+    authDomain: env.KINDE_ISSUER_URL,
+    clientId: env.KINDE_CLIENT_ID,
+    clientSecret: env.KINDE_CLIENT_SECRET,
+    redirectURL: env.KINDE_REDIRECT_URI,
+    logoutRedirectURL: env.KINDE_LOGOUT_REDIRECT_URI,
+  });
   const middleware = createMiddleware<Env>(async (c, next) => {
     try {
       const manager = sessionManager(c);
@@ -71,47 +68,45 @@ const getTrueAuthMiddleware = (env: CloudEnvConf): WithAuthMiddleware => {
     }
   });
   return {
-    _kind: 'cloud',
+    _kind: "cloud",
     middleware,
     sessionManager,
-    authClient
-  }
-}
+    authClient,
+  };
+};
 
 const getFakeAuthMiddleware = (): WithAuthMiddleware => {
   const middleware = createMiddleware<Env>(async (c, next) => {
     c.set("user", {
-      id: 'local-user',
-      email: 'local-user@localhost',
-      family_name: 'Local',
-      given_name: 'User',
-      name: 'Local User',
-      picture: ''
-    })
+      id: "local-user",
+      email: "local-user@localhost",
+      family_name: "Local",
+      given_name: "User",
+      name: "Local User",
+      picture: "",
+    });
     return next();
   });
   return {
-    _kind: 'local',
-    middleware
-  }
-}
+    _kind: "local",
+    middleware,
+  };
+};
 
 export type WithAuthMiddleware =
   | {
-    _kind: 'cloud'
-    middleware: MiddlewareHandler<Env, string, {}>
-    sessionManager: (c: Context) => SessionManager
-    authClient: ACClient
-  }
+      _kind: "cloud";
+      middleware: MiddlewareHandler<Env, string, object>;
+      sessionManager: (c: Context) => SessionManager;
+      authClient: ACClient;
+    }
   | {
-    _kind: 'local'
-    middleware: MiddlewareHandler<Env, string, {}>
-  }
+      _kind: "local";
+      middleware: MiddlewareHandler<Env, string, object>;
+    };
 
-export const makeAuthMiddleware = (
-  env: EnvType
-): WithAuthMiddleware => {
-  return env.HOSTING_MODE === 'cloud'
+export const makeAuthMiddleware = (env: EnvType): WithAuthMiddleware => {
+  return env.HOSTING_MODE === "cloud"
     ? getTrueAuthMiddleware(env)
     : getFakeAuthMiddleware();
-}
+};

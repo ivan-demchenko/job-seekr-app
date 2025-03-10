@@ -4,16 +4,18 @@
   "description": "A job application tracking system",
   "type": "module",
   "license": "MIT",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "scripts": {
     "db:migration:run": "bun ./dist/db/migrate.js",
-    "start": "bun ./dist/index.js"
+    "start": "bun ./dist/index.js",
+    "code:fix": "biome check --write"
   },
   "author": {
     "name": "Ivan Demchenko",
     "email": "idemchenko.js@gmail.com",
     "url": "https://github.com/ivan-demchenko/job-seekr-app"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4"
   }
 }
