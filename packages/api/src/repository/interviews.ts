@@ -1,10 +1,7 @@
-import { interviews as tInterviews } from "@job-seekr/data/tables";
-import { type DBType, eq } from "@job-seekr/data/utils";
-import type {
-  InterviewModel,
-  NewInterviewModel,
-} from "@job-seekr/data/validation";
-import { Err, Ok, type Result } from "neverthrow";
+import { Result, Ok, Err } from 'neverthrow';
+import { and, type DBType, eq } from '@job-seekr/data/utils';
+import { interviews as tInterviews, interviewComments as tInterviewCommments } from '@job-seekr/data/tables';
+import { type InterviewCommentModel, type InterviewModel, type InterviewWithCommentModel, type NewInterviewCommentModel, type NewInterviewModel } from '@job-seekr/data/validation';
 
 export class InterviewsRepository {
   constructor(private db: DBType) {}
@@ -41,6 +38,17 @@ export class InterviewsRepository {
     }
   }
 
+  async getInterviewById(interviewId: string): Promise<Result<InterviewWithCommentModel, string>> {
+    const interviews = await this.db.select().from(tInterviews).where(eq(tInterviews.id, interviewId));
+    const comments  = await this.db.select().from(tInterviewCommments).where(eq(tInterviewCommments.interview_id, interviewId))
+    
+    if(!interviews) {
+      return new Err('Interview not found')
+    }
+
+    return new Ok({...interviews[0], comments})
+  }
+
   async getInterviews(
     applicationId: string,
   ): Promise<Result<InterviewModel[], string>> {
@@ -70,7 +78,47 @@ export class InterviewsRepository {
           `Failed to read from the interviews table: ${e.message}`,
         );
       }
-      return new Err("Failed to read from the interviews table: unknown error");
+      return new Err(`Failed to read from the interviews table: unknown error`);
+    }
+  }
+
+  async addNewComment(payload: Omit<InterviewCommentModel, 'pinned'>): Promise<Result<InterviewCommentModel, string>> {
+     try {
+      const newComment = await this.db.insert(tInterviewCommments).values(payload).onConflictDoNothing().returning();
+      return new Ok(newComment[0]);
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to add comment: ${e.message}`);
+      }
+      return new Err(`Failed to add comment: unknown error`);
+    }
+  }
+
+  async deleteComment(interveiwId: string, commentId: string): Promise<Result<boolean, string>> {
+     try {
+
+      await this.db.delete(tInterviewCommments).where(and(eq(tInterviewCommments.id, commentId), eq(tInterviewCommments.interview_id, interveiwId)));
+      return new Ok(true)
+
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to delete comment: ${e.message}`);
+      }
+      return new Err(`Failed to delete comment: unknown error`);
+    }
+  }
+
+  async updateComment(commentId: string, payload: Omit<NewInterviewCommentModel, 'comment_date'>): Promise<Result<InterviewCommentModel, string>> {
+    try {
+
+      const res = await this.db.update(tInterviewCommments).set(payload).where(eq(tInterviewCommments.id, commentId)).returning();
+      return new Ok(res[0])
+
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to update comment: ${e.message}`);
+      }
+      return new Err(`Failed to udpate comment: unknown error`);
     }
   }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "interviewComments" ALTER COLUMN "pinned" SET NOT NULL;

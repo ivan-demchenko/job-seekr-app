@@ -72,9 +72,11 @@ export default function InterviewForm(props: InterviewFormProps) {
         <div className="form-input">
           <label htmlFor="interview_date">When</label>
           <input
+
             disabled={props.isBusy}
             type="datetime-local"
             name="interview_date"
+            id="interview_date"
             value={form.interview_date}
             onChange={(e) => {
               setForm((oldForm) => {
@@ -88,36 +90,22 @@ export default function InterviewForm(props: InterviewFormProps) {
         </div>
         <div className="form-input">
           <label htmlFor="topic">Topic</label>
-          <input
-            disabled={props.isBusy}
-            type="text"
-            name="topic"
-            value={form.topic}
-            onChange={(e) =>
-              setForm((oldForm) => ({
-                ...oldForm,
-                topic: e.target.value,
-              }))
-            }
-          />
+          <input id="topic" disabled={props.isBusy} type="text" name="topic" value={form.topic} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            topic: e.target.value
+          }))} />
         </div>
         <div className="form-input">
           <label htmlFor="participants">Participants</label>
-          <textarea
-            disabled={props.isBusy}
-            name="participants"
-            value={form.participants}
-            onChange={(e) =>
-              setForm((oldForm) => ({
-                ...oldForm,
-                participants: e.target.value,
-              }))
-            }
-          />
+          <textarea id="participants" disabled={props.isBusy} name="participants" value={form.participants} onChange={e => setForm(oldForm => ({
+            ...oldForm,
+            participants: e.target.value
+          }))}></textarea>
         </div>
         <div className="form-input">
-          <label htmlFor="participants">Any prep notes?</label>
+          <label htmlFor="prep_notes">Any prep notes?</label>
           <textarea
+            id="prep_notes"
             disabled={props.isBusy}
             name="prep_notes"
             value={form.prep_notes}
