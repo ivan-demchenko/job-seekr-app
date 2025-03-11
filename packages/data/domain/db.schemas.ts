@@ -1,5 +1,5 @@
-import { sql } from 'drizzle-orm';
-import { pgTable, text, bigint, varchar, boolean } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { bigint, boolean, pgTable, text, varchar } from "drizzle-orm/pg-core";
 
 export const applications = pgTable("applications", {
   id: varchar({ length: 36 }).notNull().unique().primaryKey(),
@@ -28,13 +28,15 @@ export const interviews = pgTable("interviews", {
   prep_notes: text().notNull(),
 });
 
-export const interviewComments = pgTable('interviewComments', {
+export const interviewComments = pgTable("interviewComments", {
   id: varchar({ length: 36 }).notNull().unique().primaryKey(),
   interview_id: varchar({ length: 36 })
-    .references(() => interviews.id, { onDelete: 'cascade', onUpdate: 'cascade' })
+    .references(() => interviews.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    })
     .notNull(),
-  comment_date: bigint({mode : 'number'}).notNull(),
+  comment_date: bigint({ mode: "number" }).notNull(),
   comment: text().notNull(),
-  pinned: boolean().notNull().default(false)
-})
-
+  pinned: boolean().notNull().default(false),
+});

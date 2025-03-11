@@ -57,31 +57,66 @@ export default function NewApplication() {
       >
         <div className="form-input">
           <label htmlFor="company">Company name</label>
-          <input disabled={isBusy} id="company" type="text" name="company" value={form.company} onChange={e => setForm(oldForm => ({
-            ...oldForm,
-            company: e.target.value
-          }))} />
+          <input
+            disabled={isBusy}
+            id="company"
+            type="text"
+            name="company"
+            value={form.company}
+            onChange={(e) =>
+              setForm((oldForm) => ({
+                ...oldForm,
+                company: e.target.value,
+              }))
+            }
+          />
         </div>
         <div className="form-input">
           <label htmlFor="position">Position</label>
-          <input disabled={isBusy} id="position" type="text" name="position" value={form.position} onChange={e => setForm(oldForm => ({
-            ...oldForm,
-            position: e.target.value
-          }))} />
+          <input
+            disabled={isBusy}
+            id="position"
+            type="text"
+            name="position"
+            value={form.position}
+            onChange={(e) =>
+              setForm((oldForm) => ({
+                ...oldForm,
+                position: e.target.value,
+              }))
+            }
+          />
         </div>
         <div className="form-input">
           <label htmlFor="posting_url">Job posting url</label>
-          <input disabled={isBusy} id="posting_url" type="url" name="job_posting_url" value={form.job_posting_url} onChange={e => setForm(oldForm => ({
-            ...oldForm,
-            job_posting_url: e.target.value
-          }))} />
+          <input
+            disabled={isBusy}
+            id="posting_url"
+            type="url"
+            name="job_posting_url"
+            value={form.job_posting_url}
+            onChange={(e) =>
+              setForm((oldForm) => ({
+                ...oldForm,
+                job_posting_url: e.target.value,
+              }))
+            }
+          />
         </div>
         <div className="form-input">
           <label htmlFor="description">Job description</label>
-          <textarea disabled={isBusy} id="description" name="job_description" value={form.job_description} onChange={e => setForm(oldForm => ({
-            ...oldForm,
-            job_description: e.target.value
-          }))} />
+          <textarea
+            disabled={isBusy}
+            id="description"
+            name="job_description"
+            value={form.job_description}
+            onChange={(e) =>
+              setForm((oldForm) => ({
+                ...oldForm,
+                job_description: e.target.value,
+              }))
+            }
+          />
         </div>
         <div className="form-input">
           <label htmlFor="application_date">Application Date</label>

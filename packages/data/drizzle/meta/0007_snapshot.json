@@ -66,9 +66,7 @@
         "applications_id_unique": {
           "name": "applications_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -117,12 +115,8 @@
           "name": "interviewComments_interview_id_interviews_id_fk",
           "tableFrom": "interviewComments",
           "tableTo": "interviews",
-          "columnsFrom": [
-            "interview_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["interview_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -132,9 +126,7 @@
         "interviewComments_id_unique": {
           "name": "interviewComments_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -188,12 +180,8 @@
           "name": "interviews_application_id_applications_id_fk",
           "tableFrom": "interviews",
           "tableTo": "applications",
-          "columnsFrom": [
-            "application_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["application_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -203,9 +191,7 @@
         "interviews_id_unique": {
           "name": "interviews_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
