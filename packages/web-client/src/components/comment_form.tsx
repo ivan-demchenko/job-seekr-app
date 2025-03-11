@@ -42,7 +42,6 @@ const getInitialFormState = (props: CommentFormProps): FormState => {
 };
 
 function formStateToOutput(form: FormState): NewInterviewCommentModel {
-  console.log("inner form", form);
   return {
     ...form,
     comment_date: dateToTimestamp(form.comment_date),
