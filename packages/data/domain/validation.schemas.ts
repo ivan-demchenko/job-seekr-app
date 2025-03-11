@@ -23,17 +23,11 @@ export type NewApplicationModel = z.infer<typeof newApplicationSchema>;
 export const interviewSelectSchema = createSelectSchema(interviews);
 export type InterviewModel = z.infer<typeof interviewSelectSchema>;
 
+const commentSchema = createSelectSchema(interviewComments)
+
 export const interviewWithCommentSchema = interviewSelectSchema.extend({
-  comments: z.array(
-    z.object({
-      id: z.string(),
-      interview_id: z.string(),
-      comment_date: z.number(),
-      comment: z.string(),
-      pinned: z.boolean(),
-    }),
-  ),
-});
+  comments: z.array(commentSchema)});
+  
 export type InterviewWithCommentModel = z.infer<
   typeof interviewWithCommentSchema
 >;

@@ -29,12 +29,9 @@ type FormState = Omit<NewInterviewCommentModel, "comment_date"> & {
 
 const getInitialFormState = (props: CommentFormProps): FormState => {
   if (props.mode === "add") {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-
     return {
       comment: "",
-      comment_date: now.toISOString().slice(0, 16),
+      comment_date: timestampToISO(Date.now()),
       pinned: false,
     };
   }
