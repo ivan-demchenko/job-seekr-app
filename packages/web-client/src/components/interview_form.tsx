@@ -75,6 +75,7 @@ export default function InterviewForm(props: InterviewFormProps) {
             disabled={props.isBusy}
             type="datetime-local"
             name="interview_date"
+            id="interview_date"
             value={form.interview_date}
             onChange={(e) => {
               setForm((oldForm) => {
@@ -89,6 +90,7 @@ export default function InterviewForm(props: InterviewFormProps) {
         <div className="form-input">
           <label htmlFor="topic">Topic</label>
           <input
+            id="topic"
             disabled={props.isBusy}
             type="text"
             name="topic"
@@ -104,6 +106,7 @@ export default function InterviewForm(props: InterviewFormProps) {
         <div className="form-input">
           <label htmlFor="participants">Participants</label>
           <textarea
+            id="participants"
             disabled={props.isBusy}
             name="participants"
             value={form.participants}
@@ -116,8 +119,9 @@ export default function InterviewForm(props: InterviewFormProps) {
           />
         </div>
         <div className="form-input">
-          <label htmlFor="participants">Any prep notes?</label>
+          <label htmlFor="prep_notes">Any prep notes?</label>
           <textarea
+            id="prep_notes"
             disabled={props.isBusy}
             name="prep_notes"
             value={form.prep_notes}

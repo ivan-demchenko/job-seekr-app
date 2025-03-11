@@ -91,3 +91,52 @@ export async function updateInterview({
   });
   return res.json();
 }
+
+export const interviewDetailsQueryOptions = (id: string) =>
+  queryOptions({
+    queryKey: [`interview.${id}`],
+    queryFn: async () => {
+      const res = await apiClient.interviews[":id"].$get({ param: { id } });
+      return await res.json();
+    },
+  });
+
+const addInterviewCommentEndpoint = apiClient.interviews[":id"].comments.$post;
+export async function addInterviewComment({
+  id,
+  json,
+}: {
+  id: string;
+  json: InferRequestType<typeof addInterviewCommentEndpoint>["json"];
+}) {
+  const res = await addInterviewCommentEndpoint({ json, param: { id } });
+  return res.json();
+}
+
+const deleteInterviewCommentEndpoint =
+  apiClient.interviews[":id"].comments[":comment_id"].$delete;
+export async function deleteInterviewComment({
+  interviewId,
+  commentId,
+}: { interviewId: string; commentId: string }) {
+  const res = await deleteInterviewCommentEndpoint({
+    param: { id: interviewId, comment_id: commentId },
+  });
+  return res.json();
+}
+
+const updateInterviewCommentEndpoint =
+  apiClient.interviews[":id"].comments[":comment_id"].$put;
+export async function updateInterviewComment({
+  id,
+  json,
+}: {
+  id: string;
+  json: InferRequestType<typeof updateInterviewCommentEndpoint>["json"];
+}) {
+  const res = await updateInterviewCommentEndpoint({
+    json,
+    param: { comment_id: id },
+  });
+  return res.json();
+}
