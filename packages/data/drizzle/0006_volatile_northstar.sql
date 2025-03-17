@@ -8,4 +8,3 @@ CREATE TABLE "interviewComments" (
 );
 --> statement-breakpoint
 ALTER TABLE "interviewComments" ADD CONSTRAINT "interviewComments_interview_id_interviews_id_fk" FOREIGN KEY ("interview_id") REFERENCES "public"."interviews"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "interviews" DROP COLUMN "comments";
