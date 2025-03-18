@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router";
 import MainLayout from "./layout/main";
 import About from "./pages/about";
+import InterviewView from "./pages/application/interviews/view";
 import ApplicationsList from "./pages/application/list";
 import NewApplication from "./pages/application/new";
 import ViewApplication from "./pages/application/view";
@@ -23,6 +24,11 @@ root.render(
             <Route path="application">
               <Route path="view/:id" element={<ViewApplication />} />
               <Route path="new" element={<NewApplication />} />
+
+              <Route
+                path=":application_id/interviews/:interview_id"
+                element={<InterviewView />}
+              />
             </Route>
           </Route>
         </Routes>

@@ -1,5 +1,6 @@
 import type { InterviewModel } from "@job-seekr/data/validation";
 import { printDateTime, renderMD } from "../utils";
+import { useNavigate } from "react-router";
 
 type Props = {
   interviews: InterviewModel[];
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export function InterviewsList(props: Props) {
+  const navigate = useNavigate();
   return (
     <table className="data-table">
       <thead>
@@ -21,7 +23,10 @@ export function InterviewsList(props: Props) {
       <tbody>
         {props.interviews.map((interview) => {
           return (
-            <tr key={interview.id}>
+            // biome-ignore lint/a11y/useKeyWithClickEvents: no need
+            <tr key={interview.id} onClick={() => {
+              navigate(`/application/${interview.application_id}/interviews/${interview.id}`);
+            }}>
               <td>{printDateTime(interview.interview_date)}</td>
               <td>{interview.topic}</td>
               <td

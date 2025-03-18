@@ -59,6 +59,7 @@ export default function NewApplication() {
           <label htmlFor="company">Company name</label>
           <input
             disabled={isBusy}
+            id="company"
             type="text"
             name="company"
             value={form.company}
@@ -74,6 +75,7 @@ export default function NewApplication() {
           <label htmlFor="position">Position</label>
           <input
             disabled={isBusy}
+            id="position"
             type="text"
             name="position"
             value={form.position}
@@ -86,9 +88,10 @@ export default function NewApplication() {
           />
         </div>
         <div className="form-input">
-          <label htmlFor="job_posting_url">Job posting url</label>
+          <label htmlFor="posting_url">Job posting url</label>
           <input
             disabled={isBusy}
+            id="posting_url"
             type="url"
             name="job_posting_url"
             value={form.job_posting_url}
@@ -101,9 +104,10 @@ export default function NewApplication() {
           />
         </div>
         <div className="form-input">
-          <label htmlFor="job_description">Job description</label>
+          <label htmlFor="description">Job description</label>
           <textarea
             disabled={isBusy}
+            id="description"
             name="job_description"
             value={form.job_description}
             onChange={(e) =>
@@ -117,6 +121,7 @@ export default function NewApplication() {
         <div className="form-input">
           <label htmlFor="application_date">Application Date</label>
           <input
+            id="application_date"
             disabled={isBusy}
             type="datetime-local"
             name="application_date"
