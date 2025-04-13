@@ -84,6 +84,12 @@ export class ExportController {
     private applicationsRepository: ApplicationsRepository,
     private interviewsRepository: InterviewsRepository,
   ) {}
+
+  /**
+   * Generates a PDF report of applications and interviews for a user.
+   * @param userId - The ID of the user whose data is being exported.
+   * @returns A `Result` containing the generated PDF buffer or an error message.
+   */
   async generateReport(
     userId: string,
   ): Promise<Result<Buffer<ArrayBufferLike>, string>> {

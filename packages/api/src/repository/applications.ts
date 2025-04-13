@@ -5,7 +5,7 @@ import {
 import { type DBType, and, count, eq } from "@job-seekr/data/utils";
 import type {
   ApplicationListModel,
-  ApplicationModel
+  ApplicationModel,
 } from "@job-seekr/data/validation";
 import { Err, Ok, type Result } from "neverthrow";
 import type { ApplicationResponseDto } from "../dto/application.response.dto";
@@ -13,6 +13,11 @@ import type { ApplicationResponseDto } from "../dto/application.response.dto";
 export class ApplicationsRepository {
   constructor(private db: DBType) {}
 
+  /**
+   * Retrieves all applications for a specific user.
+   * @param userId - The ID of the user whose applications are being retrieved.
+   * @returns A `Result` containing a list of applications or an error message.
+   */
   async getAllApplications(
     userId: string,
   ): Promise<Result<ApplicationListModel[], string>> {
@@ -46,15 +51,16 @@ export class ApplicationsRepository {
     }
   }
 
+  /**
+   * Retrieves a specific application by its ID, including its interviews.
+   * @param userId - The ID of the user who owns the application.
+   * @param id - The ID of the application to retrieve.
+   * @returns A `Result` containing the application and its interviews or an error message.
+   */
   async getApplicationById(
     userId: string,
     id: string,
-  ): Promise<
-    Result<
-      ApplicationResponseDto,
-      string
-    >
-  > {
+  ): Promise<Result<ApplicationResponseDto, string>> {
     try {
       const applications = await this.db
         .select()
@@ -88,6 +94,13 @@ export class ApplicationsRepository {
     }
   }
 
+  /**
+   * Updates the status of a specific application.
+   * @param userId - The ID of the user who owns the application.
+   * @param id - The ID of the application to update.
+   * @param newStatus - The new status to set for the application.
+   * @returns A `Result` containing the updated application or an error message.
+   */
   async setApplicationStatus(
     userId: string,
     id: string,
@@ -109,6 +122,13 @@ export class ApplicationsRepository {
     }
   }
 
+  /**
+   * Updates the job description of a specific application.
+   * @param userId - The ID of the user who owns the application.
+   * @param id - The ID of the application to update.
+   * @param newJD - The new job description to set for the application.
+   * @returns A `Result` containing the updated application or an error message.
+   */
   async setApplicationJobDescription(
     userId: string,
     id: string,
@@ -130,6 +150,11 @@ export class ApplicationsRepository {
     }
   }
 
+  /**
+   * Adds a new application to the database.
+   * @param payload - The application data to insert.
+   * @returns A `Result` containing the inserted application or an error message.
+   */
   async addApplication(
     payload: ApplicationModel,
   ): Promise<Result<ApplicationModel, string>> {
@@ -152,36 +177,11 @@ export class ApplicationsRepository {
     }
   }
 
-  async deleteApplications(
-    params:
-      | { _tag: "of-user"; id: string }
-      | { _tag: "applications"; ids: string[] },
-  ): Promise<Result<boolean, string>> {
-    try {
-      switch (params._tag) {
-        case "of-user": {
-          await this.db
-            .delete(tApplications)
-            .where(eq(tApplications.user_id, params.id))
-            .execute();
-          return new Ok(true);
-        }
-        case "applications": {
-          await this.db
-            .delete(tApplications)
-            .where(and(...params.ids.map((id) => eq(tApplications.id, id))))
-            .execute();
-          return new Ok(true);
-        }
-      }
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(`Failed to delete user applications: ${e.message}`);
-      }
-      return new Err("Failed to delete user applications: unknown error");
-    }
-  }
-
+  /**
+   * Deletes all applications for a specific user.
+   * @param userId - The ID of the user whose applications are being deleted.
+   * @returns A `Result` indicating success or an error message.
+   */
   async deleteUserApplications(userId: string): Promise<Result<boolean, string>> {
     try {
       await this.db
@@ -197,6 +197,11 @@ export class ApplicationsRepository {
     }
   }
 
+  /**
+   * Deletes multiple applications by their IDs.
+   * @param ids - A list of application IDs to delete.
+   * @returns A `Result` indicating success or an error message.
+   */
   async deleteManyApplications(ids: string[]): Promise<Result<boolean, string>> {
     try {
       await this.db

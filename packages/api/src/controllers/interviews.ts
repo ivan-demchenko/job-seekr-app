@@ -40,6 +40,11 @@ export class InterviewsController {
     };
   }
 
+  /**
+   * Adds a new interview to the database.
+   * @param payload - The data for the new interview.
+   * @returns A `Result` containing the created interview or an error message.
+   */
   async addNewInterview(
     payload: NewInterviewModel,
   ): Promise<Result<InterviewModel, string>> {
@@ -49,6 +54,12 @@ export class InterviewsController {
     return this.handleDatabaseError(result, ERROR_MESSAGES.INSERT_INTERVIEW);
   }
 
+  /**
+   * Updates an existing interview in the database.
+   * @param interviewId - The ID of the interview to update.
+   * @param payload - The updated interview data.
+   * @returns A `Result` containing the updated interview or an error message.
+   */
   async updateInterview(
     interviewId: string,
     payload: NewInterviewModel,
@@ -60,6 +71,11 @@ export class InterviewsController {
     return this.handleDatabaseError(result, ERROR_MESSAGES.UPDATE_INTERVIEW);
   }
 
+  /**
+   * Retrieves an interview by its ID, including its comments.
+   * @param interviewId - The ID of the interview to retrieve.
+   * @returns A `Result` containing the interview with its comments or an error message.
+   */
   async getInterview(
     interviewId: string,
   ): Promise<Result<InterviewWithCommentModel, string>> {
@@ -69,6 +85,12 @@ export class InterviewsController {
     return this.handleDatabaseError(result, ERROR_MESSAGES.FETCH_INTERVIEW);
   }
 
+  /**
+   * Adds a new comment to an interview.
+   * @param interviewId - The ID of the interview to add the comment to.
+   * @param payload - The data for the new comment.
+   * @returns A `Result` containing the created comment or an error message.
+   */
   async addInterviewComment(
     interviewId: string,
     payload: NewInterviewCommentModel,
@@ -79,6 +101,12 @@ export class InterviewsController {
     return this.handleDatabaseError(result, ERROR_MESSAGES.INSERT_COMMENT);
   }
 
+  /**
+   * Deletes a comment from an interview.
+   * @param interviewId - The ID of the interview the comment belongs to.
+   * @param commentId - The ID of the comment to delete.
+   * @returns A `Result` indicating success or an error message.
+   */
   async deleteInterviewCommentById(
     interviewId: string,
     commentId: string,
@@ -90,6 +118,12 @@ export class InterviewsController {
     return this.handleDatabaseError(result, ERROR_MESSAGES.DELETE_COMMENT);
   }
 
+  /**
+   * Updates a comment in an interview.
+   * @param commentId - The ID of the comment to update.
+   * @param payload - The updated comment data (excluding the `comment_date` property).
+   * @returns A `Result` containing the updated comment or an error message.
+   */
   async updateInterviewComment(
     commentId: string,
     payload: Omit<NewInterviewCommentModel, "comment_date">,
@@ -101,6 +135,12 @@ export class InterviewsController {
     return this.handleDatabaseError(result, ERROR_MESSAGES.UPDATE_COMMENT);
   }
 
+  /**
+   * Handles database errors by logging them and returning a standardized error message.
+   * @param result - The result of the database operation.
+   * @param errorMessage - The error message to log and return.
+   * @returns The original result if successful, or a standardized error result.
+   */
   private handleDatabaseError<T>(
     result: Result<T, string>,
     errorMessage: string,

@@ -8,11 +8,22 @@ import { z } from "zod";
 import type { WithAuthMiddleware } from "../auth.middleware";
 import type { InterviewsController } from "../controllers/interviews";
 
+/**
+ * Creates the router for handling interview-related endpoints.
+ * @param authMiddleware - Middleware for authentication and authorization.
+ * @param interviewsController - The controller handling interview logic.
+ * @returns A configured Hono router for interview endpoints.
+ */
 export function makeInterviewsRouter(
   authMiddleware: WithAuthMiddleware,
   interviewsController: InterviewsController,
 ) {
   return new Hono()
+    /**
+     * POST /api/interviews
+     * Adds a new interview to the database.
+     * Validates the request body using the `newInterviewSchema`.
+     */
     .post(
       "/",
       authMiddleware.middleware,
@@ -26,6 +37,11 @@ export function makeInterviewsRouter(
         return c.json({ data: result.value });
       },
     )
+    /**
+     * PUT /api/interviews/:id
+     * Updates an existing interview by its ID.
+     * Validates the `id` parameter and the request body using the `newInterviewSchema`.
+     */
     .put(
       "/:id",
       authMiddleware.middleware,
@@ -41,6 +57,11 @@ export function makeInterviewsRouter(
         return c.json({ data: result.value });
       },
     )
+    /**
+     * GET /api/interviews/:id
+     * Retrieves an interview by its ID, including its comments.
+     * Validates the `id` parameter.
+     */
     .get(
       "/:id",
       authMiddleware.middleware,
@@ -55,6 +76,11 @@ export function makeInterviewsRouter(
         return c.json({ data: result.value });
       },
     )
+    /**
+     * POST /api/interviews/:id/comments
+     * Adds a new comment to an interview.
+     * Validates the `id` parameter and the request body using the `newIntervewCommentSchema`.
+     */
     .post(
       "/:id/comments",
       authMiddleware.middleware,
@@ -73,6 +99,11 @@ export function makeInterviewsRouter(
         return c.json({ data: result.value });
       },
     )
+    /**
+     * DELETE /api/interviews/:id/comments/:comment_id
+     * Deletes a comment from an interview.
+     * Validates the `id` and `comment_id` parameters.
+     */
     .delete(
       "/:id/comments/:comment_id",
       authMiddleware.middleware,
@@ -90,6 +121,11 @@ export function makeInterviewsRouter(
         return c.json({ data: result.value });
       },
     )
+    /**
+     * PUT /api/interviews/:id/comments/:comment_id
+     * Updates a comment in an interview.
+     * Validates the `comment_id` parameter and the request body using the `newIntervewCommentSchema`.
+     */
     .put(
       "/:id/comments/:comment_id",
       authMiddleware.middleware,
