@@ -3,10 +3,8 @@ import { newApplicationSchema } from "@job-seekr/data/validation";
 import { Hono } from "hono";
 import { z } from "zod";
 import type { WithAuthMiddleware } from "../auth.middleware";
-import {
-  type ApplicationsController,
-  applicationUpdateCommandSchema,
-} from "../controllers/applications";
+import type { ApplicationsController } from "../controllers/applications";
+import { applicationUpdateCommandSchema } from "../dto/application-update.dto";
 
 export function makeApplicationsRouter(
   authMiddleware: WithAuthMiddleware,
@@ -83,7 +81,7 @@ export function makeApplicationsRouter(
       authMiddleware.middleware,
       zValidator("param", z.object({ id: z.string().uuid() })),
       async (c) => {
-        const result = await applicationsController.deleteApplicarionById(
+        const result = await applicationsController.deleteApplicationById(
           c.req.valid("param").id,
         );
         if (result.isErr()) {

@@ -107,7 +107,7 @@ describe("Create applications", () => {
   });
 });
 
-describe("Delete applications", async () => {
+describe("Delete applications", () => {
   test("it can delete an application", async () => {
     const marker = Date.now();
 
@@ -134,10 +134,10 @@ describe("Delete applications", async () => {
     );
     expect(deleteRes.status).toEqual(200);
 
-    const check2Res = await app.request(
+    const checkRes = await app.request(
       `/api/applications/${newApplication.data.id}`,
     );
-    expect(check2Res.status).toEqual(404);
+    expect(checkRes.status).toEqual(404);
   });
 
   test("it can delete all applications for a user", async () => {

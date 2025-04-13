@@ -24,9 +24,14 @@ export function InterviewsList(props: Props) {
         {props.interviews.map((interview) => {
           return (
             // biome-ignore lint/a11y/useKeyWithClickEvents: no need
-            <tr key={interview.id} onClick={() => {
-              navigate(`/application/${interview.application_id}/interviews/${interview.id}`);
-            }}>
+            <tr
+              key={interview.id}
+              onClick={() => {
+                navigate(
+                  `/application/${interview.application_id}/interviews/${interview.id}`,
+                );
+              }}
+            >
               <td>{printDateTime(interview.interview_date)}</td>
               <td>{interview.topic}</td>
               <td
@@ -47,7 +52,10 @@ export function InterviewsList(props: Props) {
                 <button
                   type="button"
                   className="btn compact"
-                  onClick={() => props.onEdit(interview)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    props.onEdit(interview);
+                  }}
                 >
                   Edit
                 </button>

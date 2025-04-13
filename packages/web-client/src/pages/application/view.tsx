@@ -7,6 +7,7 @@ import ApplicationStatusPanel from "../../components/application_status_panel";
 import { Banner } from "../../components/banner";
 import InterviewForm from "../../components/interview_form";
 import { InterviewsList } from "../../components/interviews_list";
+import { Spinner } from "../../components/spinner";
 import {
   addInterview,
   applicationDetailsQueryOptions,
@@ -19,6 +20,7 @@ const InterviewActionNone = () => new CaseEmpty("none" as const);
 const InterviewActionAdd = () => new CaseEmpty("add" as const);
 const InterviewActionEdit = (interview: InterviewModel) =>
   new CasePayload("edit" as const, interview);
+
 type InterviewAction =
   | ReturnType<typeof InterviewActionNone>
   | ReturnType<typeof InterviewActionAdd>
@@ -64,13 +66,19 @@ export default function ViewApplication() {
   });
 
   if (pageDataQuery.isLoading || !pageDataQuery.data) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner />
+      </div>
+    );
   }
 
   if (pageDataQuery.error || "error" in pageDataQuery.data) {
     return (
-      <div>
-        Error: <pre>{String(pageDataQuery.error)}</pre>
+      <div className="flex justify-center items-center h-screen">
+        <Banner type="error">
+          <strong>Error:</strong> <pre>{String(pageDataQuery.error)}</pre>
+        </Banner>
       </div>
     );
   }
@@ -85,19 +93,20 @@ export default function ViewApplication() {
         </h1>
         <ApplicationStatusPanel application={application} />
         <dl className="def-list">
-          <dt>Applied</dt>
-          <dd>{printDate(application.application_date)}</dd>
-          <dt>Job posting url</dt>
-          <dd>
+          <dt className="font-semibold">Applied</dt>
+          <dd className="mb-2">{printDate(application.application_date)}</dd>
+          <dt className="font-semibold">Job posting URL</dt>
+          <dd className="mb-2">
             <a
               href={application.job_posting_url}
               target="_blank"
               rel="noreferrer"
+              className="text-blue-500 hover:underline"
             >
               View on {new URL(application.job_posting_url).host}
             </a>
           </dd>
-          <dt>Job description</dt>
+          <dt className="font-semibold">Job description</dt>
           <dd>
             <ApplicationJobDescription application={application} />
           </dd>
@@ -121,7 +130,7 @@ export default function ViewApplication() {
             className="btn green"
             onClick={() => setInterviewAction(InterviewActionAdd())}
           >
-            Add interview
+            Add Interview
           </button>
         </div>
       </section>

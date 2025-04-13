@@ -25,16 +25,20 @@ type CommentAction =
   | ReturnType<typeof CommentActionEdit>;
 
 const InterviewView = () => {
-  const { interview_id } = useParams();
+  const params = useParams() as { interview_id: string };
+  const { interview_id } = params;
   const queryClient = useQueryClient();
 
   const [commentAction, setCommentAction] = useState<CommentAction>(
     CommentActionNone(),
   );
+
   const [isInterviewCommentFormBusy, setIsInterviewCommentFormBusy] =
     useState(false);
 
-  const interviewQuery = useQuery(interviewDetailsQueryOptions(interview_id!));
+  const interviewQuery = useQuery(
+    interviewDetailsQueryOptions(params.interview_id),
+  );
 
   const addCommentMutation = useMutation({
     mutationFn: addInterviewComment,
@@ -100,20 +104,17 @@ const InterviewView = () => {
 
         <dl className="def-list">
           <dt>Interview Date</dt>
-
           <dd>{printDate(interview.interview_date)}</dd>
           <dt>Topic</dt>
           <dd>{interview.topic}</dd>
-
           <dt>Participants</dt>
           <dd>{interview.participants}</dd>
-
           <dt>Prep notes</dt>
           <dd>{interview.prep_notes}</dd>
         </dl>
 
         <div className="mt-5">
-          <h2 className="font-semibold text-lg ">Comments</h2>
+          <h2 className="font-semibold text-lg">Comments</h2>
         </div>
         <ul className="space-y-2 pl-6 mt-2">
           {interview.comments.length === 0 ? (
@@ -131,6 +132,7 @@ const InterviewView = () => {
                   )}
                   <div className="space-x-3">
                     <button
+                      type="button"
                       className="btn compact red"
                       onClick={() => {
                         deleteCommentMutation.mutate({
@@ -142,6 +144,7 @@ const InterviewView = () => {
                       Delete
                     </button>
                     <button
+                      type="button"
                       className="btn compact grey"
                       onClick={() => {
                         setCommentAction(CommentActionEdit(comment));
@@ -157,6 +160,7 @@ const InterviewView = () => {
         </ul>
 
         <button
+          type="button"
           className="btn green mt-4 mx-auto block"
           onClick={() => {
             setCommentAction(CommentActionAdd());
@@ -169,12 +173,15 @@ const InterviewView = () => {
       {commentAction._kind === "add" && (
         <InterviewCommentForm
           mode="add"
-          interview_id={interview_id!}
+          interview_id={params.interview_id}
           isBusy={isInterviewCommentFormBusy}
           onSubmit={(formData) => {
             console.log(formData);
             setIsInterviewCommentFormBusy(true);
-            addCommentMutation.mutate({ id: interview_id!, json: formData });
+            addCommentMutation.mutate({
+              id: params.interview_id,
+              json: formData,
+            });
           }}
           onCancel={() => {
             setCommentAction(CommentActionNone());

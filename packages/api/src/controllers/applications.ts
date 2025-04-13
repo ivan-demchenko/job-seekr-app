@@ -4,18 +4,18 @@ import type {
   NewApplicationModel,
 } from "@job-seekr/data/validation";
 import type { Result } from "neverthrow";
-import { z } from "zod";
 import type { ApplicationsRepository } from "../repository/applications";
+import type { ApplicationResponseDto } from "../dto/application.response.dto";
+import type { ApplicationUpdateCommand } from "../dto/application-update.dto";
 
-export const applicationUpdateCommandSchema = z.discriminatedUnion("target", [
-  z.object({ target: z.literal("status"), status: z.string() }),
-  z.object({
-    target: z.literal("job_description"),
-    job_description: z.string(),
-  }),
-]);
-
-type ApplicationUpdateCommand = z.infer<typeof applicationUpdateCommandSchema>;
+const ERROR_MESSAGES = {
+  FETCH_ALL_APPLICATIONS: "Failed to fetch all applications",
+  FETCH_APPLICATION: "Failed to fetch an application",
+  UPDATE_APPLICATION: "Failed to update application",
+  ADD_APPLICATION: "Failed to add a new application",
+  DELETE_APPLICATIONS: "Failed to delete applications",
+  DATABASE_ERROR: "Database error",
+};
 
 export class ApplicationsController {
   constructor(private applicationsRepository: ApplicationsRepository) {}
@@ -23,14 +23,19 @@ export class ApplicationsController {
   async getAllApplications(
     userId: string,
   ): Promise<Result<ApplicationListModel[], string>> {
-    return (await this.applicationsRepository.getAllApplications(userId))
-      .orTee((error) => `Failed to fetch all applications: ${error}`)
-      .mapErr(() => "Database error");
+    const result = await this.applicationsRepository.getAllApplications(userId);
+    return this.handleDatabaseError(result, ERROR_MESSAGES.FETCH_ALL_APPLICATIONS);
   }
 
-  async getApplicationById(userId: string, id: string) {
-    return (await this.applicationsRepository.getApplicationById(userId, id))
-      .orTee((error) => `Failed to fetch an application: ${error}`)
+  async getApplicationById(
+    userId: string,
+    id: string,
+  ): Promise<ApplicationResponseDto | null> {
+    const result = await this.applicationsRepository.getApplicationById(userId, id);
+    return result
+      .orTee((error) =>
+        console.error(`${ERROR_MESSAGES.FETCH_APPLICATION}: ${error}`),
+      )
       .unwrapOr(null);
   }
 
@@ -41,35 +46,26 @@ export class ApplicationsController {
   ): Promise<Result<ApplicationModel, string>> {
     switch (command.target) {
       case "status": {
-        return (
-          await this.applicationsRepository.setApplicationStatus(
-            userId,
-            id,
-            command.status,
-          )
-        )
-          .orTee((error) =>
-            console.error(`Failed to update the application: ${error}`),
-          )
-          .mapErr(() => "Failed to update application");
+        const result = await this.applicationsRepository.setApplicationStatus(
+          userId,
+          id,
+          command.status,
+        );
+        return this.handleDatabaseError(result, ERROR_MESSAGES.UPDATE_APPLICATION);
       }
       case "job_description": {
-        return (
+        const result =
           await this.applicationsRepository.setApplicationJobDescription(
             userId,
             id,
             command.job_description,
-          )
-        )
-          .orTee((error) =>
-            console.error(`Failed to update the application: ${error}`),
-          )
-          .mapErr(() => "Failed to update application");
+          );
+        return this.handleDatabaseError(result, ERROR_MESSAGES.UPDATE_APPLICATION);
       }
     }
   }
 
-  private prepareNewAppication(
+  private prepareNewApplication(
     payload: NewApplicationModel,
     userId: string,
   ): ApplicationModel {
@@ -84,36 +80,28 @@ export class ApplicationsController {
     userId: string,
     payload: NewApplicationModel,
   ): Promise<Result<ApplicationModel, string>> {
-    return (
-      await this.applicationsRepository.addApplication(
-        this.prepareNewAppication(payload, userId),
-      )
-    ).mapErr((error) => `Database error: ${error}`);
+    const result = await this.applicationsRepository.addApplication(
+      this.prepareNewApplication(payload, userId),
+    );
+    return this.handleDatabaseError(result, ERROR_MESSAGES.ADD_APPLICATION);
   }
 
-  async deleteUserApplications(userId: string) {
-    return (
-      await this.applicationsRepository.deleteApplications({
-        _tag: "of-user",
-        id: userId,
-      })
-    )
-      .orTee((error) =>
-        console.error(`Failed to update the application: ${error}`),
-      )
-      .mapErr((error) => `Database error: ${error}`);
+  async deleteUserApplications(userId: string): Promise<Result<boolean, string>> {
+    const result = await this.applicationsRepository.deleteUserApplications(userId);
+    return this.handleDatabaseError(result, ERROR_MESSAGES.DELETE_APPLICATIONS);
   }
 
-  async deleteApplicarionById(id: string) {
-    return (
-      await this.applicationsRepository.deleteApplications({
-        _tag: "applications",
-        ids: [id],
-      })
-    )
-      .orTee((error) =>
-        console.error(`Failed to delete applications: ${error}`),
-      )
-      .mapErr((error) => `Database error: ${error}`);
+  async deleteApplicationById(id: string): Promise<Result<boolean, string>> {
+    const result = await this.applicationsRepository.deleteManyApplications([id]);
+    return this.handleDatabaseError(result, ERROR_MESSAGES.DELETE_APPLICATIONS);
+  }
+
+  private handleDatabaseError<T>(
+    result: Result<T, string>,
+    errorMessage: string,
+  ): Result<T, string> {
+    return result
+      .orTee((error) => console.error(`${errorMessage}: ${error}`))
+      .mapErr(() => ERROR_MESSAGES.DATABASE_ERROR);
   }
 }

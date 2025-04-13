@@ -5,14 +5,14 @@ import {
 import { type DBType, and, count, eq } from "@job-seekr/data/utils";
 import type {
   ApplicationListModel,
-  ApplicationModel,
-  InterviewModel,
-  NewApplicationModel,
+  ApplicationModel
 } from "@job-seekr/data/validation";
 import { Err, Ok, type Result } from "neverthrow";
+import type { ApplicationResponseDto } from "../dto/application.response.dto";
 
 export class ApplicationsRepository {
   constructor(private db: DBType) {}
+
   async getAllApplications(
     userId: string,
   ): Promise<Result<ApplicationListModel[], string>> {
@@ -51,10 +51,7 @@ export class ApplicationsRepository {
     id: string,
   ): Promise<
     Result<
-      {
-        application: ApplicationModel;
-        interviews: InterviewModel[];
-      },
+      ApplicationResponseDto,
       string
     >
   > {
@@ -182,6 +179,36 @@ export class ApplicationsRepository {
         return new Err(`Failed to delete user applications: ${e.message}`);
       }
       return new Err("Failed to delete user applications: unknown error");
+    }
+  }
+
+  async deleteUserApplications(userId: string): Promise<Result<boolean, string>> {
+    try {
+      await this.db
+        .delete(tApplications)
+        .where(eq(tApplications.user_id, userId))
+        .execute();
+      return new Ok(true);
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to delete user applications: ${e.message}`);
+      }
+      return new Err("Failed to delete user applications: unknown error");
+    }
+  }
+
+  async deleteManyApplications(ids: string[]): Promise<Result<boolean, string>> {
+    try {
+      await this.db
+        .delete(tApplications)
+        .where(and(...ids.map((id) => eq(tApplications.id, id))))
+        .execute();
+      return new Ok(true);
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(`Failed to delete applications: ${e.message}`);
+      }
+      return new Err("Failed to delete applications: unknown error");
     }
   }
 }
