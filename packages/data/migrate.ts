@@ -3,6 +3,8 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { initDB } from "./db";
 
 const main = async () => {
+  console.log(`Starting migration: ${EnvConfig.DATABASE_URL}`);
+
   const db = initDB(EnvConfig.DATABASE_URL);
   try {
     await migrate(db, { migrationsFolder: "drizzle" });
