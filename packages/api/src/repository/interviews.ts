@@ -10,194 +10,125 @@ import type {
   NewInterviewCommentModel,
   NewInterviewModel,
 } from "@job-seekr/data/validation";
-import { Err, Ok, type Result } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { DbError } from "./db-error";
 
 export class InterviewsRepository {
   constructor(private db: DBType) {}
 
-  /**
-   * Adds a new interview to the database.
-   * @param payload - The interview data to insert.
-   * @returns A `Result` containing the inserted interview or an error message.
-   */
-  async addInterview(
+  addInterview(
     payload: InterviewModel,
-  ): Promise<Result<InterviewModel, string>> {
-    try {
-      await this.db.insert(tInterviews).values(payload).onConflictDoNothing();
-      return new Ok(payload);
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(`Failed to add an interview: ${e.message}`);
-      }
-      return new Err("Failed to add an interview: unknown error");
-    }
+  ): ResultAsync<InterviewModel, DbError> {
+    return ResultAsync.fromPromise(
+      this.db.insert(tInterviews).values(payload).returning(),
+      (e) => new DbError("Failed to add an interview", e),
+    ).map((rows) => rows[0]);
   }
 
-  /**
-   * Updates an existing interview in the database.
-   * @param interviewId - The ID of the interview to update.
-   * @param payload - The updated interview data.
-   * @returns A `Result` containing the updated interview or an error message.
-   */
-  async updateInterview(
+  updateInterview(
     interviewId: string,
     payload: NewInterviewModel,
-  ): Promise<Result<InterviewModel, string>> {
-    try {
-      const res = await this.db
+  ): ResultAsync<InterviewModel, DbError> {
+    return ResultAsync.fromPromise(
+      this.db
         .update(tInterviews)
         .set(payload)
         .where(eq(tInterviews.id, interviewId))
-        .returning();
-      return new Ok(res[0]);
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(`Failed to update the interview: ${e.message}`);
+        .returning(),
+      (e) => new DbError("Failed to update the interview", e),
+    ).andThen((rows) => {
+      if (rows.length === 0) {
+        return errAsync(new DbError("Interview not found", null));
       }
-      return new Err("Failed to update the interview: unknown error");
-    }
+      return okAsync(rows[0]);
+    });
   }
 
-  /**
-   * Retrieves an interview by its ID, including its comments.
-   * @param interviewId - The ID of the interview to retrieve.
-   * @returns A `Result` containing the interview with its comments or an error message.
-   */
-  async getInterviewById(
+  getInterviewById(
     interviewId: string,
-  ): Promise<Result<InterviewWithCommentModel, string>> {
-    const interviews = await this.db
-      .select()
-      .from(tInterviews)
-      .where(eq(tInterviews.id, interviewId));
-    const comments = await this.db
-      .select()
-      .from(tInterviewCommments)
-      .where(eq(tInterviewCommments.interview_id, interviewId));
-
-    if (!interviews) {
-      return new Err("Interview not found");
-    }
-
-    return new Ok({ ...interviews[0], comments });
-  }
-
-  /**
-   * Retrieves all interviews associated with a specific application.
-   * @param applicationId - The ID of the application.
-   * @returns A `Result` containing a list of interviews or an error message.
-   */
-  async getInterviews(
-    applicationId: string,
-  ): Promise<Result<InterviewModel[], string>> {
-    try {
-      const data = await this.db
+  ): ResultAsync<InterviewWithCommentModel, DbError> {
+    return ResultAsync.fromPromise(
+      this.db
         .select()
         .from(tInterviews)
-        .where(eq(tInterviews.application_id, applicationId));
-      return new Ok(data);
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(
-          `Failed to read from the interviews table: ${e.message}`,
-        );
+        .where(eq(tInterviews.id, interviewId)),
+      (e) => new DbError("Failed to fetch interview", e),
+    ).andThen((interviews) => {
+      if (interviews.length === 0) {
+        return errAsync(new DbError("Interview not found", null));
       }
-      return new Err("Failed to read from the interviews table: unknown error");
-    }
+      return ResultAsync.fromPromise(
+        this.db
+          .select()
+          .from(tInterviewCommments)
+          .where(eq(tInterviewCommments.interview_id, interviewId)),
+        (e) => new DbError("Failed to fetch interview comments", e),
+      ).map((comments) => ({ ...interviews[0], comments }));
+    });
   }
 
-  /**
-   * Retrieves all interviews in the database.
-   * @returns A `Result` containing a list of all interviews or an error message.
-   */
-  async getAllInterviews(): Promise<Result<InterviewModel[], string>> {
-    try {
-      const rawData = await this.db.select().from(tInterviews);
-      return new Ok(rawData);
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(
-          `Failed to read from the interviews table: ${e.message}`,
-        );
-      }
-      return new Err("Failed to read from the interviews table: unknown error");
-    }
+  getInterviews(
+    applicationId: string,
+  ): ResultAsync<InterviewModel[], DbError> {
+    return ResultAsync.fromPromise(
+      this.db
+        .select()
+        .from(tInterviews)
+        .where(eq(tInterviews.application_id, applicationId)),
+      (e) => new DbError("Failed to read from the interviews table", e),
+    );
   }
 
-  /**
-   * Adds a new comment to an interview.
-   * @param payload - The comment data to insert (excluding the `pinned` property).
-   * @returns A `Result` containing the inserted comment or an error message.
-   */
-  async addNewComment(
+  getAllInterviews(): ResultAsync<InterviewModel[], DbError> {
+    return ResultAsync.fromPromise(
+      this.db.select().from(tInterviews),
+      (e) => new DbError("Failed to read from the interviews table", e),
+    );
+  }
+
+  addNewComment(
     payload: Omit<InterviewCommentModel, "pinned">,
-  ): Promise<Result<InterviewCommentModel, string>> {
-    try {
-      const newComment = await this.db
-        .insert(tInterviewCommments)
-        .values(payload)
-        .onConflictDoNothing()
-        .returning();
-      return new Ok(newComment[0]);
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(`Failed to add comment: ${e.message}`);
-      }
-      return new Err("Failed to add comment: unknown error");
-    }
+  ): ResultAsync<InterviewCommentModel, DbError> {
+    return ResultAsync.fromPromise(
+      this.db.insert(tInterviewCommments).values(payload).returning(),
+      (e) => new DbError("Failed to add comment", e),
+    ).map((rows) => rows[0]);
   }
 
-  /**
-   * Deletes a comment from an interview.
-   * @param interviewId - The ID of the interview the comment belongs to.
-   * @param commentId - The ID of the comment to delete.
-   * @returns A `Result` indicating success or an error message.
-   */
-  async deleteComment(
+  deleteComment(
     interviewId: string,
     commentId: string,
-  ): Promise<Result<boolean, string>> {
-    try {
-      await this.db
+  ): ResultAsync<boolean, DbError> {
+    return ResultAsync.fromPromise(
+      this.db
         .delete(tInterviewCommments)
         .where(
           and(
             eq(tInterviewCommments.id, commentId),
             eq(tInterviewCommments.interview_id, interviewId),
           ),
-        );
-      return new Ok(true);
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(`Failed to delete comment: ${e.message}`);
-      }
-      return new Err("Failed to delete comment: unknown error");
-    }
+        )
+        .execute(),
+      (e) => new DbError("Failed to delete comment", e),
+    ).map(() => true);
   }
 
-  /**
-   * Updates a comment in an interview.
-   * @param commentId - The ID of the comment to update.
-   * @param payload - The updated comment data (excluding the `comment_date` property).
-   * @returns A `Result` containing the updated comment or an error message.
-   */
-  async updateComment(
+  updateComment(
     commentId: string,
     payload: Omit<NewInterviewCommentModel, "comment_date">,
-  ): Promise<Result<InterviewCommentModel, string>> {
-    try {
-      const res = await this.db
+  ): ResultAsync<InterviewCommentModel, DbError> {
+    return ResultAsync.fromPromise(
+      this.db
         .update(tInterviewCommments)
         .set(payload)
         .where(eq(tInterviewCommments.id, commentId))
-        .returning();
-      return new Ok(res[0]);
-    } catch (e) {
-      if (e instanceof Error) {
-        return new Err(`Failed to update comment: ${e.message}`);
+        .returning(),
+      (e) => new DbError("Failed to update comment", e),
+    ).andThen((rows) => {
+      if (rows.length === 0) {
+        return errAsync(new DbError("Comment not found", null));
       }
-      return new Err("Failed to update comment: unknown error");
-    }
+      return okAsync(rows[0]);
+    });
   }
 }

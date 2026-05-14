@@ -12,6 +12,7 @@ import {
 } from "@react-pdf/renderer";
 import { Err, Ok, type Result } from "neverthrow";
 import type { ApplicationsRepository } from "../repository/applications";
+import type { DbError } from "../repository/db-error";
 import type { InterviewsRepository } from "../repository/interviews";
 import { printDate } from "../utils";
 
@@ -99,11 +100,11 @@ export class ExportController {
       const interviews = await this.interviewsRepository.getAllInterviews();
 
       if (applications.isErr()) {
-        return new Err(`PDF generation failed: ${applications.error}`);
+        return new Err(`PDF generation failed: ${applications.error.context}`);
       }
 
       if (interviews.isErr()) {
-        return new Err(`PDF generation failed: ${interviews.error}`);
+        return new Err(`PDF generation failed: ${interviews.error.context}`);
       }
       const buffer = await renderToBuffer(
         <MyDocument

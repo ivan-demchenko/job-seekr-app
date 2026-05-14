@@ -60,14 +60,14 @@ export function makeApplicationsRouter(
       authMiddleware.middleware,
       zValidator("param", z.object({ id: z.string().uuid() })),
       async (c) => {
-        const entry = await applicationsController.getApplicationById(
+        const result = await applicationsController.getApplicationById(
           c.var.user.id,
-          c.req.param("id"),
+          c.req.valid("param").id,
         );
-        if (!entry) {
-          return c.json({ error: "not found" }, 404);
+        if (result.isErr()) {
+          return c.json({ error: result.error }, 500);
         }
-        return c.json({ data: entry });
+        return c.json({ data: result.value });
       },
     )
     /**
