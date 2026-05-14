@@ -3,9 +3,9 @@ import type {
   ApplicationModel,
   NewApplicationModel,
 } from "@job-seekr/data/validation";
-import type { Result } from "neverthrow";
+import type { ResultAsync} from "neverthrow";
 import type { ApplicationsRepository } from "../repository/applications";
-import type { DbError } from "../repository/db-error";
+import type { AppError } from "../repository/app-error";
 import type { ApplicationResponseDto } from "../dto/application.response.dto";
 import type { ApplicationUpdateCommand } from "../dto/application-update.dto";
 
@@ -25,22 +25,22 @@ export class ApplicationsController {
    * @param userId - The ID of the user whose applications are being retrieved.
    * @returns A `Result` containing a list of applications or an error message.
    */
-  async getAllApplications(
+  getAllApplications(
     userId: string,
-  ): Promise<Result<ApplicationListModel[], DbError>> {
-    const result = await this.applicationsRepository.getAllApplications(userId);
-    return this.handleDbError(result, ERROR_MESSAGES.FETCH_ALL_APPLICATIONS);
+  ): ResultAsync<ApplicationListModel[], AppError<'db-error'>> {
+    const result = this.applicationsRepository.getAllApplications(userId);
+    return this.handleAppError(result, ERROR_MESSAGES.FETCH_ALL_APPLICATIONS);
   }
 
-  async getApplicationById(
+  getApplicationById(
     userId: string,
     id: string,
-  ): Promise<Result<ApplicationResponseDto, DbError>> {
-    const result = await this.applicationsRepository.getApplicationById(
+  ): ResultAsync<ApplicationResponseDto, AppError<'db-error'> | AppError<'not-found'>> {
+    const result = this.applicationsRepository.getApplicationById(
       userId,
       id,
     );
-    return this.handleDbError(result, ERROR_MESSAGES.FETCH_APPLICATION);
+    return this.handleAppError(result, ERROR_MESSAGES.FETCH_APPLICATION);
   }
 
   /**
@@ -50,28 +50,28 @@ export class ApplicationsController {
    * @param command - The update command specifying the target and new value.
    * @returns A `Result` containing the updated application or an error message.
    */
-  async updateApplication(
+  updateApplication(
     userId: string,
     id: string,
     command: ApplicationUpdateCommand,
-  ): Promise<Result<ApplicationModel, DbError>> {
+  ): ResultAsync<ApplicationModel, AppError<'db-error'>> {
     switch (command.target) {
       case "status": {
-        const result = await this.applicationsRepository.setApplicationStatus(
+        const result = this.applicationsRepository.setApplicationStatus(
           userId,
           id,
           command.status,
         );
-        return this.handleDbError(result, ERROR_MESSAGES.UPDATE_APPLICATION);
+        return this.handleAppError(result, ERROR_MESSAGES.UPDATE_APPLICATION);
       }
       case "job_description": {
         const result =
-          await this.applicationsRepository.setApplicationJobDescription(
+          this.applicationsRepository.setApplicationJobDescription(
             userId,
             id,
             command.job_description,
           );
-        return this.handleDbError(result, ERROR_MESSAGES.UPDATE_APPLICATION);
+        return this.handleAppError(result, ERROR_MESSAGES.UPDATE_APPLICATION);
       }
     }
   }
@@ -93,38 +93,38 @@ export class ApplicationsController {
    * @param payload - The data for the new application.
    * @returns A `Result` containing the created application or an error message.
    */
-  async addNewApplication(
+  addNewApplication(
     userId: string,
     payload: NewApplicationModel,
-  ): Promise<Result<ApplicationModel, DbError>> {
-    const result = await this.applicationsRepository.addApplication(
+  ): ResultAsync<ApplicationModel, AppError<'db-error'>> {
+    const result = this.applicationsRepository.addApplication(
       this.prepareNewApplication(payload, userId),
     );
-    return this.handleDbError(result, ERROR_MESSAGES.ADD_APPLICATION);
+    return this.handleAppError(result, ERROR_MESSAGES.ADD_APPLICATION);
   }
 
-  async deleteUserApplications(
+  deleteUserApplications(
     userId: string,
-  ): Promise<Result<boolean, DbError>> {
-    const result = await this.applicationsRepository.deleteUserApplications(
+  ): ResultAsync<boolean, AppError<'db-error'>> {
+    const result = this.applicationsRepository.deleteUserApplications(
       userId,
     );
-    return this.handleDbError(result, ERROR_MESSAGES.DELETE_APPLICATIONS);
+    return this.handleAppError(result, ERROR_MESSAGES.DELETE_APPLICATIONS);
   }
 
-  async deleteApplicationById(id: string): Promise<Result<boolean, DbError>> {
-    const result = await this.applicationsRepository.deleteManyApplications([
+  deleteApplicationById(id: string): ResultAsync<boolean, AppError<'db-error'>> {
+    const result = this.applicationsRepository.deleteManyApplications([
       id,
     ]);
-    return this.handleDbError(result, ERROR_MESSAGES.DELETE_APPLICATIONS);
+    return this.handleAppError(result, ERROR_MESSAGES.DELETE_APPLICATIONS);
   }
 
-  private handleDbError<T>(
-    result: Result<T, DbError>,
+  private handleAppError<T, E extends AppError<string>>(
+    result: ResultAsync<T, E>,
     errorMessage: string,
-  ): Result<T, DbError> {
+  ): ResultAsync<T, E> {
     return result.orTee((error) =>
-      console.error(`${errorMessage}: ${error.context}`, error.error),
+      console.error(`${errorMessage}: ${error.message}`, error.cause),
     );
   }
 }

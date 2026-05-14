@@ -121,7 +121,7 @@ describe("Delete applications", () => {
         job_posting_url: `http://test.com/job/${marker}`,
         application_date: marker,
         status: "applied",
-      } as NewApplicationModel),
+      } satisfies NewApplicationModel),
     });
     const newApplication = await postRes.json();
     expect(postRes.status).toEqual(200);

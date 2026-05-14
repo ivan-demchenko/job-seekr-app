@@ -30,11 +30,10 @@ export function makeInterviewsRouter(
       zValidator("json", newInterviewSchema),
       async (c) => {
         const payload = c.req.valid("json");
-        const result = await interviewsController.addNewInterview(payload);
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
+        return interviewsController.addNewInterview(payload).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
+        )
       },
     )
     /**
@@ -50,11 +49,10 @@ export function makeInterviewsRouter(
       async (c) => {
         const id = c.req.valid("param").id;
         const payload = c.req.valid("json");
-        const result = await interviewsController.updateInterview(id, payload);
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
+        return interviewsController.updateInterview(id, payload).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
+        )
       },
     )
     /**
@@ -69,11 +67,10 @@ export function makeInterviewsRouter(
       async (c) => {
         const id = c.req.valid("param").id;
 
-        const result = await interviewsController.getInterview(id);
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
+        return interviewsController.getInterview(id).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
+        )
       },
     )
     /**
@@ -89,14 +86,13 @@ export function makeInterviewsRouter(
       async (c) => {
         const interviewId = c.req.valid("param").id;
         const payload = c.req.valid("json");
-        const result = await interviewsController.addInterviewComment(
+        return interviewsController.addInterviewComment(
           interviewId,
           payload,
+        ).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
         );
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
       },
     )
     /**
@@ -111,14 +107,13 @@ export function makeInterviewsRouter(
       async (c) => {
         const interviewId = c.req.valid("param").id;
         const commentId = c.req.valid("param").comment_id;
-        const result = await interviewsController.deleteInterviewCommentById(
+        return interviewsController.deleteInterviewCommentById(
           interviewId,
           commentId,
+        ).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
         );
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
       },
     )
     /**
@@ -134,14 +129,13 @@ export function makeInterviewsRouter(
       async (c) => {
         const commentId = c.req.valid("param").comment_id;
         const payload = c.req.valid("json");
-        const result = await interviewsController.updateInterviewComment(
+        return interviewsController.updateInterviewComment(
           commentId,
           payload,
+        ).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
         );
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
       },
     );
 }

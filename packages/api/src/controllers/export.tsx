@@ -10,9 +10,9 @@ import {
   View,
   renderToBuffer,
 } from "@react-pdf/renderer";
-import { Err, Ok, type Result } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import type { ApplicationsRepository } from "../repository/applications";
-import type { DbError } from "../repository/db-error";
+import { AppError } from "../repository/app-error";
 import type { InterviewsRepository } from "../repository/interviews";
 import { printDate } from "../utils";
 
@@ -91,31 +91,21 @@ export class ExportController {
    * @param userId - The ID of the user whose data is being exported.
    * @returns A `Result` containing the generated PDF buffer or an error message.
    */
-  async generateReport(
+  generateReport(
     userId: string,
-  ): Promise<Result<Buffer<ArrayBufferLike>, string>> {
-    try {
-      const applications =
-        await this.applicationsRepository.getAllApplications(userId);
-      const interviews = await this.interviewsRepository.getAllInterviews();
-
-      if (applications.isErr()) {
-        return new Err(`PDF generation failed: ${applications.error.context}`);
-      }
-
-      if (interviews.isErr()) {
-        return new Err(`PDF generation failed: ${interviews.error.context}`);
-      }
-      const buffer = await renderToBuffer(
-        <MyDocument
-          applications={applications.value}
-          interviews={interviews.value}
-        />,
-      );
-
-      return new Ok(buffer);
-    } catch {
-      return new Err("PDF generation failed");
-    }
+  ): ResultAsync<Buffer<ArrayBufferLike>, AppError<'pdf-generation'>> {
+    return ResultAsync.combine([
+      this.applicationsRepository.getAllApplications(userId),
+      this.interviewsRepository.getAllInterviews(),
+    ])
+    .mapErr(e => new AppError('pdf-generation', "Database issue", e))
+    .andThen(([applications, interviews]) =>
+      ResultAsync.fromPromise(
+        renderToBuffer(
+          <MyDocument applications={applications} interviews={interviews} />,
+        ),
+        (e) => new AppError('pdf-generation', "PDF generation failed", e),
+      ),
+    );
   }
 }

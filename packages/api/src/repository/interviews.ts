@@ -11,34 +11,34 @@ import type {
   NewInterviewModel,
 } from "@job-seekr/data/validation";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { DbError } from "./db-error";
+import { AppError } from "./app-error";
 
 export class InterviewsRepository {
   constructor(private db: DBType) {}
 
   addInterview(
     payload: InterviewModel,
-  ): ResultAsync<InterviewModel, DbError> {
+  ): ResultAsync<InterviewModel, AppError<'db-error'>> {
     return ResultAsync.fromPromise(
       this.db.insert(tInterviews).values(payload).returning(),
-      (e) => new DbError("Failed to add an interview", e),
+      (e) => new AppError('db-error', "Failed to add an interview", e),
     ).map((rows) => rows[0]);
   }
 
   updateInterview(
     interviewId: string,
     payload: NewInterviewModel,
-  ): ResultAsync<InterviewModel, DbError> {
+  ): ResultAsync<InterviewModel, AppError<'db-error'>> {
     return ResultAsync.fromPromise(
       this.db
         .update(tInterviews)
         .set(payload)
         .where(eq(tInterviews.id, interviewId))
         .returning(),
-      (e) => new DbError("Failed to update the interview", e),
+      (e) => new AppError('db-error', "Failed to update the interview", e),
     ).andThen((rows) => {
       if (rows.length === 0) {
-        return errAsync(new DbError("Interview not found", null));
+        return errAsync(new AppError('db-error', "Interview not found", null));
       }
       return okAsync(rows[0]);
     });
@@ -46,59 +46,47 @@ export class InterviewsRepository {
 
   getInterviewById(
     interviewId: string,
-  ): ResultAsync<InterviewWithCommentModel, DbError> {
+  ): ResultAsync<InterviewWithCommentModel, AppError<'db-error'>> {
     return ResultAsync.fromPromise(
       this.db
         .select()
         .from(tInterviews)
         .where(eq(tInterviews.id, interviewId)),
-      (e) => new DbError("Failed to fetch interview", e),
+      (e) => new AppError('db-error', "Failed to fetch interview", e),
     ).andThen((interviews) => {
       if (interviews.length === 0) {
-        return errAsync(new DbError("Interview not found", null));
+        return errAsync(new AppError('db-error', "Interview not found", null));
       }
       return ResultAsync.fromPromise(
         this.db
           .select()
           .from(tInterviewCommments)
           .where(eq(tInterviewCommments.interview_id, interviewId)),
-        (e) => new DbError("Failed to fetch interview comments", e),
+        (e) => new AppError('db-error', "Failed to fetch interview comments", e),
       ).map((comments) => ({ ...interviews[0], comments }));
     });
   }
 
-  getInterviews(
-    applicationId: string,
-  ): ResultAsync<InterviewModel[], DbError> {
-    return ResultAsync.fromPromise(
-      this.db
-        .select()
-        .from(tInterviews)
-        .where(eq(tInterviews.application_id, applicationId)),
-      (e) => new DbError("Failed to read from the interviews table", e),
-    );
-  }
-
-  getAllInterviews(): ResultAsync<InterviewModel[], DbError> {
+  getAllInterviews(): ResultAsync<InterviewModel[], AppError<'db-error'>> {
     return ResultAsync.fromPromise(
       this.db.select().from(tInterviews),
-      (e) => new DbError("Failed to read from the interviews table", e),
+      (e) => new AppError('db-error', "Failed to read from the interviews table", e),
     );
   }
 
   addNewComment(
     payload: Omit<InterviewCommentModel, "pinned">,
-  ): ResultAsync<InterviewCommentModel, DbError> {
+  ): ResultAsync<InterviewCommentModel, AppError<'db-error'>> {
     return ResultAsync.fromPromise(
       this.db.insert(tInterviewCommments).values(payload).returning(),
-      (e) => new DbError("Failed to add comment", e),
+      (e) => new AppError('db-error', "Failed to add comment", e),
     ).map((rows) => rows[0]);
   }
 
   deleteComment(
     interviewId: string,
     commentId: string,
-  ): ResultAsync<boolean, DbError> {
+  ): ResultAsync<boolean, AppError<'db-error'>> {
     return ResultAsync.fromPromise(
       this.db
         .delete(tInterviewCommments)
@@ -109,24 +97,24 @@ export class InterviewsRepository {
           ),
         )
         .execute(),
-      (e) => new DbError("Failed to delete comment", e),
+      (e) => new AppError('db-error', "Failed to delete comment", e),
     ).map(() => true);
   }
 
   updateComment(
     commentId: string,
     payload: Omit<NewInterviewCommentModel, "comment_date">,
-  ): ResultAsync<InterviewCommentModel, DbError> {
+  ): ResultAsync<InterviewCommentModel, AppError<'db-error'>> {
     return ResultAsync.fromPromise(
       this.db
         .update(tInterviewCommments)
         .set(payload)
         .where(eq(tInterviewCommments.id, commentId))
         .returning(),
-      (e) => new DbError("Failed to update comment", e),
+      (e) => new AppError('db-error', "Failed to update comment", e),
     ).andThen((rows) => {
       if (rows.length === 0) {
-        return errAsync(new DbError("Comment not found", null));
+        return errAsync(new AppError('db-error', "Comment not found", null));
       }
       return okAsync(rows[0]);
     });

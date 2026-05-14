@@ -20,12 +20,12 @@ export function makeExportsRouter(
      * Streams the generated PDF as the response.
      */
     .get("/", authMiddleware.middleware, async (c) => {
-      const res = await exportController.generateReport(c.var.user.id);
-      if (res.isErr()) {
-        return c.json({ error: res.error }, 500);
-      }
-      return stream.stream(c, async (stream) => {
-        await stream.write(res.value);
-      });
+      exportController.generateReport(c.var.user.id)
+      .match(
+        (data) => stream.stream(c, async (stream) => {
+          await stream.write(data);
+        }),
+        (error) => c.json({ error }, 500)
+      );
     });
 }

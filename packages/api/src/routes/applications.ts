@@ -22,13 +22,12 @@ export function makeApplicationsRouter(
      * Retrieves all applications for the authenticated user.
      */
     .get("/", authMiddleware.middleware, async (c) => {
-      const res = await applicationsController.getAllApplications(
+      return applicationsController.getAllApplications(
         c.var.user.id,
+      ).match(
+        (data) => c.json({ data }),
+        (error) => c.json({ error }, 500)
       );
-      if (res.isErr()) {
-        return c.json({ error: res.error }, 500);
-      }
-      return c.json({ data: res.value });
     })
     /**
      * POST /api/applications
@@ -40,14 +39,13 @@ export function makeApplicationsRouter(
       authMiddleware.middleware,
       zValidator("json", newApplicationSchema),
       async (c) => {
-        const result = await applicationsController.addNewApplication(
+        return applicationsController.addNewApplication(
           c.var.user.id,
           c.req.valid("json"),
+        ).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
         );
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
       },
     )
     /**
@@ -60,14 +58,20 @@ export function makeApplicationsRouter(
       authMiddleware.middleware,
       zValidator("param", z.object({ id: z.string().uuid() })),
       async (c) => {
-        const result = await applicationsController.getApplicationById(
+        return applicationsController.getApplicationById(
           c.var.user.id,
           c.req.valid("param").id,
+        ).match(
+          (data) => c.json({ data }),
+          (error) => {
+            switch (error.type) {
+              case 'not-found':
+                return c.json({ error }, 404);
+              default:
+                return c.json({ error: error }, 500);
+            }
+          }
         );
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
       },
     )
     /**
@@ -81,15 +85,14 @@ export function makeApplicationsRouter(
       zValidator("param", z.object({ id: z.string().uuid() })),
       zValidator("json", applicationUpdateCommandSchema),
       async (c) => {
-        const result = await applicationsController.updateApplication(
+        return applicationsController.updateApplication(
           c.var.user.id,
           c.req.valid("param").id,
           c.req.valid("json"),
+        ).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
         );
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.json({ data: result.value });
       },
     )
     /**
@@ -97,13 +100,12 @@ export function makeApplicationsRouter(
      * Deletes all applications for the authenticated user.
      */
     .delete("/of-user", authMiddleware.middleware, async (c) => {
-      const result = await applicationsController.deleteUserApplications(
+      return applicationsController.deleteUserApplications(
         c.var.user.id,
+      ).match(
+        (data) => c.json({ data }),
+        (error) => c.json({ error }, 500)
       );
-      if (result.isErr()) {
-        return c.json({ error: result.error }, 500);
-      }
-      return c.text("done");
     })
     /**
      * DELETE /api/applications/:id
@@ -115,13 +117,12 @@ export function makeApplicationsRouter(
       authMiddleware.middleware,
       zValidator("param", z.object({ id: z.string().uuid() })),
       async (c) => {
-        const result = await applicationsController.deleteApplicationById(
+        return applicationsController.deleteApplicationById(
           c.req.valid("param").id,
+        ).match(
+          (data) => c.json({ data }),
+          (error) => c.json({ error }, 500)
         );
-        if (result.isErr()) {
-          return c.json({ error: result.error }, 500);
-        }
-        return c.text("done");
       },
     );
 }
